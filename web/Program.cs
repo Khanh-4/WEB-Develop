@@ -35,8 +35,7 @@ builder.Services.AddAuthentication()
         options.CorrelationCookie.SameSite = SameSiteMode.None;
         options.Events.OnRemoteFailure = ctx =>
         {
-            var msg = Uri.EscapeDataString(ctx.Failure?.Message ?? "unknown");
-            ctx.Response.Redirect($"/Account/Login?error={msg}");
+            ctx.Response.Redirect("/Account/Login?error=google-login-failed");
             ctx.HandleResponse();
             return Task.CompletedTask;
         };
@@ -80,22 +79,6 @@ if (!app.Environment.IsDevelopment())
 
 // Use the ForwardedHeadersOptions configured in services (KnownNetworks/KnownProxies cleared)
 app.UseForwardedHeaders();
-
-// Temporary: verify ForwardedHeaders + DataProtection are working on Railway
-app.MapGet("/debug/info", (HttpContext ctx, Microsoft.AspNetCore.DataProtection.IDataProtectionProvider dp) =>
-{
-    var protector = dp.CreateProtector("diag");
-    var token = protector.Protect("ok");
-    var roundtrip = protector.Unprotect(token) == "ok";
-    return Results.Ok(new
-    {
-        scheme = ctx.Request.Scheme,
-        isHttps = ctx.Request.IsHttps,
-        host = ctx.Request.Host.ToString(),
-        dpRoundtrip = roundtrip,
-        forwardedProto = ctx.Request.Headers["X-Forwarded-Proto"].ToString(),
-    });
-});
 
 // Railway terminates HTTPS at its proxy; only redirect in dev to avoid redirect loops
 if (!app.Environment.IsProduction())
