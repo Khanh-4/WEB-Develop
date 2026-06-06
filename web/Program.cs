@@ -29,7 +29,18 @@ builder.Services.AddAuthentication()
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        // SameSite=None (default) requires Secure=true or Chrome rejects the cookie.
+        // Force Secure regardless of detected scheme (Railway proxies HTTP internally).
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.CorrelationCookie.SameSite = SameSiteMode.None;
     });
+
+// Force auth session cookie to Secure in all environments (same reason as above)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
 
 builder.Services.AddScoped<Microsoft.AspNetCore.Identity.IUserClaimsPrincipalFactory<TechSpecs.Models.ApplicationUser>, TechSpecs.Services.AppUserClaimsPrincipalFactory>();
 builder.Services.AddScoped<TechSpecs.Services.ICompatibilityEngine, TechSpecs.Services.CompatibilityEngine>();
