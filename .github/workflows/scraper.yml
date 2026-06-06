@@ -5,6 +5,9 @@ on:
     - cron: '0 1,13 * * *'   # 08:00 và 20:00 giờ Việt Nam (UTC+7)
   workflow_dispatch:           # Chạy thủ công từ GitHub Actions UI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: scraper
   cancel-in-progress: false    # Không cancel job đang chạy nếu trigger lại
