@@ -1,8 +1,26 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-06 (session 4 in progress)
-> Next: Deploy Railway
+> Last updated: 2026-06-06 (session 4 complete)
+> Status: **Production live** at https://web-develop-production.up.railway.app
+
+---
+
+## ✅ Done — Session 4 (2026-06-06)
+
+| Task | File(s) |
+|------|---------|
+| **An Phát scraper** — JSON API, 8 categories, socket/RAM/storage fixes | `scraper/scrapers/anphat.py`, `scraper/main.py` |
+| **GitHub Actions cron** — split 4 parallel matrix jobs, Node.js 24 fix | `.github/workflows/scraper.yml` |
+| **Gán Admin role** cho `duylamasd1995@gmail.com` | Supabase SQL |
+| **appsettings.Production.json** | `web/appsettings.Production.json` |
+| **Dockerfile** (multi-stage build, layer caching) | `Dockerfile` |
+| **Deploy Railway**: PORT bind, ForwardedHeaders proxy trust, DataProtection DB persistence | `web/Program.cs`, `web/TechSpecs.csproj`, `web/Data/AppDbContext.cs` |
+| EF migration `AddDataProtectionKeys` — bảng lưu DataProtection keys qua redeploy | `web/Data/Migrations/` |
+| Fix OAuth state cookie: `SameSite=None; Secure` để Chrome không reject | `web/Program.cs` |
+| Fix rolling-deploy key mismatch: bỏ `SetApplicationName`, clear old keys | `web/Program.cs`, Supabase |
+| **xUnit**: 44/44 pass — Cart, Order, CompatibilityEngine | `TechSpecs.Tests/` |
+| **Playwright E2E**: 23/23 pass — auth, products, cart, builder | `tests/e2e/` |
 
 ---
 
@@ -99,15 +117,15 @@
 
 ---
 
-## Priority 5 — Deployment
+## Priority 5 — Deployment ✅ Done
 
-- [ ] **Deploy web lên Railway**:
-  - Tạo Railway project
-  - Thêm environment variables (connection string, API keys)
-  - Setup domain `techspecs.up.railway.app`
-- [ ] **`appsettings.Production.json`** — cấu hình logging, HSTS
-- [ ] **Dockerfile** cho web app
-- [ ] Chạy `dotnet-ef database update` trên production DB trước khi deploy
+- [x] **Deploy web lên Railway** — live tại `https://web-develop-production.up.railway.app`
+- [x] **`appsettings.Production.json`** — logging warning level
+- [x] **Dockerfile** — multi-stage, layer caching
+- [x] **Google OAuth** — redirect URI đã thêm vào Google Cloud Console
+- [x] DataProtection keys persisted to PostgreSQL (survive redeploy)
+- [x] ForwardedHeaders trust Railway proxy (HTTPS scheme, OAuth state valid)
+- [ ] Custom domain (tùy chọn — Railway domain hiện tại hoạt động tốt)
 
 ---
 
@@ -131,6 +149,7 @@
 | ~~TDP = 0W cho nhiều CPU~~ | ~~Low~~ | Đã fix ✓ |
 | CPU performance score = 0 cho ~27% sản phẩm (không extract được clock) | Low | Vẫn hiện trong filter, xếp cuối |
 | `dotnet run` báo port 5003 đã dùng | Low | Dùng `fuser -k 5003/tcp` trước khi chạy |
+| `PORT` env var override khiến local dev chạy trên 8080 thay vì 5003 | Low | Dùng `PORT=5003 dotnet run --launch-profile http` |
 | ~~Nút "Add to Cart" trên Products/Builder chưa hoạt động~~ | ~~High~~ | Đã xong ✓ |
 
 ---
