@@ -33,6 +33,13 @@ builder.Services.AddAuthentication()
         // Force Secure regardless of detected scheme (Railway proxies HTTP internally).
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         options.CorrelationCookie.SameSite = SameSiteMode.None;
+        options.Events.OnRemoteFailure = ctx =>
+        {
+            var msg = Uri.EscapeDataString(ctx.Failure?.Message ?? "unknown");
+            ctx.Response.Redirect($"/Account/Login?error={msg}");
+            ctx.HandleResponse();
+            return Task.CompletedTask;
+        };
     });
 
 // Force auth session cookie to Secure in all environments (same reason as above)
@@ -50,8 +57,7 @@ builder.Services.AddHttpClient();
 
 // Persist DataProtection keys to DB so sessions survive container restarts/redeploys
 builder.Services.AddDataProtection()
-    .PersistKeysToDbContext<TechSpecs.Data.AppDbContext>()
-    .SetApplicationName("TechSpecs");
+    .PersistKeysToDbContext<TechSpecs.Data.AppDbContext>();
 
 // Trust Railway's reverse proxy for ForwardedHeaders
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -74,6 +80,22 @@ if (!app.Environment.IsDevelopment())
 
 // Use the ForwardedHeadersOptions configured in services (KnownNetworks/KnownProxies cleared)
 app.UseForwardedHeaders();
+
+// Temporary: verify ForwardedHeaders + DataProtection are working on Railway
+app.MapGet("/debug/info", (HttpContext ctx, Microsoft.AspNetCore.DataProtection.IDataProtectionProvider dp) =>
+{
+    var protector = dp.CreateProtector("diag");
+    var token = protector.Protect("ok");
+    var roundtrip = protector.Unprotect(token) == "ok";
+    return Results.Ok(new
+    {
+        scheme = ctx.Request.Scheme,
+        isHttps = ctx.Request.IsHttps,
+        host = ctx.Request.Host.ToString(),
+        dpRoundtrip = roundtrip,
+        forwardedProto = ctx.Request.Headers["X-Forwarded-Proto"].ToString(),
+    });
+});
 
 // Railway terminates HTTPS at its proxy; only redirect in dev to avoid redirect loops
 if (!app.Environment.IsProduction())
