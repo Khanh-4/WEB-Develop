@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false         # Nếu 1 source fail, 2 source còn lại vẫn chạy
       matrix:
-        source: [phongvu, ttgshop, gearvn]
+        source: [phongvu, ttgshop, gearvn, anphat]
 
     steps:
       - name: Checkout code

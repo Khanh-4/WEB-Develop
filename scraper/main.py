@@ -6,7 +6,7 @@ Usage:
     python main.py cpu --source phongvu    # specific categories + specific source
     python main.py --source ttgshop        # all categories, one source
 
-Valid sources: phongvu, ttgshop, gearvn
+Valid sources: phongvu, ttgshop, gearvn, anphat
 Valid categories: cpu gpu ram motherboard psu case storage cooler
 """
 
@@ -26,10 +26,11 @@ engine = create_engine(DATABASE_URL, echo=False)
 import scrapers.phongvu  as pv
 import scrapers.ttgshop  as ttg
 import scrapers.gearvn   as gvn
+import scrapers.anphat   as ap
 from models.hardware import Cpu, VideoCard, Memory, Motherboard, PowerSupply, CaseEnclosure, Storage, CpuCooler
 
 ALL_CATS    = ["cpu", "gpu", "ram", "motherboard", "psu", "case", "storage", "cooler"]
-ALL_SOURCES = ["phongvu", "ttgshop", "gearvn"]
+ALL_SOURCES = ["phongvu", "ttgshop", "gearvn", "anphat"]
 
 
 def upsert(session: Session, items: list, table: str):
@@ -84,6 +85,18 @@ def run(cats: list[str], sources: list[str]):
             if "case"        in cats: upsert(s, gvn.scrape_cases(all_urls),          "case_enclosure")
             if "storage"     in cats: upsert(s, gvn.scrape_storage(all_urls),        "storage")
             if "cooler"      in cats: upsert(s, gvn.scrape_cpu_coolers(all_urls),    "cpu_cooler")
+
+        # ── An Phát ─────────────────────────────────────────────────────────
+        if "anphat" in sources:
+            print("\n=== An Phát ===")
+            if "cpu"         in cats: upsert(s, ap.scrape_cpus(),           "cpu")
+            if "gpu"         in cats: upsert(s, ap.scrape_video_cards(),    "video_card")
+            if "ram"         in cats: upsert(s, ap.scrape_memory(),         "memory")
+            if "motherboard" in cats: upsert(s, ap.scrape_motherboards(),   "motherboard")
+            if "psu"         in cats: upsert(s, ap.scrape_power_supplies(), "power_supply")
+            if "case"        in cats: upsert(s, ap.scrape_cases(),          "case_enclosure")
+            if "storage"     in cats: upsert(s, ap.scrape_storage(),        "storage")
+            if "cooler"      in cats: upsert(s, ap.scrape_cpu_coolers(),    "cpu_cooler")
 
     print("\nDone.")
 
