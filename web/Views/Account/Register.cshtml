@@ -1,0 +1,71 @@
+@model TechSpecs.ViewModels.RegisterViewModel
+@{ ViewData["Title"] = "Create Account"; }
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Join TechSpecs and start building your PC</p>
+        </div>
+
+        <form asp-action="Register" method="post">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" placeholder="Nguyen Van A" />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" placeholder="Min. 8 characters" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
+        </form>
+
+        <div class="divider"><span>or</span></div>
+
+        <form asp-action="ExternalLogin" method="post">
+            <input type="hidden" name="provider" value="Google" />
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+            <button type="submit" class="btn btn-google w-100">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" />
+                Continue with Google
+            </button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+            Already have an account? <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">Sign in</a>
+        </p>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    .auth-wrapper { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+    .auth-card { width: 100%; max-width: 420px; padding: 2rem; background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; }
+    .auth-header { text-align: center; margin-bottom: 1.5rem; }
+    .auth-header h2 { font-weight: 700; }
+    .auth-header p { color: #aaa; }
+    .divider { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; color: #aaa; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid rgba(255,255,255,0.15); }
+    .btn-google { display: flex; align-items: center; justify-content: center; gap: .6rem; background: #fff; color: #333; border: 1px solid #ddd; font-weight: 500; }
+    .btn-google:hover { background: #f5f5f5; }
+</style>
+}

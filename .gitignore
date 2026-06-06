@@ -1,0 +1,32 @@
+.gitnexus
+
+# ASP.NET Core
+web/bin/
+web/obj/
+web/appsettings.Development.json
+web/*.user
+
+# Test projects — build artifacts
+TechSpecs.Tests/bin/
+TechSpecs.Tests/obj/
+
+# Python
+scraper/.env
+scraper/__pycache__/
+scraper/*.pyc
+scraper/venv/
+scraper/.venv/
+
+# Node / Playwright
+tests/node_modules/
+tests/playwright-report/
+tests/test-results/
+
+# Claude Code — personal memory & local settings
+.claude/projects/
+.claude/settings.local.json
+
+# IDE
+.vscode/
+.idea/
+*.swp

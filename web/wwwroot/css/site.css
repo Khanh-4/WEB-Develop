@@ -1,0 +1,177 @@
+/* ── Base ─────────────────────────────────────────── */
+html { font-size: 16px; }
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #3b0764 50%, #0f172a 100%);
+    background-attachment: fixed;
+    color: #f1f5f9;
+    margin-bottom: 0;
+}
+
+/* ── Glassmorphism utilities ─────────────────────── */
+.glass {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 1rem;
+}
+
+.glass-sm {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 0.75rem;
+}
+
+.glass:hover { background: rgba(255,255,255,0.12); }
+
+/* ── Gradient accent ────────────────────────────── */
+.btn-gradient {
+    background: linear-gradient(90deg, #a855f7, #3b82f6);
+    color: #fff;
+    border: none;
+    transition: all .2s;
+}
+.btn-gradient:hover {
+    background: linear-gradient(90deg, #9333ea, #2563eb);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(168,85,247,.35);
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, #c084fc, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient-icon {
+    background: linear-gradient(135deg, #a855f7, #3b82f6);
+    border-radius: .6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem;
+}
+
+/* ── Navbar ─────────────────────────────────────── */
+.navbar-glass {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.08) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-glass .nav-link { color: rgba(255,255,255,.7) !important; transition: color .2s; }
+.navbar-glass .nav-link:hover { color: #fff !important; }
+.navbar-glass .navbar-brand { color: #fff !important; font-weight: 700; font-size: 1.2rem; }
+
+/* ── Cards ───────────────────────────────────────── */
+.component-card {
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: .875rem;
+    transition: all .2s;
+    cursor: pointer;
+}
+.component-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+.component-card.selected {
+    border-color: #a855f7;
+    box-shadow: 0 0 0 2px rgba(168,85,247,.4);
+    background: rgba(168,85,247,.15);
+}
+
+/* ── Build step list ─────────────────────────────── */
+.build-step {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: .75rem;
+    padding: .75rem 1rem;
+    cursor: pointer;
+    transition: all .2s;
+}
+.build-step:hover { background: rgba(255,255,255,0.09); }
+.build-step.active {
+    background: linear-gradient(90deg, rgba(168,85,247,.25), rgba(59,130,246,.25));
+    border-color: rgba(168,85,247,.5);
+}
+
+/* ── Form controls ───────────────────────────────── */
+.form-control, .form-select {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    color: #fff !important;
+    border-radius: .625rem;
+}
+.form-control::placeholder { color: rgba(255,255,255,.4); }
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(168,85,247,.3) !important;
+    border-color: #a855f7 !important;
+    background: rgba(255,255,255,0.1) !important;
+}
+.form-select option { background: #1e1b4b; color: #fff; }
+
+/* ── Badges & pills ─────────────────────────────── */
+.category-pill {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,.75);
+    border-radius: 2rem;
+    padding: .35rem .9rem;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+}
+.category-pill:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.category-pill.active {
+    background: linear-gradient(90deg, #a855f7, #3b82f6);
+    border-color: transparent;
+    color: #fff;
+}
+
+/* ── Compatibility alert ─────────────────────────── */
+.compat-error {
+    background: rgba(239,68,68,.15);
+    border: 1px solid rgba(239,68,68,.4);
+    border-radius: .875rem;
+    color: #fca5a5;
+}
+.compat-ok {
+    background: rgba(34,197,94,.15);
+    border: 1px solid rgba(34,197,94,.4);
+    border-radius: .875rem;
+    color: #86efac;
+}
+
+/* ── Performance bar ─────────────────────────────── */
+.perf-bar-track {
+    background: rgba(255,255,255,.1);
+    border-radius: 2rem;
+    height: 8px;
+    overflow: hidden;
+}
+.perf-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7, #3b82f6);
+    border-radius: 2rem;
+    transition: width .4s ease;
+}
+
+/* ── Misc ─────────────────────────────────────────── */
+.text-muted-white { color: rgba(255,255,255,.6); }
+.divider-white { border-color: rgba(255,255,255,.15); }
+.cart-badge {
+    position: absolute; top: -6px; right: -6px;
+    background: #ef4444; color: #fff;
+    font-size: .65rem; width: 18px; height: 18px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}

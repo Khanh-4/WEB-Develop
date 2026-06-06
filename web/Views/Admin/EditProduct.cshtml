@@ -1,0 +1,180 @@
+@model TechSpecs.ViewModels.AdminProductEditViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Thêm sản phẩm" : "Sửa sản phẩm";
+    var catLabel = Model.Category switch {
+        "cpu" => "CPU", "motherboard" => "Motherboard", "memory" => "RAM",
+        "gpu" => "GPU", "psu" => "PSU", "case" => "Case",
+        "storage" => "Storage", "cooler" => "Cooler", _ => Model.Category
+    };
+}
+
+<div class="container py-4 px-3" style="max-width:720px">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/Admin/Products?category=@Model.Category" class="btn glass text-white px-2 py-1">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="text-white fw-bold mb-0">
+            @(Model.Id == 0 ? "Thêm" : "Sửa") @catLabel
+        </h1>
+    </div>
+
+    <form asp-action="EditProduct" asp-controller="Admin" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Category">
+        <input type="hidden" asp-for="Id">
+
+        <div class="glass p-4 mb-4">
+            <h6 class="text-white fw-semibold mb-3">Thông tin chung</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Name" class="form-label text-muted-white small">Tên sản phẩm *</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Manufacturer" class="form-label text-muted-white small">Hãng sản xuất *</label>
+                    <input asp-for="Manufacturer" class="form-control" />
+                    <span asp-validation-for="Manufacturer" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Price" class="form-label text-muted-white small">Giá (VNĐ) *</label>
+                    <input asp-for="Price" class="form-control" type="number" min="0" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Stock" class="form-label text-muted-white small">Tồn kho</label>
+                    <input asp-for="Stock" class="form-control" type="number" min="0" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="ImageUrl" class="form-label text-muted-white small">Image URL</label>
+                    <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
+                </div>
+            </div>
+        </div>
+
+        <!-- CPU fields -->
+        @if (Model.Category == "cpu")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">CPU Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Socket</label><input asp-for="Socket" class="form-control" placeholder="LGA1700 / AM5 / AM4" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Số nhân</label><input asp-for="CoreCount" class="form-control" type="number" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Số thread</label><input asp-for="ThreadCount" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Base Clock (GHz)</label><input asp-for="BaseClock" class="form-control" type="number" step="0.1" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Boost Clock (GHz)</label><input asp-for="BoostClock" class="form-control" type="number" step="0.1" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">TDP (W)</label><input asp-for="TDP" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Perf Score</label><input asp-for="CpuPerformance" class="form-control" type="number" step="0.01" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- Motherboard fields -->
+        @if (Model.Category == "motherboard")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">Motherboard Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Socket</label><input asp-for="SocketCompatibility" class="form-control" placeholder="LGA1700 / AM5" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Form Factor</label><input asp-for="FormFactor" class="form-control" placeholder="ATX / mATX / ITX" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Memory Type</label><input asp-for="MemoryCompatibility" class="form-control" placeholder="DDR4 / DDR5" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Số khe RAM</label><input asp-for="MemorySlots" class="form-control" type="number" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Max RAM (GB)</label><input asp-for="MaxMemoryCapacity" class="form-control" type="number" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- Memory fields -->
+        @if (Model.Category == "memory")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">RAM Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Type</label><input asp-for="MemoryType" class="form-control" placeholder="DDR4 / DDR5" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Dung lượng (GB)</label><input asp-for="Capacity" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Số thanh</label><input asp-for="Modules" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Speed (MHz)</label><input asp-for="Speed" class="form-control" type="number" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- GPU fields -->
+        @if (Model.Category == "gpu")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">GPU Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label text-muted-white small">VRAM (GB)</label><input asp-for="VRAM" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Chiều dài (mm)</label><input asp-for="GpuLength" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">TDP (W)</label><input asp-for="TDP" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Perf Score</label><input asp-for="GpuPerformance" class="form-control" type="number" step="0.01" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- PSU fields -->
+        @if (Model.Category == "psu")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">PSU Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Công suất (W)</label><input asp-for="Wattage" class="form-control" type="number" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Hiệu suất</label><input asp-for="Efficiency" class="form-control" placeholder="80+ Gold / Platinum" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Modular</label><input asp-for="Modular" class="form-control" placeholder="Full / Semi / Non" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- Case fields -->
+        @if (Model.Category == "case")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">Case Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Form Factor hỗ trợ</label><input asp-for="FormFactorSupport" class="form-control" placeholder="ATX,mATX,ITX" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Max GPU (mm)</label><input asp-for="MaxVGALength" class="form-control" type="number" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Màu sắc</label><input asp-for="Color" class="form-control" placeholder="Black / White" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- Storage fields -->
+        @if (Model.Category == "storage")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">Storage Specs</h6>
+                <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Loại</label><input asp-for="StorageType" class="form-control" placeholder="NVMe / SSD / HDD" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Dung lượng (GB)</label><input asp-for="StorageCapacity" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Interface</label><input asp-for="Interface" class="form-control" placeholder="PCIe 4.0 / SATA" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Read (MB/s)</label><input asp-for="ReadSpeed" class="form-control" type="number" /></div>
+                    <div class="col-md-3"><label class="form-label text-muted-white small">Write (MB/s)</label><input asp-for="WriteSpeed" class="form-control" type="number" /></div>
+                </div>
+            </div>
+        }
+
+        <!-- Cooler fields -->
+        @if (Model.Category == "cooler")
+        {
+            <div class="glass p-4 mb-4">
+                <h6 class="text-white fw-semibold mb-3">Cooler Specs</h6>
+                <div class="row g-3">
+                    <div class="col-12"><label class="form-label text-muted-white small">Socket hỗ trợ</label><input asp-for="CoolerSocketCompatibility" class="form-control" placeholder="LGA1700,AM5,AM4" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Max TDP (W)</label><input asp-for="MaxTDP" class="form-control" type="number" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Chiều cao (mm)</label><input asp-for="Height" class="form-control" type="number" /></div>
+                    <div class="col-md-4"><label class="form-label text-muted-white small">Loại</label><input asp-for="CoolerType" class="form-control" placeholder="Air Tower / AIO 240mm" /></div>
+                </div>
+            </div>
+        }
+
+        <div class="d-flex gap-3">
+            <a href="/Admin/Products?category=@Model.Category" class="btn glass text-white px-4">Huỷ</a>
+            <button type="submit" class="btn btn-gradient px-5">
+                <i class="bi bi-check-circle me-1"></i>@(Model.Id == 0 ? "Thêm mới" : "Lưu thay đổi")
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

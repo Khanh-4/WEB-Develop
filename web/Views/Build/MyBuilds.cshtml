@@ -1,0 +1,125 @@
+@model List<TechSpecs.Models.SavedBuild>
+@using System.Text.Json
+@{ ViewData["Title"] = "My Saved Builds"; }
+
+<div class="container-xl py-4 px-3">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="text-white fw-bold mb-0">My Saved Builds</h1>
+        <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient px-4">
+            <i class="bi bi-plus-lg me-2"></i>New Build
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass p-5 text-center">
+            <i class="bi bi-bookmark-x fs-1 text-muted-white d-block mb-3"></i>
+            <h5 class="text-white mb-2">No saved builds yet</h5>
+            <p class="text-muted-white mb-4">Build a custom PC and save it to access it later or share with others.</p>
+            <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient px-4">
+                <i class="bi bi-tools me-2"></i>Go to PC Builder
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var build in Model)
+            {
+                var components = new Dictionary<string, JsonElement>();
+                int componentCount = 0;
+                decimal totalPrice = 0;
+                try {
+                    var raw = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(build.BuildJson);
+                    if (raw != null) {
+                        components = raw;
+                        componentCount = raw.Count;
+                        foreach (var el in raw.Values) {
+                            if (el.TryGetProperty("price", out var p)) totalPrice += (decimal)p.GetDouble();
+                        }
+                    }
+                } catch { }
+
+                var shareUrl = Url.Action("Share", "Build", new { token = build.ShareToken }, Context.Request.Scheme)!;
+                var catIcons = new Dictionary<string,string> {
+                    ["cpu"]="bi-cpu",["motherboard"]="bi-motherboard",["memory"]="bi-memory",
+                    ["videoCard"]="bi-gpu-card",["storage"]="bi-device-hdd",["powerSupply"]="bi-lightning-charge",
+                    ["case"]="bi-box",["cooler"]="bi-thermometer-half"
+                };
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="glass p-4 h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1 me-2 overflow-hidden">
+                                <h5 class="text-white fw-semibold mb-1 text-truncate">@build.Name</h5>
+                                <span class="text-muted-white small">
+                                    @build.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            </div>
+                            <button class="btn btn-sm text-danger border-0 p-1" title="Delete"
+                                    onclick="deleteBuild(@build.Id, this)">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+
+                        <!-- Component icons -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @foreach (var (cat, el) in components)
+                            {
+                                var icon = catIcons.GetValueOrDefault(cat, "bi-cpu");
+                                var name = el.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+                                <span class="badge glass-sm text-white" title="@name">
+                                    <i class="bi @icon me-1"></i>@(name.Length > 20 ? name[..20] + "…" : name)
+                                </span>
+                            }
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3 mt-auto">
+                            <div>
+                                <div class="text-muted-white small">@componentCount component@(componentCount != 1 ? "s" : "")</div>
+                                <div class="text-white fw-bold">@totalPrice.ToString("N0")đ</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="@shareUrl" class="btn glass text-white flex-grow-1" target="_blank">
+                                <i class="bi bi-eye me-1"></i>View
+                            </a>
+                            <button class="btn glass text-white px-3" onclick="copyLink('@shareUrl', this)" title="Copy share link">
+                                <i class="bi bi-link-45deg"></i>
+                            </button>
+                            <a asp-controller="Builder" asp-action="Index"
+                               onclick="sessionStorage.setItem('loadBuild', '@Html.Raw(build.BuildJson.Replace("'", "\\'")); return true;"
+                               class="btn btn-gradient px-3" title="Open in Builder">
+                                <i class="bi bi-tools"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+const csrfToken = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+
+async function deleteBuild(id, btn) {
+    if (!confirm('Xoá build này?')) return;
+    const r = await fetch('/Build/Delete/' + id, {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': csrfToken }
+    });
+    if (r.ok) btn.closest('.col-md-6, .col-xl-4').remove();
+}
+
+function copyLink(url, btn) {
+    navigator.clipboard.writeText(url).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'bi bi-check-lg text-success';
+        setTimeout(() => icon.className = 'bi bi-link-45deg', 2000);
+    });
+}
+</script>
+}

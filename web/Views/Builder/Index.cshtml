@@ -1,0 +1,585 @@
+@model TechSpecs.ViewModels.Builder.FilteredResult
+@{ ViewData["Title"] = "PC Builder"; }
+
+<div class="container-xl py-4 px-3">
+    <h1 class="text-white fw-bold mb-4">PC Builder</h1>
+
+    <div class="row g-4">
+
+        <!-- ── LEFT: Build Summary ─────────────────────────── -->
+        <div class="col-lg-4">
+
+            <!-- Step list -->
+            <div class="glass p-4 mb-3">
+                <h5 class="text-white fw-semibold mb-3">Your Build</h5>
+                <div id="buildSteps" class="d-flex flex-column gap-2">
+                    @foreach (var step in new[] {
+                        ("cpu",          "Processor",    "bi-cpu"),
+                        ("motherboard",  "Motherboard",  "bi-motherboard"),
+                        ("memory",       "Memory",       "bi-memory"),
+                        ("videoCard",    "Graphics Card","bi-gpu-card"),
+                        ("storage",      "Storage",      "bi-device-hdd"),
+                        ("powerSupply",  "Power Supply", "bi-lightning-charge"),
+                        ("case",         "Case",         "bi-box"),
+                        ("cooler",       "CPU Cooler",   "bi-thermometer-half"),
+                    })
+                    {
+                        <div class="build-step" data-category="@step.Item1" onclick="selectCategory('@step.Item1')">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi @step.Item3 text-muted-white" style="font-size:1.1rem;width:20px"></i>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="text-muted-white small">@step.Item2</div>
+                                    <div class="text-white small text-truncate" id="step-name-@step.Item1">Not selected</div>
+                                </div>
+                                <button class="btn btn-sm text-danger p-0 border-0 d-none"
+                                        id="step-remove-@step.Item1"
+                                        onclick="removeComponent('@step.Item1', event)">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div class="text-white fw-semibold small mt-1 d-none" id="step-price-@step.Item1"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Build Stats -->
+            <div class="glass p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted-white">Total Price</span>
+                    <span class="fs-4 fw-bold text-white" id="totalPrice">0đ</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted-white">Performance</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="perf-bar-track" style="width:96px">
+                            <div class="perf-bar-fill" id="perfBar" style="width:0%"></div>
+                        </div>
+                        <span class="text-white fw-semibold small" id="perfScore">0</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted-white">Power Draw</span>
+                    <span class="text-white fw-semibold" id="totalTdp">0W</span>
+                </div>
+                <hr class="divider-white my-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted-white small">Recommended PSU</span>
+                    <span class="text-white small" id="recPsu">—</span>
+                </div>
+            </div>
+
+            <!-- Compat status -->
+            <div id="compatOk" class="compat-ok p-3 mb-3 d-none">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <strong>Build Complete!</strong>
+                </div>
+                <button class="btn btn-gradient w-100 mb-2" onclick="addAllToCart()">
+                    <i class="bi bi-cart-plus me-2"></i>Add All to Cart
+                </button>
+                <button class="btn glass text-white w-100" onclick="openSaveModal()">
+                    <i class="bi bi-bookmark-plus me-2"></i>Save Build
+                </button>
+            </div>
+
+            <!-- Save partial build (always visible when ≥1 component) -->
+            <div id="partialSaveBar" class="d-none mb-3">
+                <button class="btn glass text-white w-100 btn-sm" onclick="openSaveModal()">
+                    <i class="bi bi-bookmark me-2"></i>Save / Share Build
+                </button>
+            </div>
+
+            <!-- Budget filter -->
+            <div class="glass p-3">
+                <label class="text-muted-white small mb-2 d-block">Budget Filter</label>
+                <div class="input-group">
+                    <input type="number" id="budgetInput" class="form-control"
+                           placeholder="Max price (VNĐ)" oninput="debounceFilter()">
+                    <button class="btn btn-gradient px-3" onclick="applyFilter()">
+                        <i class="bi bi-funnel"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── RIGHT: Component Selection ─────────────────── -->
+        <div class="col-lg-8">
+            <div class="glass p-4">
+
+                <!-- Category tabs -->
+                <div class="d-flex flex-wrap gap-2 mb-4" id="categoryTabs">
+                    @foreach (var tab in new[] {
+                        ("cpu",         "Processor",    "bi-cpu"),
+                        ("motherboard", "Motherboard",  "bi-motherboard"),
+                        ("memory",      "Memory",       "bi-memory"),
+                        ("videoCard",   "Graphics",     "bi-gpu-card"),
+                        ("storage",     "Storage",      "bi-device-hdd"),
+                        ("powerSupply", "PSU",          "bi-lightning-charge"),
+                        ("case",        "Case",         "bi-box"),
+                        ("cooler",      "Cooler",       "bi-thermometer-half"),
+                    })
+                    {
+                        <button class="category-pill @(tab.Item1 == "cpu" ? "active" : "")"
+                                data-tab="@tab.Item1"
+                                onclick="selectCategory('@tab.Item1')">
+                            <i class="bi @tab.Item3 me-1"></i>@tab.Item2
+                        </button>
+                    }
+                </div>
+
+                <!-- Search + sort bar -->
+                <div class="d-flex gap-2 mb-4">
+                    <div class="flex-grow-1 position-relative">
+                        <i class="bi bi-search position-absolute text-muted-white" style="left:12px;top:50%;transform:translateY(-50%)"></i>
+                        <input type="text" id="searchInput" class="form-control ps-5"
+                               placeholder="Search components..." oninput="debounceFilter()">
+                    </div>
+                    <select class="form-select" style="width:auto" id="sortSelect" onchange="sortProducts()">
+                        <option value="pp">Best Value</option>
+                        <option value="price-asc">Price ↑</option>
+                        <option value="price-desc">Price ↓</option>
+                        <option value="perf">Performance</option>
+                    </select>
+                </div>
+
+                <!-- Product grid -->
+                <div id="productGrid" class="row g-3">
+                    <div class="col-12 text-center py-5 text-muted-white">
+                        <i class="bi bi-hourglass-split fs-1 mb-3 d-block"></i>
+                        Loading components...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Save Build Modal -->
+<div class="modal fade" id="saveBuildModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass border-0">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-white fw-semibold">Save Build</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="saveModalBody">
+                <div class="mb-3">
+                    <label class="text-muted-white small mb-1">Build Name</label>
+                    <input type="text" id="buildNameInput" class="form-control" maxlength="100"
+                           placeholder="e.g. Gaming PC 2025, Workstation Build…">
+                </div>
+                <button class="btn btn-gradient w-100" onclick="saveBuild()">
+                    <i class="bi bi-bookmark-check me-2"></i>Save & Get Share Link
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// ── State ────────────────────────────────────────────────────
+const buildState = {
+    selectedCpuId: null, selectedMotherboardId: null, selectedMemoryId: null,
+    selectedVideoCardId: null, selectedPowerSupplyId: null, selectedCaseId: null,
+    selectedStorageId: null, selectedCoolerId: null,
+    maxBudget: null, searchQuery: null
+};
+
+const selectedComponents = {}; // category → { id, name, price, ppScore }
+let currentCategory = 'cpu';
+let currentProducts  = [];
+let filterTimer      = null;
+
+const CATEGORY_KEY_MAP = {
+    cpu:          'selectedCpuId',
+    motherboard:  'selectedMotherboardId',
+    memory:       'selectedMemoryId',
+    videoCard:    'selectedVideoCardId',
+    powerSupply:  'selectedPowerSupplyId',
+    case:         'selectedCaseId',
+    storage:      'selectedStorageId',
+    cooler:       'selectedCoolerId',
+};
+
+const RESULT_KEY_MAP = {
+    cpu:         'cpus',
+    motherboard: 'motherboards',
+    memory:      'memories',
+    videoCard:   'videoCards',
+    powerSupply: 'powerSupplies',
+    case:        'cases',
+    storage:     'storages',
+    cooler:      'coolers',
+};
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const savedBuild = sessionStorage.getItem('loadBuild');
+    const aiPreset   = sessionStorage.getItem('aiBuildPreset');
+
+    if (savedBuild) {
+        sessionStorage.removeItem('loadBuild');
+        loadSavedBuild(JSON.parse(savedBuild));
+    } else if (aiPreset) {
+        sessionStorage.removeItem('aiBuildPreset');
+        loadAiPreset(JSON.parse(aiPreset));
+    } else {
+        selectCategory('cpu');
+        callFilterApi();
+    }
+});
+
+function loadSavedBuild(components) {
+    for (const [cat, comp] of Object.entries(components)) {
+        const key = CATEGORY_KEY_MAP[cat];
+        if (!key) continue;
+        buildState[key] = comp.id;
+        selectedComponents[cat] = { id: comp.id, name: comp.name, price: comp.price, ppScore: 0, imageUrl: comp.imageUrl || null };
+    }
+    updateBuildPanel();
+    selectCategory('cpu');
+    callFilterApi();
+}
+
+function loadAiPreset(preset) {
+    // Apply each preselected component to build state
+    for (const [stateKey, comp] of Object.entries(preset)) {
+        buildState[stateKey] = comp.id;
+        selectedComponents[comp.category] = { id: comp.id, name: comp.name, price: comp.price, ppScore: 0 };
+    }
+    updateBuildPanel();
+    // Start on cpu tab, load fresh filtered results
+    selectCategory('cpu');
+    callFilterApi();
+}
+
+// ── Category switching ────────────────────────────────────────
+function selectCategory(cat) {
+    currentCategory = cat;
+
+    document.querySelectorAll('.category-pill').forEach(b =>
+        b.classList.toggle('active', b.dataset.tab === cat));
+    document.querySelectorAll('.build-step').forEach(s =>
+        s.classList.toggle('active', s.dataset.category === cat));
+
+    currentProducts = []; // clear stale data from previous tab
+    callFilterApi();
+}
+
+// ── Filter API ────────────────────────────────────────────────
+function debounceFilter() {
+    clearTimeout(filterTimer);
+    filterTimer = setTimeout(() => {
+        buildState.searchQuery = document.getElementById('searchInput').value.trim() || null;
+        const budget = parseFloat(document.getElementById('budgetInput').value);
+        buildState.maxBudget = isNaN(budget) ? null : budget;
+        callFilterApi();
+    }, 400);
+}
+
+function applyFilter() {
+    debounceFilter();
+}
+
+function callFilterApi() {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '<div class="col-12 text-center py-4 text-muted-white"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</div>';
+
+    fetch('/Builder/Filter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildState)
+    })
+    .then(r => r.json())
+    .then(data => {
+        const key = RESULT_KEY_MAP[currentCategory];
+        currentProducts = data[key] || [];
+        renderGrid(currentProducts);
+        updateStats(data);
+    })
+    .catch(() => {
+        grid.innerHTML = '<div class="col-12 text-center py-4 text-muted-white">Failed to load components</div>';
+    });
+}
+
+// ── Render product grid ───────────────────────────────────────
+function renderGrid(products) {
+    const sort = document.getElementById('sortSelect').value;
+    const sorted = [...products].sort((a, b) => {
+        // First sort by IsCompatible
+        if (a.isCompatible !== b.isCompatible) return a.isCompatible ? -1 : 1;
+        // Then sort by IsRecommended
+        if (a.isRecommended !== b.isRecommended) return a.isRecommended ? -1 : 1;
+        // Then by chosen metric
+        if (sort === 'price-asc')  return a.price - b.price;
+        if (sort === 'price-desc') return b.price - a.price;
+        if (sort === 'perf')       return b.ppScore - a.ppScore;
+        return b.ppScore - a.ppScore; // best value default
+    });
+
+    const sel = selectedComponents[currentCategory];
+    const grid = document.getElementById('productGrid');
+
+    if (sorted.length === 0) {
+        grid.innerHTML = `
+            <div class="col-12 text-center py-5 text-muted-white">
+                <i class="bi bi-exclamation-circle fs-1 mb-3 d-block"></i>
+                <p class="mb-0">No components found</p>
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = sorted.map(p => {
+        const isSelected = sel && sel.id === p.id;
+        const specs = Object.entries(p.specs || {}).slice(0, 3)
+            .map(([k, v]) => `<span class="badge glass-sm text-white small">${k}: ${v}</span>`)
+            .join(' ');
+            
+        const badges = (p.badges || []).map(b => `<span class="badge bg-secondary mb-1 me-1">${b}</span>`).join('');
+        
+        const ppDisplay = p.ppScore > 0 ? p.ppScore.toFixed(1) : '—';
+        const imgHtml = p.imageUrl
+            ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-100 h-100 object-fit-cover">`
+            : `<i class="bi bi-cpu text-muted-white" style="font-size:2.5rem"></i>`;
+
+        const incompatibleAlert = !p.isCompatible 
+            ? `<div class="text-danger small mt-2 fw-semibold"><i class="bi bi-x-circle me-1"></i>${p.incompatibleReason}</div>` 
+            : '';
+            
+        const recommendedBadge = p.isRecommended
+            ? `<div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark shadow-sm z-1"><i class="bi bi-star-fill me-1"></i>Recommended</div>`
+            : '';
+            
+        const cardStyle = !p.isCompatible ? 'opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed;' : 'cursor: pointer;';
+        const safeImg = p.imageUrl ? `'${escHtml(p.imageUrl)}'` : 'null';
+        const onClick = p.isCompatible ? `onclick="selectComponent(${p.id}, '${escHtml(p.name)}', ${p.price}, ${p.ppScore}, ${safeImg})"` : '';
+
+        return `
+        <div class="col-sm-6 col-xl-4">
+            <div class="component-card p-3 h-100 ${isSelected ? 'selected' : ''} position-relative"
+                 style="${cardStyle}" ${onClick}>
+                ${recommendedBadge}
+                <div class="rounded-2 overflow-hidden d-flex align-items-center justify-content-center mb-2"
+                     style="height:120px;background:rgba(255,255,255,0.05)">
+                    ${imgHtml}
+                </div>
+                <div class="mb-2">${badges}</div>
+                <h6 class="text-white mb-2 lh-sm" style="font-size:.85rem">${escHtml(p.name)}</h6>
+                <div class="mb-2 d-flex flex-wrap gap-1">${specs}</div>
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                    <span class="text-white fw-bold">${fmtPrice(p.price)}</span>
+                    <div class="d-flex align-items-center gap-1">
+                        <i class="bi bi-graph-up text-purple" style="color:#c084fc"></i>
+                        <span class="text-muted-white small">${ppDisplay}</span>
+                    </div>
+                </div>
+                ${incompatibleAlert}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Select / remove component ─────────────────────────────────
+function selectComponent(id, name, price, ppScore, imageUrl = null) {
+    const key = CATEGORY_KEY_MAP[currentCategory];
+    if (!key) return;
+
+    selectedComponents[currentCategory] = { id, name, price, ppScore, imageUrl };
+    buildState[key] = id;
+
+    updateBuildPanel();
+    renderGrid(currentProducts);
+    callFilterApi();
+}
+
+function removeComponent(category, event) {
+    event.stopPropagation();
+    const key = CATEGORY_KEY_MAP[category];
+    if (!key) return;
+
+    delete selectedComponents[category];
+    buildState[key] = null;
+
+    updateBuildPanel();
+    if (currentCategory === category) renderGrid(currentProducts);
+    callFilterApi();
+}
+
+// ── Update left panel ─────────────────────────────────────────
+function updateBuildPanel() {
+    let totalPrice = 0;
+    let totalTdp   = 0;
+    let perfSum    = 0;
+    let perfCount  = 0;
+    const requiredCats = ['cpu','motherboard','memory','videoCard','storage','powerSupply','case'];
+    let allDone    = true;
+
+    Object.entries(CATEGORY_KEY_MAP).forEach(([cat]) => {
+        const comp = selectedComponents[cat];
+        const nameEl   = document.getElementById(`step-name-${cat}`);
+        const priceEl  = document.getElementById(`step-price-${cat}`);
+        const removeEl = document.getElementById(`step-remove-${cat}`);
+
+        if (comp) {
+            nameEl.textContent  = comp.name;
+            priceEl.textContent = fmtPrice(comp.price);
+            priceEl.classList.remove('d-none');
+            removeEl.classList.remove('d-none');
+            totalPrice += comp.price;
+            if (comp.ppScore) { perfSum += comp.ppScore; perfCount++; }
+        } else {
+            nameEl.textContent = 'Not selected';
+            priceEl.classList.add('d-none');
+            removeEl.classList.add('d-none');
+            if (requiredCats.includes(cat)) allDone = false;
+        }
+    });
+
+    document.getElementById('totalPrice').textContent = fmtPrice(totalPrice);
+
+    const avgPerf = perfCount > 0 ? perfSum / perfCount : 0;
+    const perfPct = Math.min(100, avgPerf / 10);
+    document.getElementById('perfBar').style.width  = perfPct + '%';
+    document.getElementById('perfScore').textContent = Math.round(avgPerf);
+
+    document.getElementById('totalTdp').textContent = totalTdp + 'W';
+
+    const recPsu = Math.ceil(totalTdp * 1.3);
+    document.getElementById('recPsu').textContent = recPsu > 0 ? recPsu + 'W+' : '—';
+
+    document.getElementById('compatOk').classList.toggle('d-none', !allDone);
+
+    const hasAny = Object.keys(selectedComponents).length > 0;
+    const partialBar = document.getElementById('partialSaveBar');
+    partialBar.classList.toggle('d-none', !hasAny || allDone);
+}
+
+function updateStats(data) {
+    document.getElementById('totalTdp').textContent   = (data.totalTDP || 0) + 'W';
+    document.getElementById('recPsu').textContent     = data.recommendedPsuWattage > 0 ? data.recommendedPsuWattage + 'W+' : '—';
+}
+
+// ── Sort (client-side re-render) ──────────────────────────────
+function sortProducts() { renderGrid(currentProducts); }
+
+// ── Add all to cart ───────────────────────────────────────────
+async function addAllToCart() {
+    const components = Object.entries(selectedComponents);
+    if (components.length === 0) return;
+
+    const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+    let addedCount = 0;
+
+    for (const [cat, comp] of components) {
+        try {
+            const r = await fetch('/Cart/Add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                body: JSON.stringify({ componentId: comp.id, category: cat, name: comp.name, price: comp.price, imageUrl: comp.imageUrl || null })
+            });
+            if (r.status === 401) { window.location.href = '/Account/Login'; return; }
+            if (r.ok) { const d = await r.json(); addedCount = d.count; }
+        } catch (e) { /* skip failed items */ }
+    }
+
+    if (addedCount > 0) {
+        updateCartBadge(addedCount);
+        showToast(`Đã thêm ${components.length} linh kiện vào giỏ hàng`, 'success');
+    }
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function fmtPrice(n) {
+    if (!n || n === 0) return '0đ';
+    return new Intl.NumberFormat('vi-VN').format(n) + 'đ';
+}
+
+function escHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ── Save Build ────────────────────────────────────────────────
+let saveBuildModal = null;
+
+function openSaveModal() {
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <text>
+        if (!saveBuildModal) saveBuildModal = new bootstrap.Modal(document.getElementById('saveBuildModal'));
+        document.getElementById('buildNameInput').value = '';
+        document.getElementById('saveModalBody').innerHTML = `
+            <div class="mb-3">
+                <label class="text-muted-white small mb-1">Build Name</label>
+                <input type="text" id="buildNameInput" class="form-control" maxlength="100"
+                       placeholder="e.g. Gaming PC 2025, Workstation Build…">
+            </div>
+            <button class="btn btn-gradient w-100" onclick="saveBuild()">
+                <i class="bi bi-bookmark-check me-2"></i>Save & Get Share Link
+            </button>`;
+        saveBuildModal.show();
+        </text>
+    }
+    else
+    {
+        <text>
+        window.location.href = '/Account/Login?returnUrl=/Builder';
+        </text>
+    }
+}
+
+async function saveBuild() {
+    const name = document.getElementById('buildNameInput')?.value?.trim();
+    if (!name) { alert('Vui lòng nhập tên cho build.'); return; }
+
+    const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+    const btn = document.querySelector('#saveBuildModal .btn-gradient');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving…'; }
+
+    const r = await fetch('/Build/Save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+        body: JSON.stringify({
+            name,
+            buildJson: JSON.stringify(selectedComponents)
+        })
+    });
+
+    if (!r.ok) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-bookmark-check me-2"></i>Save & Get Share Link'; }
+        showToast('Lưu build thất bại, thử lại.', 'danger');
+        return;
+    }
+
+    const data = await r.json();
+    document.getElementById('saveModalBody').innerHTML = `
+        <div class="text-center mb-3">
+            <i class="bi bi-bookmark-check-fill text-success" style="font-size:2rem"></i>
+            <div class="text-white fw-semibold mt-2">Build saved!</div>
+        </div>
+        <div class="mb-3">
+            <label class="text-muted-white small mb-1">Share Link</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="shareLinkInput" value="${data.shareUrl}" readonly>
+                <button class="btn glass text-white" onclick="copyShareLink(this)">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Build/MyBuilds" class="btn glass text-white flex-grow-1">My Builds</a>
+            <a href="${data.shareUrl}" class="btn btn-gradient flex-grow-1" target="_blank">View</a>
+        </div>`;
+}
+
+function copyShareLink(btn) {
+    const input = document.getElementById('shareLinkInput');
+    navigator.clipboard.writeText(input.value).then(() => {
+        btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
+        setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard"></i>', 2000);
+    });
+}
+</script>
+}

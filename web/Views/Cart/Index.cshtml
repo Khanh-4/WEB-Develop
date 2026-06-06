@@ -1,0 +1,175 @@
+@model TechSpecs.ViewModels.CartViewModel
+@{ ViewData["Title"] = "Giỏ hàng"; }
+
+<div class="container-xl py-5 px-3">
+    <h1 class="text-white fw-bold mb-4">
+        <i class="bi bi-cart3 me-2"></i>Giỏ hàng
+        @if (Model.ItemCount > 0)
+        {
+            <span class="badge ms-2" style="background:rgba(168,85,247,.3);color:#c084fc;font-size:.75rem">@Model.ItemCount sản phẩm</span>
+        }
+    </h1>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="glass p-5 text-center">
+            <i class="bi bi-cart-x text-muted-white" style="font-size:4rem"></i>
+            <h4 class="text-white mt-3">Giỏ hàng trống</h4>
+            <p class="text-muted-white mb-4">Hãy thêm linh kiện vào giỏ từ trang Products.</p>
+            <a href="/Products" class="btn btn-gradient px-4">Xem sản phẩm</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Cart items -->
+            <div class="col-lg-8">
+                <div class="glass p-0 overflow-hidden" id="cartItemsContainer">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="cart-item d-flex align-items-center p-3 border-bottom border-white border-opacity-10"
+                             id="item-@item.CartItemId">
+                            <!-- Image -->
+                            <div class="flex-shrink-0 me-3 d-flex align-items-center justify-content-center rounded overflow-hidden"
+                                 style="width:72px;height:72px;background:rgba(255,255,255,.05)">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.ComponentName"
+                                         class="w-100 h-100 object-fit-cover">
+                                }
+                                else
+                                {
+                                    <i class="bi bi-cpu text-muted-white" style="font-size:1.8rem"></i>
+                                }
+                            </div>
+
+                            <!-- Info -->
+                            <div class="flex-grow-1 me-3">
+                                <span class="badge mb-1" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.68rem">
+                                    @item.Category.ToUpper()
+                                </span>
+                                <p class="text-white mb-1 lh-sm" style="font-size:.85rem">@item.ComponentName</p>
+                                <span class="text-muted-white" style="font-size:.8rem">
+                                    @item.Price.ToString("N0")đ / cái
+                                </span>
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="d-flex align-items-center gap-2 me-3">
+                                <button class="btn btn-sm glass text-white px-2 py-1"
+                                        onclick="updateQty(@item.CartItemId, @(item.Quantity - 1))">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <span class="text-white qty-display" id="qty-@item.CartItemId"
+                                      style="min-width:24px;text-align:center">
+                                    @item.Quantity
+                                </span>
+                                <button class="btn btn-sm glass text-white px-2 py-1"
+                                        onclick="updateQty(@item.CartItemId, @(item.Quantity + 1))">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+
+                            <!-- Subtotal -->
+                            <div class="text-end me-3" style="min-width:100px">
+                                <span class="text-white fw-bold subtotal-display" id="sub-@item.CartItemId">
+                                    @item.Subtotal.ToString("N0")đ
+                                </span>
+                            </div>
+
+                            <!-- Remove -->
+                            <button class="btn btn-sm text-danger p-1"
+                                    onclick="removeItem(@item.CartItemId)"
+                                    title="Xoá">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="/Products" class="btn glass text-white px-3">
+                        <i class="bi bi-arrow-left me-1"></i>Tiếp tục mua hàng
+                    </a>
+                    <button class="btn text-danger glass px-3" onclick="clearCart()">
+                        <i class="bi bi-trash3 me-1"></i>Xoá tất cả
+                    </button>
+                </div>
+            </div>
+
+            <!-- Order summary -->
+            <div class="col-lg-4">
+                <div class="glass p-4 sticky-top" style="top:80px">
+                    <h5 class="text-white fw-semibold mb-4">Tổng đơn hàng</h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted-white">Tạm tính (@Model.ItemCount sản phẩm)</span>
+                        <span class="text-white" id="cartTotal">@Model.Total.ToString("N0")đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted-white">Phí vận chuyển</span>
+                        <span class="text-success">Miễn phí</span>
+                    </div>
+                    <hr class="border-white border-opacity-20">
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="text-white fw-semibold">Tổng cộng</span>
+                        <span class="text-white fw-bold fs-5" id="grandTotal">@Model.Total.ToString("N0")đ</span>
+                    </div>
+
+                    <a href="/Orders/Checkout" class="btn btn-gradient w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-bag-check"></i>Thanh toán
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+function fmt(n) { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
+
+function updateQty(itemId, qty) {
+    if (qty < 1) { removeItem(itemId); return; }
+
+    fetch('/Cart/UpdateQty', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+        body: JSON.stringify({ cartItemId: itemId, quantity: qty })
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('qty-' + itemId).textContent = qty;
+        // Recalculate subtotal from server total is complex — just reload
+        location.reload();
+    });
+}
+
+function removeItem(itemId) {
+    fetch('/Cart/Remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
+        body: JSON.stringify({ cartItemId: itemId })
+    })
+    .then(r => r.json())
+    .then(d => {
+        document.getElementById('item-' + itemId)?.remove();
+        updateCartBadge(d.count);
+        if (d.count === 0) location.reload();
+    });
+}
+
+function clearCart() {
+    if (!confirm('Xoá tất cả sản phẩm khỏi giỏ hàng?')) return;
+    fetch('/Cart/Clear', {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': getToken() }
+    })
+    .then(() => location.reload());
+}
+
+function getToken() {
+    return document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+}
+</script>
+}

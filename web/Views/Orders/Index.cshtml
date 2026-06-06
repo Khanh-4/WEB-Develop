@@ -1,0 +1,65 @@
+@model TechSpecs.ViewModels.OrderListViewModel
+@{ ViewData["Title"] = "Đơn hàng của tôi"; }
+
+@{
+    string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch
+    {
+        TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
+        TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",
+        TechSpecs.Models.OrderStatus.Shipped   => "Đang giao",
+        TechSpecs.Models.OrderStatus.Delivered => "Đã nhận",
+        TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
+        _ => s.ToString()
+    };
+
+    string StatusClass(TechSpecs.Models.OrderStatus s) => s switch
+    {
+        TechSpecs.Models.OrderStatus.Pending   => "text-warning",
+        TechSpecs.Models.OrderStatus.Confirmed => "text-info",
+        TechSpecs.Models.OrderStatus.Shipped   => "text-primary",
+        TechSpecs.Models.OrderStatus.Delivered => "text-success",
+        TechSpecs.Models.OrderStatus.Cancelled => "text-danger",
+        _ => "text-white"
+    };
+}
+
+<div class="container-xl py-5 px-3">
+    <h1 class="text-white fw-bold mb-4">
+        <i class="bi bi-bag-check me-2"></i>Đơn hàng của tôi
+    </h1>
+
+    @if (!Model.Orders.Any())
+    {
+        <div class="glass p-5 text-center">
+            <i class="bi bi-bag-x text-muted-white" style="font-size:3.5rem"></i>
+            <h5 class="text-white mt-3">Chưa có đơn hàng nào</h5>
+            <a href="/Products" class="btn btn-gradient px-4 mt-2">Mua ngay</a>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var o in Model.Orders)
+            {
+                <div class="glass p-4 d-flex align-items-center gap-4">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-3 mb-1">
+                            <span class="text-white fw-semibold">#@o.Id</span>
+                            <span class="@StatusClass(o.Status) small fw-semibold">● @StatusLabel(o.Status)</span>
+                        </div>
+                        <p class="text-muted-white small mb-0">
+                            @o.ItemCount sản phẩm &nbsp;·&nbsp;
+                            @o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    </div>
+                    <div class="text-end me-2">
+                        <span class="text-white fw-bold">@o.TotalAmount.ToString("N0")đ</span>
+                    </div>
+                    <a href="/Orders/Detail/@o.Id" class="btn glass text-white px-3 py-1 flex-shrink-0">
+                        Chi tiết <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>

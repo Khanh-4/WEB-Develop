@@ -1,0 +1,104 @@
+@model TechSpecs.ViewModels.CheckoutViewModel
+@{ ViewData["Title"] = "Thanh toán"; }
+
+<div class="container-xl py-5 px-3">
+    <h1 class="text-white fw-bold mb-4">
+        <i class="bi bi-bag-check me-2"></i>Thanh toán
+    </h1>
+
+    <form asp-controller="Orders" asp-action="Checkout" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row g-4">
+            <!-- Shipping form -->
+            <div class="col-lg-7">
+                <div class="glass p-4">
+                    <h5 class="text-white fw-semibold mb-4">Thông tin giao hàng</h5>
+
+                    <div class="mb-3">
+                        <label asp-for="RecipientName" class="form-label text-muted-white small"></label>
+                        <input asp-for="RecipientName" class="form-control" placeholder="Nguyễn Văn A" />
+                        <span asp-validation-for="RecipientName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label text-muted-white small"></label>
+                        <input asp-for="Phone" class="form-control" placeholder="0912 345 678" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShippingAddress" class="form-label text-muted-white small"></label>
+                        <textarea asp-for="ShippingAddress" class="form-control" rows="3"
+                                  placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                        <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Note" class="form-label text-muted-white small"></label>
+                        <textarea asp-for="Note" class="form-control" rows="2"
+                                  placeholder="Giao giờ hành chính, để ở cổng..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order summary -->
+            <div class="col-lg-5">
+                <div class="glass p-4">
+                    <h5 class="text-white fw-semibold mb-4">Đơn hàng của bạn</h5>
+
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded overflow-hidden"
+                                 style="width:48px;height:48px;background:rgba(255,255,255,.06)">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="" class="w-100 h-100 object-fit-cover">
+                                }
+                                else
+                                {
+                                    <i class="bi bi-cpu text-muted-white"></i>
+                                }
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-white mb-0 lh-sm" style="font-size:.8rem">@item.ComponentName</p>
+                                <span class="text-muted-white" style="font-size:.75rem">x@item.Quantity</span>
+                            </div>
+                            <span class="text-white fw-semibold" style="font-size:.85rem">
+                                @item.Subtotal.ToString("N0")đ
+                            </span>
+                        </div>
+                    }
+
+                    <hr class="border-white border-opacity-20">
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted-white">Tạm tính</span>
+                        <span class="text-white">@Model.Cart.Total.ToString("N0")đ</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted-white">Phí vận chuyển</span>
+                        <span class="text-success">Miễn phí</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="text-white fw-semibold">Tổng cộng</span>
+                        <span class="text-white fw-bold fs-5">@Model.Cart.Total.ToString("N0")đ</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="/Cart" class="btn glass text-white flex-shrink-0 px-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <button type="submit" class="btn btn-gradient flex-grow-1 py-2">
+                            <i class="bi bi-check-circle me-1"></i>Xác nhận đặt hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

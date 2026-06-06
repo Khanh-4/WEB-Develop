@@ -1,0 +1,212 @@
+<!-- ── Floating Chat Button ───────────────────────── -->
+<button id="chatToggle" onclick="toggleChat()"
+        style="position:fixed;bottom:28px;right:28px;z-index:2000;width:56px;height:56px;border-radius:50%;border:none"
+        class="btn-gradient shadow-lg d-flex align-items-center justify-content-center">
+    <i class="bi bi-chat-dots-fill fs-5 text-white" id="chatIcon"></i>
+</button>
+
+<!-- ── Chat Panel ─────────────────────────────────── -->
+<div id="chatPanel" style="
+    position:fixed; bottom:96px; right:28px; z-index:1999;
+    width:380px; max-height:560px;
+    display:none; flex-direction:column;
+    border-radius:1.25rem; overflow:hidden;"
+    class="glass shadow-lg">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-3 p-3"
+         style="background:linear-gradient(90deg,rgba(168,85,247,.35),rgba(59,130,246,.35));border-bottom:1px solid rgba(255,255,255,.15)">
+        <div class="gradient-icon" style="width:38px;height:38px;flex-shrink:0">
+            <i class="bi bi-robot text-white"></i>
+        </div>
+        <div>
+            <div class="text-white fw-semibold" style="font-size:.9rem">TechSpecs AI</div>
+            <div class="text-muted-white" style="font-size:.75rem">Beginner PC Builder</div>
+        </div>
+        <button onclick="toggleChat()" class="btn p-0 border-0 ms-auto text-muted-white">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;min-height:200px">
+        <div class="chat-msg bot">
+            <p class="mb-1">👋 Hi! I'm your AI PC builder assistant.</p>
+            <p class="mb-0">Tell me your <strong>budget</strong> and <strong>use-case</strong>, and I'll suggest a complete compatible build.</p>
+            <p class="mb-0 mt-2 text-muted-white" style="font-size:.8rem">Example: "I have 20 million VND for gaming" or "Budget 15tr, làm đồ họa"</p>
+        </div>
+    </div>
+
+    <!-- Input -->
+    <div class="p-3" style="border-top:1px solid rgba(255,255,255,.12)">
+        <div class="d-flex gap-2">
+            <input type="text" id="chatInput" class="form-control"
+                   placeholder="Describe your budget & needs..."
+                   onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="btn btn-gradient px-3" onclick="sendChat()" id="chatSendBtn">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.chat-msg { max-width:85%; }
+.chat-msg.bot  { align-self:flex-start; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:.25rem 1rem 1rem 1rem; padding:.6rem .9rem; color:#f1f5f9; font-size:.85rem; }
+.chat-msg.user { align-self:flex-end;   background:linear-gradient(135deg,rgba(168,85,247,.4),rgba(59,130,246,.4)); border:1px solid rgba(168,85,247,.3); border-radius:1rem 1rem .25rem 1rem; padding:.6rem .9rem; color:#fff; font-size:.85rem; }
+.build-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:.75rem; padding:.75rem; margin-top:.5rem; }
+.build-card .row-item { display:flex; justify-content:space-between; align-items:center; padding:.3rem 0; border-bottom:1px solid rgba(255,255,255,.07); font-size:.78rem; }
+.build-card .row-item:last-child { border-bottom:none; }
+</style>
+
+<script>
+function toggleChat() {
+    const panel = document.getElementById('chatPanel');
+    const icon  = document.getElementById('chatIcon');
+    const open  = panel.style.display === 'flex';
+    panel.style.display = open ? 'none' : 'flex';
+    icon.className = open ? 'bi bi-chat-dots-fill fs-5 text-white' : 'bi bi-x-lg fs-5 text-white';
+}
+
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    addMessage(msg, 'user');
+    input.value = '';
+    input.disabled = true;
+    document.getElementById('chatSendBtn').disabled = true;
+
+    addTyping();
+
+    try {
+        const resp = await fetch('/Chat/Ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await resp.json();
+        removeTyping();
+
+        if (!data.success) {
+            addMessage(data.reply || 'Sorry, something went wrong. Please try again.', 'bot');
+        } else {
+            addMessage(data.reply, 'bot');
+            if (data.build) renderBuildCard(data.build, data.totalPrice);
+        }
+    } catch {
+        removeTyping();
+        addMessage('Connection error. Please try again.', 'bot');
+    } finally {
+        input.disabled = false;
+        document.getElementById('chatSendBtn').disabled = false;
+        input.focus();
+    }
+}
+
+function addMessage(text, who) {
+    const el = document.createElement('div');
+    el.className = 'chat-msg ' + who;
+    el.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    document.getElementById('chatMessages').appendChild(el);
+    scrollChat();
+    saveChat();
+}
+
+function addTyping() {
+    const el = document.createElement('div');
+    el.className = 'chat-msg bot'; el.id = 'typingIndicator';
+    el.innerHTML = '<div class="d-flex gap-1 align-items-center"><span class="spinner-grow spinner-grow-sm" style="width:6px;height:6px"></span><span class="spinner-grow spinner-grow-sm" style="width:6px;height:6px;animation-delay:.15s"></span><span class="spinner-grow spinner-grow-sm" style="width:6px;height:6px;animation-delay:.3s"></span></div>';
+    document.getElementById('chatMessages').appendChild(el);
+    scrollChat();
+}
+
+function removeTyping() {
+    document.getElementById('typingIndicator')?.remove();
+}
+
+function renderBuildCard(build, totalPrice) {
+    const parts = [
+        ['CPU',          build.cpu],
+        ['Motherboard',  build.motherboard],
+        ['Memory',       build.memory],
+        ['GPU',          build.gpu],
+        ['Storage',      build.storage],
+        ['PSU',          build.powerSupply],
+        ['Case',         build.case],
+        ['Cooler',       build.cooler],
+    ].filter(([,v]) => v);
+
+    if (!parts.length) return;
+
+    const rows = parts.map(([label, c]) =>
+        `<div class="row-item">
+            <span class="text-muted-white">${label}</span>
+            <span class="text-white" style="max-width:55%;text-align:right;font-size:.76rem">${c.name}</span>
+            <span style="color:#c084fc;min-width:70px;text-align:right">${fmt(c.price)}</span>
+        </div>`
+    ).join('');
+
+    const el = document.createElement('div');
+    el.className = 'chat-msg bot';
+    el.style.maxWidth = '98%';
+    el.innerHTML = `
+        <div class="build-card">
+            <div class="fw-semibold text-white mb-2" style="font-size:.82rem">📋 Suggested Build</div>
+            ${rows}
+            <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,.2)">
+                <span class="text-muted-white" style="font-size:.8rem">Total</span>
+                <span class="fw-bold" style="color:#c084fc">${fmt(totalPrice)}</span>
+            </div>
+            <button class="btn btn-gradient w-100 mt-2 py-1" style="font-size:.8rem"
+                    onclick='loadBuildInBuilder(${JSON.stringify(build).replace(/&/g, "&amp;").replace(/'/g, "&#39;")})'>
+                <i class="bi bi-tools me-1"></i>Open in PC Builder
+            </button>
+        </div>`;
+    document.getElementById('chatMessages').appendChild(el);
+    scrollChat();
+    saveChat();
+}
+
+function loadBuildInBuilder(build) {
+    // Map API response keys → Builder category keys
+    const categoryMap = {
+        cpu:         { key: 'cpu',         stateKey: 'selectedCpuId' },
+        motherboard: { key: 'motherboard', stateKey: 'selectedMotherboardId' },
+        memory:      { key: 'memory',      stateKey: 'selectedMemoryId' },
+        gpu:         { key: 'videoCard',   stateKey: 'selectedVideoCardId' },
+        storage:     { key: 'storage',     stateKey: 'selectedStorageId' },
+        powerSupply: { key: 'powerSupply', stateKey: 'selectedPowerSupplyId' },
+        case:        { key: 'case',        stateKey: 'selectedCaseId' },
+        cooler:      { key: 'cooler',      stateKey: 'selectedCoolerId' },
+    };
+    const preset = {};
+    for (const [apiKey, map] of Object.entries(categoryMap)) {
+        const comp = build[apiKey];
+        if (comp?.id) preset[map.stateKey] = { id: comp.id, name: comp.name, price: comp.price, category: map.key };
+    }
+    sessionStorage.setItem('aiBuildPreset', JSON.stringify(preset));
+    window.location.href = '/Builder';
+}
+
+function fmt(n) { return new Intl.NumberFormat('vi-VN').format(n||0) + 'đ'; }
+function scrollChat() {
+    const el = document.getElementById('chatMessages');
+    el.scrollTop = el.scrollHeight;
+}
+
+function saveChat() {
+    const clone = document.getElementById('chatMessages').cloneNode(true);
+    const typing = clone.querySelector('#typingIndicator');
+    if (typing) typing.remove();
+    sessionStorage.setItem('aiChatHistory', clone.innerHTML);
+}
+
+// Restore chat history on load
+const historyHTML = sessionStorage.getItem('aiChatHistory');
+if (historyHTML) {
+    document.getElementById('chatMessages').innerHTML = historyHTML;
+    setTimeout(scrollChat, 100);
+}
+</script>

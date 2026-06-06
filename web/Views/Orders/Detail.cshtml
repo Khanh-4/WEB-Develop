@@ -1,0 +1,90 @@
+@model TechSpecs.ViewModels.OrderDetailViewModel
+@{ ViewData["Title"] = $"Đơn hàng #{Model.Id}"; }
+
+@{
+    string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch
+    {
+        TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
+        TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",
+        TechSpecs.Models.OrderStatus.Shipped   => "Đang giao",
+        TechSpecs.Models.OrderStatus.Delivered => "Đã nhận",
+        TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
+        _ => s.ToString()
+    };
+
+    string StatusClass(TechSpecs.Models.OrderStatus s) => s switch
+    {
+        TechSpecs.Models.OrderStatus.Pending   => "text-warning",
+        TechSpecs.Models.OrderStatus.Confirmed => "text-info",
+        TechSpecs.Models.OrderStatus.Shipped   => "text-primary",
+        TechSpecs.Models.OrderStatus.Delivered => "text-success",
+        TechSpecs.Models.OrderStatus.Cancelled => "text-danger",
+        _ => "text-white"
+    };
+}
+
+<div class="container py-5 px-3" style="max-width:760px">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/Orders" class="btn glass text-white px-3 py-1">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="text-white fw-bold mb-0">Đơn hàng #@Model.Id</h1>
+        <span class="@StatusClass(Model.Status) fw-semibold ms-auto">● @StatusLabel(Model.Status)</span>
+    </div>
+
+    <!-- Items -->
+    <div class="glass p-4 mb-4">
+        <h6 class="text-white fw-semibold mb-3">Sản phẩm</h6>
+        @foreach (var item in Model.Items)
+        {
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded overflow-hidden"
+                     style="width:56px;height:56px;background:rgba(255,255,255,.06)">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="" class="w-100 h-100 object-fit-cover">
+                    }
+                    else
+                    {
+                        <i class="bi bi-cpu text-muted-white"></i>
+                    }
+                </div>
+                <div class="flex-grow-1">
+                    <span class="badge mb-1" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.66rem">
+                        @item.Category.ToUpper()
+                    </span>
+                    <p class="text-white mb-0 lh-sm" style="font-size:.85rem">@item.ComponentName</p>
+                    <span class="text-muted-white" style="font-size:.78rem">
+                        @item.Price.ToString("N0")đ × @item.Quantity
+                    </span>
+                </div>
+                <span class="text-white fw-semibold">@item.Subtotal.ToString("N0")đ</span>
+            </div>
+        }
+        <hr class="border-white border-opacity-20">
+        <div class="d-flex justify-content-between">
+            <span class="text-white fw-semibold">Tổng cộng</span>
+            <span class="text-white fw-bold fs-5">@Model.TotalAmount.ToString("N0")đ</span>
+        </div>
+    </div>
+
+    <!-- Shipping info -->
+    <div class="glass p-4 mb-4">
+        <h6 class="text-white fw-semibold mb-3">Thông tin giao hàng</h6>
+        <div class="row g-2 text-muted-white small">
+            <div class="col-5">Người nhận:</div>
+            <div class="col-7 text-white">@Model.RecipientName</div>
+            <div class="col-5">Số điện thoại:</div>
+            <div class="col-7 text-white">@Model.Phone</div>
+            <div class="col-5">Địa chỉ:</div>
+            <div class="col-7 text-white">@Model.ShippingAddress</div>
+            <div class="col-5">Ngày đặt:</div>
+            <div class="col-7 text-white">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+            @if (!string.IsNullOrEmpty(Model.Note))
+            {
+                <div class="col-5">Ghi chú:</div>
+                <div class="col-7 text-white">@Model.Note</div>
+            }
+        </div>
+    </div>
+</div>

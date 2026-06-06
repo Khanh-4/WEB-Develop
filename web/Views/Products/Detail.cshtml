@@ -1,0 +1,142 @@
+@model TechSpecs.ViewModels.ProductDetailViewModel
+@{
+    var catLabel = Model.Category switch {
+        "cpu"         => "Processor",
+        "motherboard" => "Motherboard",
+        "memory"      => "Memory (RAM)",
+        "gpu"         => "Graphics Card",
+        "storage"     => "Storage",
+        "psu"         => "Power Supply",
+        "case"        => "Case",
+        "cooler"      => "CPU Cooler",
+        _             => Model.Category
+    };
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container-xl py-4 px-3">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" style="--bs-breadcrumb-divider-color:rgba(255,255,255,0.4)">
+            <li class="breadcrumb-item">
+                <a href="/Products" class="text-decoration-none" style="color:rgba(255,255,255,0.6)">Components</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/Products?category=@Model.Category" class="text-decoration-none" style="color:rgba(255,255,255,0.6)">@catLabel</a>
+            </li>
+            <li class="breadcrumb-item active text-white" aria-current="page"
+                style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                @Model.Name
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- Image panel -->
+        <div class="col-lg-5">
+            <div class="glass p-3 rounded-4 d-flex align-items-center justify-content-center"
+                 style="min-height:380px">
+                @if (Model.ImageUrl != null)
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name"
+                         class="img-fluid rounded-3"
+                         style="max-height:360px;object-fit:contain" />
+                }
+                else
+                {
+                    <i class="bi bi-cpu text-muted-white" style="font-size:6rem;opacity:.35"></i>
+                }
+            </div>
+        </div>
+
+        <!-- Info panel -->
+        <div class="col-lg-7">
+            <div class="glass p-4 rounded-4 h-100 d-flex flex-column">
+
+                <!-- Category + stock -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge rounded-pill px-3 py-2"
+                          style="background:rgba(168,85,247,.25);color:#c084fc;font-size:.8rem">
+                        @catLabel
+                    </span>
+                    @if (Model.Stock > 0)
+                    {
+                        <span class="badge rounded-pill px-3 py-2"
+                              style="background:rgba(34,197,94,.15);color:#4ade80;font-size:.8rem">
+                            <i class="bi bi-check-circle me-1"></i>In Stock
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge rounded-pill px-3 py-2"
+                              style="background:rgba(239,68,68,.15);color:#f87171;font-size:.8rem">
+                            Out of Stock
+                        </span>
+                    }
+                </div>
+
+                <!-- Name + manufacturer -->
+                <p class="mb-1" style="color:rgba(255,255,255,0.5);font-size:.85rem">@Model.Manufacturer</p>
+                <h1 class="text-white fw-bold mb-4" style="font-size:1.4rem;line-height:1.35">@Model.Name</h1>
+
+                <!-- Price -->
+                <div class="mb-4">
+                    <span class="fw-bold" style="font-size:2rem;background:linear-gradient(135deg,#a855f7,#6366f1);
+                          -webkit-background-clip:text;-webkit-text-fill-color:transparent">
+                        @Model.Price.ToString("N0")đ
+                    </span>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex gap-3 mb-4 flex-wrap">
+                    <button class="btn btn-gradient px-4 py-2 rounded-3 fw-semibold"
+                            @(Model.Stock == 0 ? "disabled" : "")
+                            data-pid="@Model.Id" data-pcat="@Model.Category"
+                            data-pname="@Model.Name" data-pprice="@Model.Price"
+                            data-pimg="@Model.ImageUrl"
+                            onclick="addToCartFromData(this)">
+                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                    </button>
+                    <button class="btn glass text-white px-4 py-2 rounded-3 fw-semibold"
+                            onclick="goBuilder('@Model.Category',@Model.Id)">
+                        <i class="bi bi-tools me-2"></i>Add to Builder
+                    </button>
+                </div>
+
+                <!-- Specs table -->
+                <div class="mt-auto">
+                    <h6 class="text-white mb-3 fw-semibold" style="font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;opacity:.7">
+                        Specifications
+                    </h6>
+                    <div class="rounded-3 overflow-hidden" style="border:1px solid rgba(255,255,255,0.08)">
+                        @foreach (var (key, val) in Model.Specs)
+                        {
+                            <div class="d-flex" style="border-bottom:1px solid rgba(255,255,255,0.06)">
+                                <div class="px-3 py-2 flex-shrink-0"
+                                     style="width:170px;background:rgba(255,255,255,0.04);
+                                            color:rgba(255,255,255,0.55);font-size:.82rem">
+                                    @key
+                                </div>
+                                <div class="px-3 py-2 text-white flex-grow-1" style="font-size:.85rem;word-break:break-word">
+                                    @val
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function goBuilder(category, id) {
+    window.location.href = '/Builder?preselect=' + category + ':' + id;
+}
+// addToCart is defined in site.js
+</script>
+}

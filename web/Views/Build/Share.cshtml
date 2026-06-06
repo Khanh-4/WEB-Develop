@@ -1,0 +1,143 @@
+@model TechSpecs.Controllers.ShareBuildViewModel
+@{ ViewData["Title"] = Model.Build.Name + " — PC Build"; }
+
+<div class="container-xl py-4 px-3">
+
+    <!-- Header -->
+    <div class="glass p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="text-muted-white small mb-1">
+                    <i class="bi bi-share me-1"></i>Shared PC Build
+                </div>
+                <h1 class="text-white fw-bold mb-1">@Model.Build.Name</h1>
+                <span class="text-muted-white small">
+                    by @(Model.Build.User?.FullName ?? "Anonymous") &bull;
+                    @Model.Build.CreatedAt.ToString("dd/MM/yyyy")
+                </span>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <button class="btn glass text-white" onclick="copyPageLink(this)">
+                    <i class="bi bi-link-45deg me-1"></i>Copy Link
+                </button>
+                <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient"
+                   id="buildThisBtn">
+                    <i class="bi bi-tools me-2"></i>Build This
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Component List -->
+        <div class="col-lg-8">
+            <div class="glass p-4">
+                <h5 class="text-white fw-semibold mb-4">Components</h5>
+                @{
+                    var catLabels = new Dictionary<string,string> {
+                        ["cpu"]="Processor",["motherboard"]="Motherboard",["memory"]="Memory",
+                        ["videoCard"]="Graphics Card",["storage"]="Storage",["powerSupply"]="Power Supply",
+                        ["case"]="Case",["cooler"]="CPU Cooler"
+                    };
+                    var catIcons = new Dictionary<string,string> {
+                        ["cpu"]="bi-cpu",["motherboard"]="bi-motherboard",["memory"]="bi-memory",
+                        ["videoCard"]="bi-gpu-card",["storage"]="bi-device-hdd",["powerSupply"]="bi-lightning-charge",
+                        ["case"]="bi-box",["cooler"]="bi-thermometer-half"
+                    };
+                    var catOrder = new[] { "cpu","motherboard","memory","videoCard","storage","powerSupply","case","cooler" };
+                }
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var cat in catOrder)
+                    {
+                        var label = catLabels.GetValueOrDefault(cat, cat);
+                        var icon  = catIcons.GetValueOrDefault(cat, "bi-cpu");
+                        if (Model.Components.TryGetValue(cat, out var comp))
+                        {
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:rgba(255,255,255,.05)">
+                                @if (comp.ImageUrl != null)
+                                {
+                                    <img src="@comp.ImageUrl" alt="@comp.Name"
+                                         style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.04)">
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center justify-content-center rounded-3" style="width:56px;height:56px;background:rgba(255,255,255,.06)">
+                                        <i class="bi @icon text-muted-white" style="font-size:1.4rem"></i>
+                                    </div>
+                                }
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="text-muted-white small">@label</div>
+                                    <div class="text-white fw-semibold text-truncate">@comp.Name</div>
+                                </div>
+                                <div class="text-white fw-bold text-nowrap">@comp.Price.ToString("N0")đ</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:rgba(255,255,255,.02);opacity:.4">
+                                <div class="d-flex align-items-center justify-content-center rounded-3" style="width:56px;height:56px;background:rgba(255,255,255,.04)">
+                                    <i class="bi @icon text-muted-white" style="font-size:1.4rem"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted-white small">@label</div>
+                                    <div class="text-muted-white small fst-italic">Not included</div>
+                                </div>
+                                <div class="text-muted-white">—</div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="col-lg-4">
+            <div class="glass p-4 mb-3">
+                <h5 class="text-white fw-semibold mb-4">Summary</h5>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted-white">Components</span>
+                    <span class="text-white fw-semibold">@Model.Components.Count / 8</span>
+                </div>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-muted-white">Total Price</span>
+                    <span class="text-white fw-bold fs-5">@Model.TotalPrice.ToString("N0")đ</span>
+                </div>
+
+                <hr class="divider-white my-3">
+
+                <a asp-controller="Builder" asp-action="Index" id="buildThisBtn2"
+                   class="btn btn-gradient w-100 mb-2">
+                    <i class="bi bi-tools me-2"></i>Build This PC
+                </a>
+                <button class="btn glass text-white w-100" onclick="copyPageLink(this)">
+                    <i class="bi bi-share me-2"></i>Share Build
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const buildJson = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Build.BuildJson));
+
+// Pre-load this build into Builder when "Build This" is clicked
+document.querySelectorAll('#buildThisBtn, #buildThisBtn2').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        try { sessionStorage.setItem('loadBuild', buildJson); } catch {}
+        window.location.href = '/Builder';
+    });
+});
+
+function copyPageLink(btn) {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copied!';
+        setTimeout(() => btn.innerHTML = orig, 2000);
+    });
+}
+</script>
+}

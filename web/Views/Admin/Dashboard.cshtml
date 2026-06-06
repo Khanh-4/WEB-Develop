@@ -1,0 +1,154 @@
+@model TechSpecs.ViewModels.AdminDashboardViewModel
+@{ ViewData["Title"] = "Admin Dashboard"; }
+
+@{
+    string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch {
+        TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
+        TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",
+        TechSpecs.Models.OrderStatus.Shipped   => "Đang giao",
+        TechSpecs.Models.OrderStatus.Delivered => "Đã nhận",
+        TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
+        _ => s.ToString()
+    };
+    string StatusClass(TechSpecs.Models.OrderStatus s) => s switch {
+        TechSpecs.Models.OrderStatus.Pending   => "text-warning",
+        TechSpecs.Models.OrderStatus.Confirmed => "text-info",
+        TechSpecs.Models.OrderStatus.Shipped   => "text-primary",
+        TechSpecs.Models.OrderStatus.Delivered => "text-success",
+        TechSpecs.Models.OrderStatus.Cancelled => "text-danger",
+        _ => "text-white"
+    };
+}
+
+<div class="container-xl py-4 px-3">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="text-white fw-bold mb-0"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
+        <div class="d-flex gap-2">
+            <a href="/Admin/Products" class="btn glass text-white px-3">
+                <i class="bi bi-box-seam me-1"></i>Products
+            </a>
+            <a href="/Admin/Orders" class="btn glass text-white px-3">
+                <i class="bi bi-bag-check me-1"></i>Orders
+            </a>
+            <a href="/Admin/Scraper" class="btn glass text-white px-3">
+                <i class="bi bi-arrow-repeat me-1"></i>Scraper
+            </a>
+        </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center"
+                         style="width:48px;height:48px;background:rgba(168,85,247,.25)">
+                        <i class="bi bi-people-fill text-purple fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted-white small">Người dùng</div>
+                        <div class="text-white fw-bold fs-4">@Model.TotalUsers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center"
+                         style="width:48px;height:48px;background:rgba(234,179,8,.2)">
+                        <i class="bi bi-bag-check-fill fs-5" style="color:#eab308"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted-white small">Đơn hàng</div>
+                        <div class="text-white fw-bold fs-4">@Model.TotalOrders</div>
+                        @if (Model.PendingOrders > 0)
+                        {
+                            <div class="text-warning" style="font-size:.75rem">@Model.PendingOrders chờ xác nhận</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center"
+                         style="width:48px;height:48px;background:rgba(34,197,94,.2)">
+                        <i class="bi bi-currency-dollar fs-5 text-success"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted-white small">Doanh thu</div>
+                        <div class="text-white fw-bold fs-5">@Model.TotalRevenue.ToString("N0")đ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="glass p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center"
+                         style="width:48px;height:48px;background:rgba(59,130,246,.2)">
+                        <i class="bi bi-cpu-fill fs-5 text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted-white small">Sản phẩm</div>
+                        <div class="text-white fw-bold fs-4">@Model.TotalProducts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent orders -->
+        <div class="col-lg-7">
+            <div class="glass p-4 h-100">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-white fw-semibold mb-0">Đơn hàng gần đây</h6>
+                    <a href="/Admin/Orders" class="text-muted-white small">Xem tất cả →</a>
+                </div>
+                @if (!Model.RecentOrders.Any())
+                {
+                    <p class="text-muted-white small">Chưa có đơn hàng nào.</p>
+                }
+                else
+                {
+                    @foreach (var o in Model.RecentOrders)
+                    {
+                        <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom border-white border-opacity-10">
+                            <div class="flex-grow-1">
+                                <span class="text-white fw-semibold">#@o.Id</span>
+                                <span class="@StatusClass(o.Status) ms-2 small">● @StatusLabel(o.Status)</span>
+                                <div class="text-muted-white" style="font-size:.75rem">
+                                    @o.ItemCount sản phẩm · @o.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")
+                                </div>
+                            </div>
+                            <span class="text-white fw-semibold">@o.TotalAmount.ToString("N0")đ</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Products by category -->
+        <div class="col-lg-5">
+            <div class="glass p-4 h-100">
+                <div class="d-flex justify-content-between mb-3">
+                    <h6 class="text-white fw-semibold mb-0">Sản phẩm theo danh mục</h6>
+                    <a href="/Admin/Products" class="text-muted-white small">Quản lý →</a>
+                </div>
+                @foreach (var (cat, count) in Model.ProductCountByCategory)
+                {
+                    var catKey = cat switch { "CPU" => "cpu", "Motherboard" => "motherboard", "RAM" => "memory", "GPU" => "gpu", "PSU" => "psu", "Case" => "case", "Storage" => "storage", "Cooler" => "cooler", _ => cat.ToLower() };
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <a href="/Admin/Products?category=@catKey" class="text-muted-white small text-decoration-none">@cat</a>
+                        <span class="badge glass-sm text-white">@count</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
