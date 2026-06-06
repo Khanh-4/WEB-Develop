@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +37,19 @@ builder.Services.AddScoped<TechSpecs.Services.IAIAssistantService, TechSpecs.Ser
 builder.Services.AddScoped<TechSpecs.Services.IEmailSender, TechSpecs.Services.ResendEmailSender>();
 builder.Services.AddHttpClient();
 
-// Add services to the container.
+// Persist DataProtection keys to DB so sessions survive container restarts/redeploys
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<TechSpecs.Data.AppDbContext>()
+    .SetApplicationName("TechSpecs");
+
+// Trust Railway's reverse proxy for ForwardedHeaders
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();   // trust all upstream proxies
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -48,13 +61,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Trust Railway's reverse proxy so OAuth callbacks and cookies use https://
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+// Use the ForwardedHeadersOptions configured in services (KnownNetworks/KnownProxies cleared)
+app.UseForwardedHeaders();
 
-app.UseHttpsRedirection();
+// Railway terminates HTTPS at its proxy; only redirect in dev to avoid redirect loops
+if (!app.Environment.IsProduction())
+    app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
