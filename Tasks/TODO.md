@@ -1,8 +1,8 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-06 (session 3 complete)
-> Next: Forgot Password → GitHub Actions cron → Deploy Railway
+> Last updated: 2026-06-06 (session 4 in progress)
+> Next: Deploy Railway
 
 ---
 
@@ -94,10 +94,8 @@
 - [x] Re-scrape + fix data CPU + GPU
 - [x] Thêm scraper cho **TTGShop**
 - [x] Thêm scraper cho **GearVN**
-- [ ] **Chạy scraper định kỳ**: thiết lập GitHub Actions cron job mỗi 12 giờ
-  - File `.github/workflows/scraper.yml`
-  - Cần thêm `DATABASE_URL` vào GitHub Secrets
-- [ ] Thêm scraper cho **An Phát** (`anphatpc.com.vn`) — tăng độ phủ sản phẩm
+- [x] **Chạy scraper định kỳ**: GitHub Actions cron job mỗi 12 giờ, 4 parallel jobs (phongvu/ttgshop/gearvn/anphat)
+- [x] Thêm scraper cho **An Phát** (`anphatpc.com.vn`) — JSON API, 8 categories, ~1000 products
 
 ---
 
