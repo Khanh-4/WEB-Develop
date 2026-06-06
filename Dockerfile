@@ -1,7 +1,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+# Restore separately so Docker can cache the layer
+COPY web/*.csproj .
+RUN dotnet restore
 COPY web/ .
-RUN dotnet publish -c Release -o /app/publish --no-restore || (dotnet restore && dotnet publish -c Release -o /app/publish)
+RUN dotnet publish -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
