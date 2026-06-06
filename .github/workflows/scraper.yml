@@ -12,7 +12,11 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 60        # Full scrape ~25 phút; 60 phút dư dả
+    timeout-minutes: 90        # Mỗi source ~25-40 phút; 90 phút dư dả
+    strategy:
+      fail-fast: false         # Nếu 1 source fail, 2 source còn lại vẫn chạy
+      matrix:
+        source: [phongvu, ttgshop, gearvn]
 
     steps:
       - name: Checkout code
@@ -29,8 +33,8 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: scraper
 
-      - name: Run scraper (all sources, all categories)
+      - name: Run scraper (${{ matrix.source }})
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python main.py
+        run: python main.py --source ${{ matrix.source }}
         working-directory: scraper
