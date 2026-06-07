@@ -1,7 +1,7 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-06 (session 4 complete)
+> Last updated: 2026-06-07 (session 5 complete — all Priority 6 done)
 > Status: **Production live** at https://web-develop-production.up.railway.app
 
 ---
@@ -129,14 +129,14 @@
 
 ---
 
-## Priority 6 — Tính năng nâng cao (Nice-to-have)
+## Priority 6 — Tính năng nâng cao ✅ All done
 
-- [ ] **So sánh build**: chọn 2 build để so sánh side-by-side
-- [ ] **Build community**: user chia sẻ build, upvote, bình luận
-- [ ] **Price history**: lưu lịch sử giá mỗi lần scrape, vẽ biểu đồ
-- [ ] **Wishlist**: user lưu sản phẩm yêu thích
-- [ ] **Multi-language**: thêm tiếng Việt (hiện tại UI đang tiếng Anh)
-- [ ] **Dark/Light mode toggle**
+- [x] **So sánh build**: checkboxes trong MyBuilds, floating bar "A vs B → So sánh", trang side-by-side 8 rows
+- [x] **Build community**: trang `/Community` public builds sorted by upvotes, nút Publish/Upvote
+- [x] **Price history**: scraper ghi vào `price_history` mỗi khi giá thay đổi, Chart.js trên Product Detail
+- [x] **Wishlist**: heart button trên Product Detail, trang `/Wishlist`, Add to Cart từ wishlist
+- [x] **Multi-language**: ASP.NET Core localization, SharedResource.vi.resx, VI/EN toggle trong navbar
+- [x] **Dark/Light mode toggle**: sun/moon button navbar, `.light-mode` CSS, persist localStorage
 
 ---
 
@@ -147,9 +147,9 @@
 | ~~Motherboard `SocketCompatibility` = "Unknown" cho 100% sản phẩm~~ | ~~Medium~~ | Đã fix ✓ |
 | ~~VRAM hiển thị sai (VD: "5060 GB")~~ | ~~Medium~~ | Đã fix ✓ |
 | ~~TDP = 0W cho nhiều CPU~~ | ~~Low~~ | Đã fix ✓ |
-| CPU performance score = 0 cho ~27% sản phẩm (không extract được clock) | Low | Vẫn hiện trong filter, xếp cuối |
+| ~~CPU performance score = 0 cho ~27% sản phẩm~~ | ~~Low~~ | Đã fix: lookup table 60+ CPU models + range GHz pattern ✓ |
 | `dotnet run` báo port 5003 đã dùng | Low | Dùng `fuser -k 5003/tcp` trước khi chạy |
-| `PORT` env var override khiến local dev chạy trên 8080 thay vì 5003 | Low | Dùng `PORT=5003 dotnet run --launch-profile http` |
+| ~~`PORT` env var override khiến local dev chạy trên 8080~~ | ~~Low~~ | Đã fix: chỉ bind khi `PORT` env var thực sự được set ✓ |
 | ~~Nút "Add to Cart" trên Products/Builder chưa hoạt động~~ | ~~High~~ | Đã xong ✓ |
 
 ---
