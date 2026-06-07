@@ -1,4 +1,5 @@
 @model TechSpecs.ViewModels.OrderDetailViewModel
+@using TechSpecs.Models
 @{ ViewData["Title"] = $"#{Model.Id}"; }
 
 @{
@@ -220,6 +221,22 @@
             {
                 <div class="col-5">@L["Order.Note"]</div>
                 <div class="col-7 text-white">@Model.Note</div>
+            }
+            <div class="col-5">Thanh toán</div>
+            <div class="col-7 text-white">
+                @if (Model.PaymentMethod == PaymentMethod.BankTransfer)
+                {
+                    <i class="bi bi-bank me-1" style="color:#60a5fa"></i><text>Chuyển khoản ngân hàng</text>
+                }
+                else
+                {
+                    <i class="bi bi-cash-coin me-1" style="color:#fbbf24"></i><text>COD</text>
+                }
+            </div>
+            @if (Model.DiscountAmount > 0)
+            {
+                <div class="col-5">Giảm giá</div>
+                <div class="col-7" style="color:#4ade80">-@Model.DiscountAmount.ToString("N0")đ</div>
             }
         </div>
     </div>

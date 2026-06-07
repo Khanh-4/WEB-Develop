@@ -3,6 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TechSpecs.Models;
 
+public enum PaymentMethod
+{
+    COD          = 0,
+    BankTransfer = 1,
+}
+
 public enum OrderStatus
 {
     Pending      = 0,
@@ -26,6 +32,11 @@ public class Order
     public decimal TotalAmount { get; set; }
 
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
+
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.COD;
+
+    [Column(TypeName = "decimal(18,0)")]
+    public decimal DiscountAmount { get; set; } = 0;
 
     [Required, MaxLength(200)]
     public string RecipientName { get; set; } = string.Empty;

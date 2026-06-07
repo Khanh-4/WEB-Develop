@@ -80,11 +80,16 @@ public class OrdersController : Controller
         if (!ModelState.IsValid)
             return View(vm);
 
+        var subtotal = cart.Items.Sum(i => i.Price * i.Quantity);
+        var discount = ApplyCoupon(vm.CouponCode, subtotal);
+
         var order = new Order
         {
             UserId = userId,
-            TotalAmount = cart.Items.Sum(i => i.Price * i.Quantity),
+            TotalAmount = subtotal - discount,
+            DiscountAmount = discount,
             Status = OrderStatus.Pending,
+            PaymentMethod = vm.PaymentMethod,
             RecipientName = vm.RecipientName,
             Phone = vm.Phone,
             ShippingAddress = vm.ShippingAddress,
@@ -105,6 +110,15 @@ public class OrdersController : Controller
         await _db.SaveChangesAsync();
 
         return RedirectToAction(nameof(Confirmation), new { id = order.Id });
+    }
+
+    // GET /Orders/CheckCoupon?code=X&subtotal=Y
+    [HttpGet]
+    public IActionResult CheckCoupon(string? code, decimal subtotal)
+    {
+        var discount = ApplyCoupon(code, subtotal);
+        bool valid = discount > 0;
+        return Json(new { valid, discount, total = subtotal - discount });
     }
 
     // GET /Orders/Confirmation/5
@@ -183,6 +197,12 @@ public class OrdersController : Controller
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
+    private static decimal ApplyCoupon(string? code, decimal subtotal) => code?.ToUpper() switch
+    {
+        "TECHSPECS10" => Math.Round(subtotal * 0.10m),
+        _             => 0m,
+    };
+
     private static CartViewModel BuildCartVm(Cart cart) => new()
     {
         Items = cart.Items.Select(i => new CartItemViewModel
@@ -201,7 +221,9 @@ public class OrdersController : Controller
     {
         Id = o.Id,
         Status = o.Status,
+        PaymentMethod = o.PaymentMethod,
         TotalAmount = o.TotalAmount,
+        DiscountAmount = o.DiscountAmount,
         RecipientName = o.RecipientName,
         Phone = o.Phone,
         ShippingAddress = o.ShippingAddress,

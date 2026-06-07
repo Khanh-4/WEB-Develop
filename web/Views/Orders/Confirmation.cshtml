@@ -1,4 +1,5 @@
 @model TechSpecs.ViewModels.OrderDetailViewModel
+@using TechSpecs.Models
 @{ ViewData["Title"] = L["Order.PlacedSuccess"].Value; }
 
 <div class="container py-5 px-3" style="max-width:680px">
@@ -23,8 +24,34 @@
                 <div class="col-5">@L["Order.Note"]</div>
                 <div class="col-7 text-white">@Model.Note</div>
             }
+            <div class="col-5">Thanh toán</div>
+            <div class="col-7 text-white">
+                @if (Model.PaymentMethod == PaymentMethod.BankTransfer)
+                {
+                    <text><i class="bi bi-bank me-1" style="color:#60a5fa"></i>Chuyển khoản ngân hàng</text>
+                }
+                else
+                {
+                    <text><i class="bi bi-cash-coin me-1" style="color:#fbbf24"></i>Thanh toán khi nhận hàng (COD)</text>
+                }
+            </div>
         </div>
     </div>
+
+    @if (Model.PaymentMethod == PaymentMethod.BankTransfer)
+    {
+        <div class="glass p-4 mb-4" style="border:1px solid rgba(96,165,250,.3)">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-bank me-2" style="color:#60a5fa"></i>Thông tin chuyển khoản</h6>
+            <div class="row g-2 small">
+                <div class="col-5 text-muted">Ngân hàng</div><div class="col-7">Vietcombank</div>
+                <div class="col-5 text-muted">Số tài khoản</div><div class="col-7 fw-semibold">1234 5678 9012</div>
+                <div class="col-5 text-muted">Chủ tài khoản</div><div class="col-7">CONG TY TECHSPECS</div>
+                <div class="col-5 text-muted">Nội dung CK</div>
+                <div class="col-7 fw-semibold" style="color:#a855f7">TECHSPECS #@Model.Id</div>
+            </div>
+            <p class="text-muted small mt-2 mb-0">Đơn hàng sẽ được xác nhận sau khi nhận được thanh toán.</p>
+        </div>
+    }
 
     <div class="glass p-4 mb-4">
         <h6 class="text-white fw-semibold mb-3">@L["Order.ItemsOrdered"]</h6>
@@ -36,6 +63,13 @@
             </div>
         }
         <hr class="border-white border-opacity-20">
+        @if (Model.DiscountAmount > 0)
+        {
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted-white"><i class="bi bi-tag-fill me-1"></i>Giảm giá</span>
+                <span style="color:#4ade80">-@Model.DiscountAmount.ToString("N0")đ</span>
+            </div>
+        }
         <div class="d-flex justify-content-between">
             <span class="text-white fw-semibold">@L["Label.Total"]</span>
             <span class="text-white fw-bold">@Model.TotalAmount.ToString("N0")đ</span>

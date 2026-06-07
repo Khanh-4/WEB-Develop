@@ -20,7 +20,9 @@ public class OrderDetailViewModel
 {
     public int Id { get; set; }
     public OrderStatus Status { get; set; }
+    public PaymentMethod PaymentMethod { get; set; }
     public decimal TotalAmount { get; set; }
+    public decimal DiscountAmount { get; set; }
     public string RecipientName { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string ShippingAddress { get; set; } = string.Empty;

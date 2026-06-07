@@ -44,6 +44,11 @@ public class CheckoutViewModel
     [Display(Name = "Ghi chú (tuỳ chọn)")]
     public string? Note { get; set; }
 
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.COD;
+
+    [MaxLength(50)]
+    public string? CouponCode { get; set; }
+
     // For display
     public CartViewModel Cart { get; set; } = new();
 }
