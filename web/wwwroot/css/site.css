@@ -175,3 +175,64 @@ body {
     font-size: .65rem; width: 18px; height: 18px;
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
 }
+
+/* ── Light mode overrides ────────────────────────── */
+body.light-mode {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8d5ff 50%, #f0f4ff 100%);
+    color: #1e293b;
+}
+body.light-mode .glass {
+    background: rgba(255,255,255,.75);
+    border-color: rgba(0,0,0,.1);
+}
+body.light-mode .glass-sm {
+    background: rgba(255,255,255,.65);
+    border-color: rgba(0,0,0,.1);
+}
+body.light-mode .glass:hover { background: rgba(255,255,255,.88); }
+body.light-mode .navbar-glass {
+    background: rgba(255,255,255,.88) !important;
+    border-bottom-color: rgba(0,0,0,.1);
+}
+body.light-mode .navbar-glass .nav-link { color: #374151 !important; }
+body.light-mode .navbar-glass .nav-link:hover { color: #6366f1 !important; }
+body.light-mode .navbar-glass .navbar-brand { color: #1e293b !important; }
+body.light-mode .text-white { color: #1e293b !important; }
+body.light-mode .text-muted-white { color: rgba(0,0,0,.5) !important; }
+body.light-mode .divider-white { border-color: rgba(0,0,0,.15) !important; }
+body.light-mode .dropdown-menu.glass-sm {
+    background: rgba(255,255,255,.95) !important;
+    border-color: rgba(0,0,0,.12) !important;
+}
+body.light-mode .dropdown-item { color: #1e293b !important; }
+body.light-mode .dropdown-item:hover { background: rgba(0,0,0,.05) !important; }
+body.light-mode .component-card {
+    background: rgba(255,255,255,.55);
+    border-color: rgba(0,0,0,.1);
+}
+body.light-mode .component-card:hover { background: rgba(255,255,255,.8); }
+body.light-mode .build-step {
+    background: rgba(255,255,255,.45);
+    border-color: rgba(0,0,0,.1);
+}
+body.light-mode .build-step:hover { background: rgba(255,255,255,.65); }
+body.light-mode .category-pill {
+    background: rgba(0,0,0,.06);
+    border-color: rgba(0,0,0,.12);
+    color: #374151;
+}
+body.light-mode .category-pill:hover { background: rgba(0,0,0,.1); color: #1e293b; }
+body.light-mode .form-control,
+body.light-mode .form-select {
+    background: rgba(255,255,255,.8) !important;
+    border-color: rgba(0,0,0,.2) !important;
+    color: #1e293b !important;
+}
+body.light-mode .form-control::placeholder { color: rgba(0,0,0,.35); }
+body.light-mode .form-select option { background: #fff; color: #1e293b; }
+body.light-mode .badge.glass-sm {
+    background: rgba(0,0,0,.07) !important;
+    border-color: rgba(0,0,0,.1) !important;
+    color: #374151 !important;
+}
+body.light-mode .perf-bar-track { background: rgba(0,0,0,.1); }

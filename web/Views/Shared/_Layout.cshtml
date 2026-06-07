@@ -43,6 +43,11 @@
             </ul>
 
             <ul class="navbar-nav align-items-center gap-2">
+                <li class="nav-item">
+                    <button class="btn glass text-white px-2 py-1" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:1.1rem;line-height:1">
+                        <i class="bi bi-sun" id="themeIcon"></i>
+                    </button>
+                </li>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <li class="nav-item">
@@ -100,6 +105,21 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+// Apply theme before paint to avoid flash
+(function() {
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+        const icon = document.getElementById('themeIcon');
+        if (icon) icon.className = 'bi bi-moon-stars';
+    }
+})();
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    document.getElementById('themeIcon').className = isLight ? 'bi bi-moon-stars' : 'bi bi-sun';
+}
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 @await Html.PartialAsync("_ChatWidget")
 @if (User.Identity?.IsAuthenticated == true)
