@@ -7,6 +7,9 @@ public enum PaymentMethod
 {
     COD          = 0,
     BankTransfer = 1,
+    VnPay        = 2,
+    MoMo         = 3,
+    ZaloPay      = 4,
 }
 
 public enum OrderStatus

@@ -180,6 +180,15 @@ public class AdminController : Controller
                     });
                 }
             }
+
+            // Award loyalty points to buyer
+            var user = await _users.FindByIdAsync(order.UserId);
+            if (user != null)
+            {
+                user.TotalSpend   += order.TotalAmount;
+                user.LoyaltyPoints += MembershipTier.PointsFor(order.TotalAmount);
+                await _users.UpdateAsync(user);
+            }
         }
 
         await _db.SaveChangesAsync();
@@ -296,6 +305,76 @@ public class AdminController : Controller
         var coupon = await _db.Coupons.FindAsync(id);
         if (coupon != null) { _db.Coupons.Remove(coupon); await _db.SaveChangesAsync(); }
         return RedirectToAction(nameof(Coupons));
+    }
+
+    // ── Bundles ───────────────────────────────────────────────────
+
+    public async Task<IActionResult> Bundles()
+    {
+        var bundles = await _db.Bundles.Include(b => b.Items)
+            .OrderByDescending(b => b.CreatedAt).ToListAsync();
+        return View(bundles);
+    }
+
+    [HttpGet]
+    public IActionResult CreateBundle() => View();
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateBundle(
+        string name, string? description, int discountPercent,
+        string[] categories, int[] componentIds, string[] productNames, decimal[] prices)
+    {
+        if (string.IsNullOrWhiteSpace(name) || componentIds.Length == 0)
+            return RedirectToAction(nameof(Bundles));
+
+        var bundle = new Bundle
+        {
+            Name = name.Trim(), Description = description, DiscountPercent = discountPercent
+        };
+        for (int i = 0; i < componentIds.Length; i++)
+        {
+            bundle.Items.Add(new BundleItem
+            {
+                Category    = categories[i],
+                ComponentId = componentIds[i],
+                ProductName = productNames[i],
+                Price       = prices[i],
+            });
+        }
+        _db.Bundles.Add(bundle);
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(Bundles));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleBundle(int id)
+    {
+        var b = await _db.Bundles.FindAsync(id);
+        if (b != null) { b.IsActive = !b.IsActive; await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(Bundles));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteBundle(int id)
+    {
+        var b = await _db.Bundles.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == id);
+        if (b != null) { _db.Bundles.Remove(b); await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(Bundles));
+    }
+
+    // GET /Admin/BundlesApi — public JSON for cart to check matches
+    [AllowAnonymous, HttpGet]
+    public async Task<IActionResult> BundlesApi()
+    {
+        var bundles = await _db.Bundles
+            .Include(b => b.Items)
+            .Where(b => b.IsActive)
+            .Select(b => new {
+                b.Id, b.Name, b.Description, b.DiscountPercent,
+                Items = b.Items.Select(i => new { i.Category, i.ComponentId, i.ProductName, i.Price })
+            })
+            .ToListAsync();
+        return Json(bundles);
     }
 
     // ── Scraper ──────────────────────────────────────────────────

@@ -1,8 +1,56 @@
 @model TechSpecs.ViewModels.ProfileViewModel
-@{ ViewData["Title"] = "My Profile"; }
+@using TechSpecs.Models
+@{ ViewData["Title"] = "My Profile";
+   var tier = MembershipTier.Resolve(Model.TotalSpend);
+   var (nextThreshold, pct) = MembershipTier.Progress(Model.TotalSpend);
+}
 
 <div class="container py-5 px-3" style="max-width:680px">
     <h1 class="text-white fw-bold mb-4">My Profile</h1>
+
+    <!-- Membership Tier Card -->
+    <div class="glass p-4 rounded-4 mb-4" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(99,102,241,.08));border:1px solid rgba(168,85,247,.25)">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;border:2px solid @tier.Color">
+                <i class="bi @tier.Icon" style="font-size:1.4rem;color:@tier.Color"></i>
+            </div>
+            <div>
+                <div class="fw-bold" style="color:@tier.Color;font-size:1.1rem">Thành viên @tier.NameVi</div>
+                <div class="text-muted-white" style="font-size:.82rem">@Model.LoyaltyPoints.ToString("N0") điểm tích lũy</div>
+            </div>
+            <div class="ms-auto text-end">
+                <div class="text-white fw-semibold">@Model.TotalSpend.ToString("N0")đ</div>
+                <div class="text-muted-white" style="font-size:.75rem">Tổng chi tiêu</div>
+            </div>
+        </div>
+        @if (pct < 100)
+        {
+            <div class="mb-1 d-flex justify-content-between" style="font-size:.75rem">
+                <span class="text-muted-white">Tiến độ đến hạng tiếp theo</span>
+                <span style="color:@tier.Color">@nextThreshold.ToString("N0")đ</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,.1);border-radius:3px">
+                <div style="width:@pct%;height:100%;background:linear-gradient(90deg,@tier.Color,#c084fc);border-radius:3px;transition:width .6s"></div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center" style="font-size:.8rem;color:@tier.Color;opacity:.8">
+                <i class="bi bi-stars me-1"></i>Bạn đang ở hạng cao nhất!
+            </div>
+        }
+        <!-- Tier ladder -->
+        <div class="d-flex justify-content-between mt-3">
+            @foreach (var t in MembershipTier.Tiers.Reverse())
+            {
+                var active = t.Name == tier.Name;
+                <div class="text-center" style="flex:1">
+                    <i class="bi @t.Icon" style="color:@(active ? t.Color : "rgba(255,255,255,.2)");font-size:1rem"></i>
+                    <div style="font-size:.65rem;color:@(active ? t.Color : "rgba(255,255,255,.3)")" class="@(active ? "fw-bold" : "")">@t.NameVi</div>
+                </div>
+            }
+        </div>
+    </div>
 
     @if (TempData["Success"] != null)
     {

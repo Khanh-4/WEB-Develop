@@ -11,6 +11,10 @@ public class ProfileViewModel
     public DateTime CreatedAt { get; set; }
     public bool IsGoogleAccount { get; set; }
 
+    // Loyalty
+    public decimal TotalSpend { get; set; }
+    public int LoyaltyPoints { get; set; }
+
     [DataType(DataType.Password), Display(Name = "Current Password")]
     public string? CurrentPassword { get; set; }
 

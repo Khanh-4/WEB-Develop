@@ -142,6 +142,8 @@ public class AccountController : Controller
             Email     = user.Email ?? string.Empty,
             CreatedAt = user.CreatedAt,
             IsGoogleAccount = logins.Any(l => l.LoginProvider == "Google"),
+            TotalSpend    = user.TotalSpend,
+            LoyaltyPoints = user.LoyaltyPoints,
         });
     }
 

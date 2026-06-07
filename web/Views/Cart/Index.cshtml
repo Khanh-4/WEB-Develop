@@ -100,6 +100,13 @@
                         <span class="text-muted-white">@L["Label.Shipping"]</span>
                         <span class="text-success">@L["Label.Free"]</span>
                     </div>
+                    <!-- Bundle discount row (shown dynamically) -->
+                    <div id="bundleDiscountRow" class="d-none">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted-white" style="color:#4ade80!important" id="bundleLabel"></span>
+                            <span class="fw-semibold" style="color:#4ade80" id="bundleDiscount"></span>
+                        </div>
+                    </div>
                     <hr class="border-white border-opacity-20">
                     <div class="d-flex justify-content-between mb-4">
                         <span class="text-white fw-semibold">@L["Label.Total"]</span>
@@ -155,5 +162,33 @@ function clearCart() {
 function getToken() {
     return document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
 }
+
+// ── Bundle auto-detect ────────────────────────────────────────────
+const cartItems = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    Model.Items.Select(i => new { cat = i.Category, id = i.ComponentId })));
+const cartTotal = @Model.Total;
+
+(async () => {
+    try {
+        const bundles = await fetch('/Admin/BundlesApi').then(r => r.json());
+        let bestDiscount = 0, bestName = '';
+        for (const b of bundles) {
+            const allMatch = b.items.every(bi =>
+                cartItems.some(ci => ci.cat === bi.category && ci.id === bi.componentId));
+            if (allMatch) {
+                const sum = b.items.reduce((s, i) => s + i.price, 0);
+                const disc = Math.round(sum * b.discountPercent / 100);
+                if (disc > bestDiscount) { bestDiscount = disc; bestName = b.name; }
+            }
+        }
+        if (bestDiscount > 0) {
+            const fmt = n => new Intl.NumberFormat('vi-VN').format(n) + 'đ';
+            document.getElementById('bundleLabel').textContent = `🎁 Combo: ${bestName}`;
+            document.getElementById('bundleDiscount').textContent = `-${fmt(bestDiscount)}`;
+            document.getElementById('bundleDiscountRow').classList.remove('d-none');
+            document.getElementById('grandTotal').textContent = fmt(cartTotal - bestDiscount);
+        }
+    } catch {}
+})();
 </script>
 }

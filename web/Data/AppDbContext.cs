@@ -32,6 +32,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
     public DbSet<WarrantyRecord> WarrantyRecords { get; set; }
     public DbSet<FlashSale> FlashSales { get; set; }
     public DbSet<Coupon> Coupons { get; set; }
+    public DbSet<Bundle> Bundles { get; set; }
+    public DbSet<BundleItem> BundleItems { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)

@@ -100,6 +100,54 @@
                                 <div class="text-muted small">Thông tin tài khoản sẽ hiển thị sau khi đặt hàng</div>
                             </div>
                         </label>
+
+                        <label class="pay-card d-flex align-items-center gap-3" id="payVnpay" onclick="showQrModal('vnpay')">
+                            <input type="radio" name="_payMethod" value="2" class="visually-hidden">
+                            <div style="width:32px;height:32px;border-radius:6px;background:#005BAA;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <span style="color:white;font-size:.65rem;font-weight:800">VNPAY</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold">VNPAY-QR</div>
+                                <div class="text-muted small">Quét mã QR qua app ngân hàng</div>
+                            </div>
+                        </label>
+
+                        <label class="pay-card d-flex align-items-center gap-3" id="payMomo" onclick="showQrModal('momo')">
+                            <input type="radio" name="_payMethod" value="3" class="visually-hidden">
+                            <div style="width:32px;height:32px;border-radius:50%;background:#B0006D;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <span style="color:white;font-size:.65rem;font-weight:800">M</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold">MoMo</div>
+                                <div class="text-muted small">Thanh toán qua ví MoMo</div>
+                            </div>
+                        </label>
+
+                        <label class="pay-card d-flex align-items-center gap-3" id="payZalo" onclick="showQrModal('zalopay')">
+                            <input type="radio" name="_payMethod" value="4" class="visually-hidden">
+                            <div style="width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,#0068FF,#00C2FF);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <span style="color:white;font-size:.6rem;font-weight:800">ZLP</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold">ZaloPay</div>
+                                <div class="text-muted small">Thanh toán qua ví ZaloPay</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- QR Payment Notice -->
+                    <div id="qrNotice" class="mt-3 p-3 rounded-3 d-none" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3)">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-qr-code" style="color:#a78bfa;font-size:1.2rem"></i>
+                            <span class="text-white fw-semibold" id="qrProviderName"></span>
+                        </div>
+                        <p class="text-muted-white mb-2" style="font-size:.82rem">
+                            Sau khi nhấn "Đặt hàng", bạn sẽ thấy mã QR để quét thanh toán.<br>
+                            Đơn hàng xác nhận ngay sau khi hệ thống ghi nhận giao dịch.
+                        </p>
+                        <div style="font-size:.78rem;color:rgba(255,255,255,.4)">
+                            <i class="bi bi-info-circle me-1"></i>Demo mode — không thực sự tính tiền.
+                        </div>
                     </div>
                 </div>
 
@@ -212,8 +260,21 @@
             document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('selected'));
             this.classList.add('selected');
             document.getElementById('hiddenPaymentMethod').value = radio.value;
+            // Show/hide QR notice
+            const qrNotice = document.getElementById('qrNotice');
+            const qrProviders = { '2': 'VNPAY-QR', '3': 'MoMo', '4': 'ZaloPay' };
+            if (qrProviders[radio.value]) {
+                document.getElementById('qrProviderName').textContent = qrProviders[radio.value];
+                qrNotice.classList.remove('d-none');
+            } else {
+                qrNotice.classList.add('d-none');
+            }
         });
     });
+
+    function showQrModal(provider) {
+        // Handled by pay-card click → label click → radio change → qrNotice
+    }
 
     // Coupon apply
     document.getElementById('applyCoupon').addEventListener('click', async function () {

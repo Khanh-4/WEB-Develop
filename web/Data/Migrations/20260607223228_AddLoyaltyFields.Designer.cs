@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TechSpecs.Data;
@@ -11,9 +12,11 @@ using TechSpecs.Data;
 namespace TechSpecs.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607223228_AddLoyaltyFields")]
+    partial class AddLoyaltyFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,71 +278,6 @@ namespace TechSpecs.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("build_upvotes");
-                });
-
-            modelBuilder.Entity("TechSpecs.Models.Bundle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("DiscountPercent")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("bundles");
-                });
-
-            modelBuilder.Entity("TechSpecs.Models.BundleItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BundleId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<int>("ComponentId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ProductName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BundleId");
-
-                    b.ToTable("bundle_items");
                 });
 
             modelBuilder.Entity("TechSpecs.Models.Cart", b =>
@@ -1095,10 +1033,6 @@ namespace TechSpecs.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
@@ -1434,17 +1368,6 @@ namespace TechSpecs.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TechSpecs.Models.BundleItem", b =>
-                {
-                    b.HasOne("TechSpecs.Models.Bundle", "Bundle")
-                        .WithMany("Items")
-                        .HasForeignKey("BundleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bundle");
-                });
-
             modelBuilder.Entity("TechSpecs.Models.Cart", b =>
                 {
                     b.HasOne("TechSpecs.Models.ApplicationUser", "User")
@@ -1559,11 +1482,6 @@ namespace TechSpecs.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("TechSpecs.Models.Bundle", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("TechSpecs.Models.Cart", b =>

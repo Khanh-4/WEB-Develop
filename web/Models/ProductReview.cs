@@ -22,6 +22,9 @@ public class ProductReview
     [MaxLength(1000)]
     public string? Comment { get; set; }
 
+    [MaxLength(500)]
+    public string? ImageUrl { get; set; }
+
     [MaxLength(100)]
     public string UserDisplayName { get; set; } = string.Empty;
 

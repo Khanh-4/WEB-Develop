@@ -213,6 +213,19 @@
                         </div>
                         <textarea id="reviewComment" rows="2" class="form-control glass border-0 text-white mb-2"
                                   placeholder="Nhận xét (tuỳ chọn)..." style="font-size:.83rem;resize:none;background:rgba(255,255,255,.06)"></textarea>
+                        <!-- Photo upload -->
+                        <div class="mb-2">
+                            <label class="text-muted-white d-block mb-1" style="font-size:.76rem;cursor:pointer">
+                                <i class="bi bi-image me-1"></i>Thêm ảnh (tùy chọn, tối đa 5MB)
+                                <input type="file" id="reviewPhotoInput" accept="image/*" class="d-none" onchange="previewPhoto(this)">
+                            </label>
+                            <div id="photoPreviewBox" class="d-none">
+                                <img id="photoPreview" style="max-height:80px;border-radius:6px;object-fit:cover" />
+                                <button type="button" class="btn btn-sm glass text-white ms-2 px-2 py-1" onclick="clearPhoto()" style="font-size:.72rem">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
                         <button onclick="submitReview()" class="btn btn-gradient btn-sm px-4">Gửi đánh giá</button>
                         <p id="reviewMsg" class="mt-2 mb-0" style="font-size:.78rem;display:none"></p>
                     </div>
@@ -431,6 +444,7 @@ function starsHtml(rating, size) {
                         <span class="ms-auto">${starsHtml(rv.rating, '.8rem')}</span>
                     </div>
                     ${rv.comment ? `<p class="mb-1 text-muted-white" style="font-size:.82rem">${rv.comment}</p>` : ''}
+                    ${rv.imageUrl ? `<img src="${rv.imageUrl}" alt="Review photo" style="max-height:120px;max-width:200px;border-radius:8px;object-fit:cover;margin-bottom:4px;cursor:pointer" onclick="window.open('${rv.imageUrl}','_blank')">` : ''}
                     <small class="text-muted-white" style="font-size:.72rem;opacity:.5">${rv.createdAt}</small>
                 </div>`).join('')
             : '<p class="text-muted-white" style="font-size:.83rem">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
@@ -446,15 +460,44 @@ function hoverStars(n) {
 function resetStars() { hoverStars(_pickedStar); }
 function pickStar(n) { _pickedStar = n; resetStars(); }
 
+function previewPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const box = document.getElementById('photoPreviewBox');
+    const img = document.getElementById('photoPreview');
+    img.src = URL.createObjectURL(file);
+    box.classList.remove('d-none');
+}
+function clearPhoto() {
+    document.getElementById('reviewPhotoInput').value = '';
+    document.getElementById('photoPreviewBox').classList.add('d-none');
+    document.getElementById('photoPreview').src = '';
+}
+
 async function submitReview() {
     if (!_pickedStar) { alert('Vui lòng chọn số sao'); return; }
     const comment = document.getElementById('reviewComment').value;
     const msg = document.getElementById('reviewMsg');
+
+    // Upload photo first if selected
+    let imageUrl = null;
+    const photoInput = document.getElementById('reviewPhotoInput');
+    if (photoInput?.files?.length) {
+        msg.style.display = ''; msg.style.color = '#c084fc'; msg.textContent = 'Đang tải ảnh…';
+        const fd = new FormData();
+        fd.append('photo', photoInput.files[0]);
+        fd.append('__RequestVerificationToken', _csrf);
+        try {
+            const up = await fetch('/Reviews/UploadPhoto', { method: 'POST', body: fd });
+            if (up.ok) { const d = await up.json(); imageUrl = d.url; }
+        } catch {}
+    }
+
     try {
         const r = await fetch('/Reviews/Submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _csrf },
-            body: JSON.stringify({ category: _cat, componentId: _id, rating: _pickedStar, comment })
+            body: JSON.stringify({ category: _cat, componentId: _id, rating: _pickedStar, comment, imageUrl })
         });
         if (r.ok) {
             msg.style.display = ''; msg.style.color = '#4ade80'; msg.textContent = 'Đánh giá đã được ghi nhận!';

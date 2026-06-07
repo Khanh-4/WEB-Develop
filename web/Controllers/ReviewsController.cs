@@ -11,11 +11,53 @@ public class ReviewsController : Controller
 {
     private readonly AppDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
+    private readonly IConfiguration _config;
 
-    public ReviewsController(AppDbContext db, UserManager<ApplicationUser> users)
+    public ReviewsController(AppDbContext db, UserManager<ApplicationUser> users, IConfiguration config)
     {
         _db = db;
         _users = users;
+        _config = config;
+    }
+
+    // POST /Reviews/UploadPhoto — upload review image to Supabase Storage
+    [HttpPost, Authorize, ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadPhoto(IFormFile photo)
+    {
+        if (photo == null || photo.Length == 0)
+            return BadRequest(new { error = "No file" });
+
+        var allowed = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
+        if (!allowed.Contains(photo.ContentType.ToLower()))
+            return BadRequest(new { error = "Chỉ chấp nhận ảnh JPEG/PNG/WebP/GIF" });
+
+        if (photo.Length > 5 * 1024 * 1024)
+            return BadRequest(new { error = "Ảnh tối đa 5 MB" });
+
+        var supabaseUrl   = _config["Supabase:Url"];
+        var supabaseKey   = _config["Supabase:AnonKey"];
+
+        if (string.IsNullOrEmpty(supabaseUrl) || string.IsNullOrEmpty(supabaseKey))
+            return BadRequest(new { error = "Storage chưa được cấu hình." });
+
+        var ext      = Path.GetExtension(photo.FileName).ToLower().TrimStart('.');
+        var fileName = $"reviews/{Guid.NewGuid():N}.{ext}";
+        var uploadUrl = $"{supabaseUrl}/storage/v1/object/reviews/{fileName}";
+
+        using var http = new HttpClient();
+        http.DefaultRequestHeaders.Add("Authorization", $"Bearer {supabaseKey}");
+        http.DefaultRequestHeaders.Add("apikey", supabaseKey);
+
+        using var stream  = photo.OpenReadStream();
+        using var content = new StreamContent(stream);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(photo.ContentType);
+
+        var resp = await http.PostAsync(uploadUrl, content);
+        if (!resp.IsSuccessStatusCode)
+            return StatusCode(500, new { error = "Upload thất bại" });
+
+        var publicUrl = $"{supabaseUrl}/storage/v1/object/public/reviews/{fileName}";
+        return Ok(new { url = publicUrl });
     }
 
     // GET /Reviews/ForProduct?category=cpu&id=123
@@ -28,7 +70,7 @@ public class ReviewsController : Controller
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => new
             {
-                r.Id, r.Rating, r.Comment, r.UserDisplayName,
+                r.Id, r.Rating, r.Comment, r.UserDisplayName, r.ImageUrl,
                 CreatedAt = r.CreatedAt.ToString("dd/MM/yyyy")
             })
             .ToListAsync();
@@ -62,8 +104,9 @@ public class ReviewsController : Controller
 
         if (existing != null)
         {
-            existing.Rating  = req.Rating;
-            existing.Comment = req.Comment?.Trim();
+            existing.Rating   = req.Rating;
+            existing.Comment  = req.Comment?.Trim();
+            if (!string.IsNullOrEmpty(req.ImageUrl)) existing.ImageUrl = req.ImageUrl;
         }
         else
         {
@@ -71,6 +114,7 @@ public class ReviewsController : Controller
             {
                 UserId = userId, Category = req.Category, ComponentId = req.ComponentId,
                 Rating = req.Rating, Comment = req.Comment?.Trim(),
+                ImageUrl = string.IsNullOrEmpty(req.ImageUrl) ? null : req.ImageUrl,
                 UserDisplayName = displayName
             });
         }
@@ -149,6 +193,6 @@ public class ReviewsController : Controller
     }
 }
 
-public record SubmitReviewRequest(string Category, int ComponentId, int Rating, string? Comment);
+public record SubmitReviewRequest(string Category, int ComponentId, int Rating, string? Comment, string? ImageUrl);
 public record PostQuestionRequest(string Category, int ComponentId, string Question);
 public record PostAnswerRequest(int QuestionId, string Answer);
