@@ -1,7 +1,7 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-07 (session 5 complete — all Priority 6 done)
+> Last updated: 2026-06-07 (session 5 bugs fixed — all tests restored)
 > Status: **Production live** at https://web-develop-production.up.railway.app
 
 ---
@@ -64,7 +64,7 @@
   - `CartTests` — 12 tests: add/remove/update/clear/count/isolation
   - `OrderTests` — 13 tests: checkout flow, total calc, cart clear, user isolation, detail
   - Run: `dotnet test TechSpecs.Tests/`
-- [x] **Playwright E2E** (`tests/e2e/`) — **23/23 pass**
+- [x] **Playwright E2E** (`tests/e2e/`) — **23/23 pass** ✅ restored 2026-06-07
   - `auth.spec.ts` — register, login error, logout, protected routes
   - `products.spec.ts` — grid render, add to cart toast/badge, category filter
   - `cart.spec.ts` — empty state, add items, remove, full checkout flow, validation

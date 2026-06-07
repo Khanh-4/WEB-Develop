@@ -5,8 +5,8 @@ namespace TechSpecs.Controllers;
 
 public class LanguageController : Controller
 {
-    // POST /Language/Set
-    [HttpPost]
+    // GET /Language/Set?culture=vi&returnUrl=/
+    [HttpGet, HttpPost]
     public IActionResult Set(string culture, string returnUrl = "/")
     {
         Response.Cookies.Append(

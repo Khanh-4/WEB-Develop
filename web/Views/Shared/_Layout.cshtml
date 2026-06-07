@@ -1,6 +1,6 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
-@inject IHtmlLocalizer<TechSpecs.Resources.SharedResource> L
+@inject IHtmlLocalizer<TechSpecs.SharedResource> L
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
@@ -96,15 +96,14 @@
                 @{
                     var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
                     var currentUrl = Context.Request.Path + Context.Request.QueryString;
+                    var targetCulture = currentCulture == "vi" ? "en" : "vi";
+                    var langLabel = currentCulture == "vi" ? "EN" : "VI";
                 }
                 <li class="nav-item">
-                    <form method="post" asp-controller="Language" asp-action="Set" class="d-flex">
-                        <input type="hidden" name="returnUrl" value="@currentUrl" />
-                        <button type="submit" name="culture" value="@(currentCulture == "vi" ? "en" : "vi")"
-                                class="btn glass text-white px-2 py-1" style="font-size:.8rem;font-weight:600">
-                            @(currentCulture == "vi" ? "EN" : "VI")
-                        </button>
-                    </form>
+                    <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
+                       class="btn glass text-white px-2 py-1" style="font-size:.8rem;font-weight:600;text-decoration:none">
+                        @langLabel
+                    </a>
                 </li>
             </ul>
         </div>

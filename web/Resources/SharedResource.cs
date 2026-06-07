@@ -1,5 +1,6 @@
-namespace TechSpecs.Resources;
+namespace TechSpecs;
 
-// Marker class — must live in the same namespace/folder as the .resx files
-// so IStringLocalizer<SharedResource> resolves correctly.
+// Marker class for IStringLocalizer<SharedResource> / IHtmlLocalizer<SharedResource>.
+// Must be in root namespace: ResourcesPath="Resources" + stripped type name = "SharedResource"
+// → resolves to Resources/SharedResource.resx (not Resources/Resources/SharedResource.resx).
 public class SharedResource { }
