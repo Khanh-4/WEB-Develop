@@ -29,8 +29,89 @@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Products" asp-action="Index">@L["Nav.Products"]</a>
+                <!-- Mega Menu -->
+                <li class="nav-item dropdown" id="megaMenuLi">
+                    <a class="nav-link dropdown-toggle" href="/Products" id="megaMenuToggle"
+                       data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                       aria-expanded="false" onclick="return megaNavClick(event, this)">
+                        @L["Nav.Products"]
+                    </a>
+                    <div class="dropdown-menu p-0 border-0 mega-menu" aria-labelledby="megaMenuToggle"
+                         style="min-width:520px;background:rgba(10,6,22,0.98);border:1px solid rgba(168,85,247,0.2)!important;
+                                border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.6);backdrop-filter:blur(20px);
+                                margin-top:10px!important">
+                        <div class="row g-0">
+                            <!-- Left: categories -->
+                            <div class="col-7 p-3">
+                                <p class="text-uppercase mb-2" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Linh kiện PC</p>
+                                <div class="row g-1">
+                                    @{
+                                        var megaCats = new[] {
+                                            ("cpu",         "bi-cpu",              "CPU"),
+                                            ("motherboard", "bi-motherboard",      "Mainboard"),
+                                            ("memory",      "bi-memory",           "RAM"),
+                                            ("gpu",         "bi-gpu-card",         "Card đồ hoạ"),
+                                            ("storage",     "bi-device-hdd",       "SSD / HDD"),
+                                            ("psu",         "bi-lightning-charge", "Nguồn máy tính"),
+                                            ("case",        "bi-box-seam",         "Vỏ case"),
+                                            ("cooler",      "bi-thermometer-half", "Tản nhiệt"),
+                                        };
+                                    }
+                                    @foreach (var (cat, icon, label) in megaCats)
+                                    {
+                                        <div class="col-6">
+                                            <a href="/Products?category=@cat"
+                                               class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 mega-item text-decoration-none"
+                                               style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
+                                               onmouseover="this.style.background='rgba(168,85,247,0.12)';this.style.color='#fff'"
+                                               onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
+                                                <i class="bi @icon" style="font-size:.95rem;color:#a855f7;width:18px;text-align:center"></i>
+                                                @label
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                                <hr style="border-color:rgba(255,255,255,.08);margin:8px 0">
+                                <a href="/Products?category=prebuilt"
+                                   class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 text-decoration-none"
+                                   style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
+                                   onmouseover="this.style.background='rgba(16,185,129,0.12)';this.style.color='#34d399'"
+                                   onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
+                                    <i class="bi bi-pc-display" style="font-size:.95rem;color:#34d399;width:18px;text-align:center"></i>
+                                    PC Dựng sẵn
+                                </a>
+                                <a href="/Products"
+                                   class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 text-decoration-none"
+                                   style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
+                                   onmouseover="this.style.background='rgba(168,85,247,0.12)';this.style.color='#fff'"
+                                   onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
+                                    <i class="bi bi-grid-3x3-gap" style="font-size:.95rem;color:#a855f7;width:18px;text-align:center"></i>
+                                    Tất cả sản phẩm
+                                </a>
+                            </div>
+                            <!-- Right: CTA -->
+                            <div class="col-5 p-3 d-flex flex-column gap-3"
+                                 style="border-left:1px solid rgba(255,255,255,.06)">
+                                <p class="text-uppercase mb-0" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Công cụ</p>
+                                <a href="/Builder" class="glass rounded-3 p-3 text-decoration-none d-block"
+                                   style="transition:all .2s"
+                                   onmouseover="this.style.background='rgba(168,85,247,0.15)'"
+                                   onmouseout="this.style.background=''">
+                                    <i class="bi bi-tools" style="font-size:1.4rem;color:#a855f7"></i>
+                                    <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">PC Builder</p>
+                                    <p class="text-muted-white mb-0" style="font-size:.75rem">Tự ráp cấu hình, AI gợi ý linh kiện tương thích</p>
+                                </a>
+                                <a href="/Build/Community" class="glass rounded-3 p-3 text-decoration-none d-block"
+                                   style="transition:all .2s"
+                                   onmouseover="this.style.background='rgba(99,102,241,0.15)'"
+                                   onmouseout="this.style.background=''">
+                                    <i class="bi bi-people" style="font-size:1.4rem;color:#6366f1"></i>
+                                    <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">Cộng đồng</p>
+                                    <p class="text-muted-white mb-0" style="font-size:.75rem">Xem cấu hình từ cộng đồng, chia sẻ build của bạn</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Build" asp-action="Community">@L["Nav.Community"]</a>
@@ -179,6 +260,12 @@ window.i18n = {
         if (icon) icon.className = 'bi bi-moon-stars';
     }
 })();
+// Mega menu: first click opens dropdown, second click navigates to /Products
+function megaNavClick(e, el) {
+    const isOpen = el.closest('.dropdown').classList.contains('show');
+    if (isOpen) { window.location.href = '/Products'; return false; }
+    return true; // let Bootstrap open the dropdown
+}
 function toggleTheme() {
     const isLight = document.body.classList.toggle('light-mode');
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
