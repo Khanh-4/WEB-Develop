@@ -21,7 +21,11 @@ public class ProductListItem
     public decimal Price { get; set; }
     public string? ImageUrl { get; set; }
     public double PpScore { get; set; }
+    public bool IsPrebuilt { get; set; }
     public Dictionary<string, string> Specs { get; set; } = new();
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Dictionary<string, string> FilterData { get; set; } = new();
 }
 
 public class ProductsIndexViewModel

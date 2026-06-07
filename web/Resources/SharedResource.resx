@@ -113,4 +113,50 @@
   <!-- JS Toast messages (injected as window.i18n in layout) -->
   <data name="Toast.AddedToCart"><value>Added to cart</value></data>
   <data name="Toast.CannotAdd"><value>Cannot add to cart</value></data>
+
+  <!-- Products page -->
+  <data name="Products.Title"><value>PC Components</value></data>
+  <data name="Products.Search"><value>Search components...</value></data>
+  <data name="Products.Results"><value>results</value></data>
+  <data name="Products.BestValue"><value>Best Value (P/P)</value></data>
+  <data name="Products.PriceLow"><value>Price: Low → High</value></data>
+  <data name="Products.PriceHigh"><value>Price: High → Low</value></data>
+  <data name="Products.NameAZ"><value>Name A–Z</value></data>
+  <data name="Products.AdvancedFilters"><value>Advanced Filters</value></data>
+  <data name="Products.PriceRange"><value>Price Range</value></data>
+  <data name="Products.Brand"><value>Brand</value></data>
+  <data name="Products.AllBrands"><value>All Brands</value></data>
+  <data name="Products.Selected"><value>selected</value></data>
+  <data name="Products.Reset"><value>Reset</value></data>
+  <data name="Products.Loading"><value>Loading...</value></data>
+  <data name="Products.NoResults"><value>No components found</value></data>
+  <data name="Products.NoResultsHint"><value>Try a different search or category</value></data>
+  <data name="Products.LoadError"><value>Failed to load products. Please try again.</value></data>
+  <!-- Category names -->
+  <data name="Cat.All"><value>All</value></data>
+  <data name="Cat.CPU"><value>CPU</value></data>
+  <data name="Cat.Motherboard"><value>Mainboard</value></data>
+  <data name="Cat.Memory"><value>RAM</value></data>
+  <data name="Cat.GPU"><value>Graphics Cards</value></data>
+  <data name="Cat.Storage"><value>Storage</value></data>
+  <data name="Cat.PSU"><value>Power Supplies</value></data>
+  <data name="Cat.Case"><value>Cases</value></data>
+  <data name="Cat.Cooler"><value>Cooling</value></data>
+  <data name="Cat.Prebuilt"><value>Pre-built PC</value></data>
+  <!-- Category filter labels -->
+  <data name="Filter.Socket"><value>CPU Socket</value></data>
+  <data name="Filter.FormFactor"><value>Form Factor</value></data>
+  <data name="Filter.RamType"><value>RAM Type</value></data>
+  <data name="Filter.MemType"><value>RAM Generation</value></data>
+  <data name="Filter.Capacity"><value>Capacity</value></data>
+  <data name="Filter.VRAM"><value>VRAM</value></data>
+  <data name="Filter.Generation"><value>Generation</value></data>
+  <data name="Filter.StorageType"><value>Storage Type</value></data>
+  <data name="Filter.Interface"><value>Interface</value></data>
+  <data name="Filter.Wattage"><value>Min Wattage</value></data>
+  <data name="Filter.Efficiency"><value>80 Plus Rating</value></data>
+  <data name="Filter.Modular"><value>Cable Type</value></data>
+  <data name="Filter.CoolerType"><value>Cooler Type</value></data>
+  <data name="Filter.All"><value>All</value></data>
+  <data name="Filter.MinW"><value>Min W</value></data>
 </root>

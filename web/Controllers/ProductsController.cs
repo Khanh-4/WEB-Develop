@@ -80,11 +80,11 @@ public class ProductsController : Controller
             Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
             Specs = new()
             {
-                ["Socket"]     = c.Socket,
-                ["Cores"]      = $"{c.CoreCount}C / {c.ThreadCount}T",
-                ["Base Clock"] = $"{c.BaseClock} GHz",
-                ["Boost Clock"]= $"{c.BoostClock} GHz",
-                ["TDP"]        = $"{c.TDP} W",
+                ["Socket"]      = c.Socket,
+                ["Nhân/Luồng"]  = $"{c.CoreCount}C / {c.ThreadCount}T",
+                ["Xung cơ sở"]  = $"{c.BaseClock} GHz",
+                ["Xung tăng"]   = $"{c.BoostClock} GHz",
+                ["TDP"]         = $"{c.TDP} W",
             }
         };
     }
@@ -99,11 +99,11 @@ public class ProductsController : Controller
             Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock,
             Specs = new()
             {
-                ["Socket"]       = m.SocketCompatibility,
-                ["Form Factor"]  = m.FormFactor,
-                ["Memory Type"]  = m.MemoryCompatibility,
-                ["Memory Slots"] = $"{m.MemorySlots}",
-                ["Max Memory"]   = $"{m.MaxMemoryCapacity} GB",
+                ["Socket"]        = m.SocketCompatibility,
+                ["Form Factor"]   = m.FormFactor,
+                ["Loại RAM"]      = m.MemoryCompatibility,
+                ["Khe RAM"]       = $"{m.MemorySlots}",
+                ["RAM tối đa"]    = $"{m.MaxMemoryCapacity} GB",
             }
         };
     }
@@ -118,10 +118,10 @@ public class ProductsController : Controller
             Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock,
             Specs = new()
             {
-                ["Type"]     = m.Type,
-                ["Capacity"] = $"{m.Capacity} GB",
-                ["Modules"]  = $"{m.Modules}x{m.Capacity / (m.Modules > 0 ? m.Modules : 1)} GB",
-                ["Speed"]    = $"{m.Speed} MHz",
+                ["Loại"]       = m.Type,
+                ["Dung lượng"] = $"{m.Capacity} GB",
+                ["Số thanh"]   = $"{m.Modules}×{m.Capacity / (m.Modules > 0 ? m.Modules : 1)} GB",
+                ["Tốc độ"]     = $"{m.Speed} MHz",
             }
         };
     }
@@ -136,9 +136,9 @@ public class ProductsController : Controller
             Price = g.Price, ImageUrl = g.ImageUrl, Stock = g.Stock,
             Specs = new()
             {
-                ["VRAM"]   = $"{g.VRAM} GB",
-                ["Length"] = $"{g.Length} mm",
-                ["TDP"]    = $"{g.TDP} W",
+                ["VRAM"]        = $"{g.VRAM} GB",
+                ["Chiều dài"]   = $"{g.Length} mm",
+                ["TDP"]         = $"{g.TDP} W",
             }
         };
     }
@@ -153,11 +153,11 @@ public class ProductsController : Controller
             Price = s.Price, ImageUrl = s.ImageUrl, Stock = s.Stock,
             Specs = new()
             {
-                ["Type"]        = s.Type,
-                ["Capacity"]    = $"{s.Capacity} GB",
-                ["Interface"]   = s.Interface,
-                ["Read Speed"]  = s.ReadSpeed > 0 ? $"{s.ReadSpeed} MB/s" : "—",
-                ["Write Speed"] = s.WriteSpeed > 0 ? $"{s.WriteSpeed} MB/s" : "—",
+                ["Loại"]        = s.Type,
+                ["Dung lượng"]  = FormatStorageCapacity(s.Capacity),
+                ["Giao tiếp"]   = s.Interface,
+                ["Đọc"]         = s.ReadSpeed > 0 ? $"{s.ReadSpeed} MB/s" : "—",
+                ["Ghi"]         = s.WriteSpeed > 0 ? $"{s.WriteSpeed} MB/s" : "—",
             }
         };
     }
@@ -172,9 +172,9 @@ public class ProductsController : Controller
             Price = p.Price, ImageUrl = p.ImageUrl, Stock = p.Stock,
             Specs = new()
             {
-                ["Wattage"]    = $"{p.Wattage} W",
-                ["Efficiency"] = p.Efficiency,
-                ["Modular"]    = p.Modular,
+                ["Công suất"]   = $"{p.Wattage} W",
+                ["Hiệu suất"]   = p.Efficiency,
+                ["Kiểu dây"]    = p.Modular,
             }
         };
     }
@@ -189,9 +189,9 @@ public class ProductsController : Controller
             Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
             Specs = new()
             {
-                ["Form Factor Support"] = c.FormFactorSupport,
-                ["Max GPU Length"]      = $"{c.MaxVGALength} mm",
-                ["Color"]               = c.Color ?? "—",
+                ["Hỗ trợ MB"]   = c.FormFactorSupport,
+                ["Max GPU"]      = $"{c.MaxVGALength} mm",
+                ["Màu sắc"]      = c.Color ?? "—",
             }
         };
     }
@@ -206,11 +206,57 @@ public class ProductsController : Controller
             Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
             Specs = new()
             {
-                ["Type"]               = c.Type,
-                ["Max TDP"]            = $"{c.MaxTDP} W",
-                ["Height"]             = $"{c.Height} mm",
-                ["Socket Support"]     = c.SocketCompatibility,
+                ["Loại"]        = c.Type,
+                ["Max TDP"]     = $"{c.MaxTDP} W",
+                ["Chiều cao"]   = $"{c.Height} mm",
+                ["Socket"]      = c.SocketCompatibility.Length > 30 ? c.SocketCompatibility[..30] + "…" : c.SocketCompatibility,
             }
+        };
+    }
+
+    // Returns filter option values for category-specific dropdowns
+    [HttpGet]
+    public async Task<IActionResult> FilterOptions(string category)
+    {
+        return category switch
+        {
+            "motherboard" => Json(new
+            {
+                sockets     = await _db.Motherboards.AsNoTracking().Select(m => m.SocketCompatibility).Where(s => s != "").Distinct().OrderBy(s => s).ToListAsync(),
+                formFactors = await _db.Motherboards.AsNoTracking().Select(m => m.FormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
+                memTypes    = await _db.Motherboards.AsNoTracking().Select(m => m.MemoryCompatibility).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
+            }),
+            "memory" => Json(new
+            {
+                types      = await _db.Memories.AsNoTracking().Select(m => m.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
+                capacities = await _db.Memories.AsNoTracking().Select(m => m.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
+            }),
+            "gpu" => Json(new
+            {
+                vrams       = await _db.VideoCards.AsNoTracking().Select(g => g.VRAM).Where(v => v > 0).Distinct().OrderBy(v => v).ToListAsync(),
+                generations = (await _db.VideoCards.AsNoTracking().Select(g => g.Name).ToListAsync())
+                                .Select(GetGpuGeneration).Where(g => g != "Khác").Distinct().OrderBy(g => g).ToList(),
+            }),
+            "storage" => Json(new
+            {
+                types      = await _db.Storages.AsNoTracking().Select(s => s.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
+                interfaces = await _db.Storages.AsNoTracking().Select(s => s.Interface).Where(i => i != "").Distinct().OrderBy(i => i).ToListAsync(),
+                capacities = await _db.Storages.AsNoTracking().Select(s => s.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
+            }),
+            "psu" => Json(new
+            {
+                efficiencies = await _db.PowerSupplies.AsNoTracking().Select(p => p.Efficiency).Where(e => e != "").Distinct().OrderBy(e => e).ToListAsync(),
+                modulars     = await _db.PowerSupplies.AsNoTracking().Select(p => p.Modular).Where(m => m != "").Distinct().OrderBy(m => m).ToListAsync(),
+            }),
+            "case" => Json(new
+            {
+                formFactors = await _db.CaseEnclosures.AsNoTracking().Select(c => c.FormFactorSupport).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
+            }),
+            "cooler" => Json(new
+            {
+                types = await _db.CpuCoolers.AsNoTracking().Select(c => c.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
+            }),
+            _ => Json(new { })
         };
     }
 
@@ -223,14 +269,30 @@ public class ProductsController : Controller
         int page = 1,
         decimal? minPrice = null,
         decimal? maxPrice = null,
-        string? brands = null)
+        string? brands = null,
+        // Category-specific filters
+        string? socket = null,
+        string? formFactor = null,
+        string? memType = null,
+        int? vram = null,
+        string? gpuGen = null,
+        string? storageType = null,
+        string? storageInterface = null,
+        string? efficiency = null,
+        string? modular = null,
+        int? minWattage = null,
+        int? capacity = null,
+        string? coolerType = null)
     {
         var items = await LoadAllAsync(category, search);
 
+        // Price filter
         if (minPrice.HasValue)
             items = items.Where(i => i.Price >= minPrice.Value).ToList();
         if (maxPrice.HasValue && maxPrice.Value > 0)
             items = items.Where(i => i.Price <= maxPrice.Value).ToList();
+
+        // Brand filter
         if (!string.IsNullOrWhiteSpace(brands))
         {
             var brandSet = brands
@@ -239,6 +301,61 @@ public class ProductsController : Controller
             if (brandSet.Count > 0)
                 items = items.Where(i => brandSet.Contains(i.Manufacturer)).ToList();
         }
+
+        // Category-specific filters via FilterData
+        if (!string.IsNullOrEmpty(socket))
+            items = items.Where(i => i.FilterData.TryGetValue("socket", out var v) &&
+                string.Equals(v, socket, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(formFactor))
+            items = items.Where(i => i.FilterData.TryGetValue("formFactor", out var v) &&
+                v.Contains(formFactor, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(memType))
+            items = items.Where(i => i.FilterData.TryGetValue("memType", out var v) &&
+                string.Equals(v, memType, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (vram.HasValue)
+            items = items.Where(i => i.FilterData.TryGetValue("vram", out var v) &&
+                int.TryParse(v, out var n) && n == vram.Value).ToList();
+
+        if (!string.IsNullOrEmpty(gpuGen))
+            items = items.Where(i => i.FilterData.TryGetValue("generation", out var v) &&
+                string.Equals(v, gpuGen, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(storageType))
+            items = items.Where(i => i.FilterData.TryGetValue("storageType", out var v) &&
+                string.Equals(v, storageType, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(storageInterface))
+            items = items.Where(i => i.FilterData.TryGetValue("interface", out var v) &&
+                v.Contains(storageInterface, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(efficiency))
+            items = items.Where(i => i.FilterData.TryGetValue("efficiency", out var v) &&
+                v.Contains(efficiency, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(modular))
+            items = items.Where(i => i.FilterData.TryGetValue("modular", out var v) &&
+                string.Equals(v, modular, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (minWattage.HasValue)
+            items = items.Where(i => i.FilterData.TryGetValue("wattage", out var v) &&
+                int.TryParse(v, out var n) && n >= minWattage.Value).ToList();
+
+        if (capacity.HasValue)
+        {
+            if (category == "memory")
+                items = items.Where(i => i.FilterData.TryGetValue("capacity", out var v) &&
+                    v == capacity.Value.ToString()).ToList();
+            else if (category == "storage")
+                items = items.Where(i => i.FilterData.TryGetValue("capacity", out var v) &&
+                    int.TryParse(v, out var n) && n >= capacity.Value).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(coolerType))
+            items = items.Where(i => i.FilterData.TryGetValue("coolerType", out var v) &&
+                string.Equals(v, coolerType, StringComparison.OrdinalIgnoreCase)).ToList();
 
         items = ApplySort(items, sort);
 
@@ -261,37 +378,89 @@ public class ProductsController : Controller
         bool all = category == "all";
         var brands = new List<string>();
 
-        if (all || category == "cpu")         brands.AddRange(await _db.Cpus.AsNoTracking().Select(c => c.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "motherboard") brands.AddRange(await _db.Motherboards.AsNoTracking().Select(m => m.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "memory")      brands.AddRange(await _db.Memories.AsNoTracking().Select(m => m.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "gpu")         brands.AddRange(await _db.VideoCards.AsNoTracking().Select(g => g.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "storage")     brands.AddRange(await _db.Storages.AsNoTracking().Select(s => s.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "psu")         brands.AddRange(await _db.PowerSupplies.AsNoTracking().Select(p => p.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "case")        brands.AddRange(await _db.CaseEnclosures.AsNoTracking().Select(c => c.Manufacturer).Distinct().ToListAsync());
-        if (all || category == "cooler")      brands.AddRange(await _db.CpuCoolers.AsNoTracking().Select(c => c.Manufacturer).Distinct().ToListAsync());
+        if (all || category == "cpu")
+            brands.AddRange(await _db.Cpus.AsNoTracking()
+                .Where(c => !c.Name.ToLower().StartsWith("pc "))
+                .Select(c => c.Manufacturer).Distinct().ToListAsync());
 
-        return Json(brands.Where(b => !string.IsNullOrWhiteSpace(b)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(b => b).ToList());
+        if (all || category == "prebuilt")
+            brands.AddRange(await _db.Cpus.AsNoTracking()
+                .Where(c => c.Name.ToLower().StartsWith("pc "))
+                .Select(c => c.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "motherboard")
+            brands.AddRange(await _db.Motherboards.AsNoTracking().Select(m => m.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "memory")
+            brands.AddRange(await _db.Memories.AsNoTracking().Select(m => m.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "gpu")
+            brands.AddRange(await _db.VideoCards.AsNoTracking().Select(g => g.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "storage")
+            brands.AddRange(await _db.Storages.AsNoTracking().Select(s => s.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "psu")
+            brands.AddRange(await _db.PowerSupplies.AsNoTracking().Select(p => p.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "case")
+            brands.AddRange(await _db.CaseEnclosures.AsNoTracking().Select(c => c.Manufacturer).Distinct().ToListAsync());
+
+        if (all || category == "cooler")
+            brands.AddRange(await _db.CpuCoolers.AsNoTracking().Select(c => c.Manufacturer).Distinct().ToListAsync());
+
+        // MB and RAM don't have AMD/Intel as board/module makers — exclude chip-vendor names
+        var excludeForCats = new[] { "motherboard", "memory" };
+        var result = brands
+            .Where(b => !string.IsNullOrWhiteSpace(b))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(b => b)
+            .ToList();
+
+        if (excludeForCats.Contains(category))
+            result = result
+                .Where(b => !b.Equals("AMD", StringComparison.OrdinalIgnoreCase) &&
+                             !b.Equals("Intel", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        return Json(result);
     }
 
     private async Task<List<ProductListItem>> LoadAllAsync(string category, string? search)
     {
         var result = new List<ProductListItem>();
         bool all = category == "all";
+        bool isCpu = category == "cpu";
+        bool isPrebuilt = category == "prebuilt";
         string? q = string.IsNullOrWhiteSpace(search) ? null : search.Trim().ToLower();
 
-        if (all || category == "cpu")
+        // CPU + Prebuilt are both in the cpu table
+        if (all || isCpu || isPrebuilt)
         {
-            var rows = await _db.Cpus.AsNoTracking()
-                .Where(c => q == null || c.Name.ToLower().Contains(q) || c.Manufacturer.ToLower().Contains(q))
-                .ToListAsync();
-            result.AddRange(rows.Select(c => new ProductListItem
+            var query = _db.Cpus.AsNoTracking()
+                .Where(c => q == null || c.Name.ToLower().Contains(q) || c.Manufacturer.ToLower().Contains(q));
+
+            if (isCpu)    query = query.Where(c => !c.Name.ToLower().StartsWith("pc "));
+            if (isPrebuilt) query = query.Where(c => c.Name.ToLower().StartsWith("pc "));
+
+            var rows = await query.ToListAsync();
+            result.AddRange(rows.Select(c =>
             {
-                Id = c.Id, Category = "cpu", Name = c.Name,
-                Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
-                PpScore = c.Price > 0 ? Math.Round((double)c.ApproximatePerformance / (double)c.Price * 1_000_000, 2) : 0,
-                Specs = new() { ["Socket"] = c.Socket, ["Cores"] = $"{c.CoreCount}C/{c.ThreadCount}T", ["TDP"] = $"{c.TDP}W" }
+                bool prebuilt = c.Name.StartsWith("PC ", StringComparison.OrdinalIgnoreCase);
+                return new ProductListItem
+                {
+                    Id = c.Id, Category = "cpu", Name = c.Name,
+                    Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
+                    IsPrebuilt = prebuilt,
+                    PpScore = c.Price > 0 ? Math.Round((double)c.ApproximatePerformance / (double)c.Price * 1_000_000, 2) : 0,
+                    Specs = prebuilt
+                        ? new()
+                        : new() { ["Socket"] = c.Socket, ["Nhân/Luồng"] = $"{c.CoreCount}C/{c.ThreadCount}T", ["TDP"] = $"{c.TDP}W" },
+                    FilterData = new() { ["socket"] = c.Socket }
+                };
             }));
         }
+
         if (all || category == "motherboard")
         {
             var rows = await _db.Motherboards.AsNoTracking()
@@ -302,9 +471,11 @@ public class ProductsController : Controller
                 Id = m.Id, Category = "motherboard", Name = m.Name,
                 Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl,
                 PpScore = m.Price > 0 ? Math.Round(10_000_000_000d / (double)m.Price, 2) : 0,
-                Specs = new() { ["Socket"] = m.SocketCompatibility, ["Form"] = m.FormFactor, ["RAM"] = m.MemoryCompatibility }
+                Specs = new() { ["Socket"] = m.SocketCompatibility, ["Chuẩn"] = m.FormFactor, ["RAM"] = m.MemoryCompatibility },
+                FilterData = new() { ["socket"] = m.SocketCompatibility, ["formFactor"] = m.FormFactor, ["memType"] = m.MemoryCompatibility }
             }));
         }
+
         if (all || category == "memory")
         {
             var rows = await _db.Memories.AsNoTracking()
@@ -315,9 +486,11 @@ public class ProductsController : Controller
                 Id = m.Id, Category = "memory", Name = m.Name,
                 Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl,
                 PpScore = m.Price > 0 ? Math.Round((double)(m.Capacity * m.Speed) / (double)m.Price * 1000, 2) : 0,
-                Specs = new() { ["Type"] = m.Type, ["Capacity"] = $"{m.Capacity}GB", ["Speed"] = $"{m.Speed}MHz" }
+                Specs = new() { ["Loại"] = m.Type, ["Dung lượng"] = $"{m.Capacity}GB", ["Tốc độ"] = $"{m.Speed}MHz" },
+                FilterData = new() { ["memType"] = m.Type, ["capacity"] = m.Capacity.ToString() }
             }));
         }
+
         if (all || category == "gpu")
         {
             var rows = await _db.VideoCards.AsNoTracking()
@@ -328,9 +501,11 @@ public class ProductsController : Controller
                 Id = g.Id, Category = "gpu", Name = g.Name,
                 Manufacturer = g.Manufacturer, Price = g.Price, ImageUrl = g.ImageUrl,
                 PpScore = g.Price > 0 ? Math.Round((double)g.ApproximatePerformance / (double)g.Price * 1_000_000, 2) : 0,
-                Specs = new() { ["VRAM"] = $"{g.VRAM}GB", ["Length"] = $"{g.Length}mm", ["TDP"] = $"{g.TDP}W" }
+                Specs = new() { ["VRAM"] = $"{g.VRAM}GB", ["Chiều dài"] = $"{g.Length}mm", ["TDP"] = $"{g.TDP}W" },
+                FilterData = new() { ["vram"] = g.VRAM.ToString(), ["generation"] = GetGpuGeneration(g.Name) }
             }));
         }
+
         if (all || category == "storage")
         {
             var rows = await _db.Storages.AsNoTracking()
@@ -341,9 +516,11 @@ public class ProductsController : Controller
                 Id = s.Id, Category = "storage", Name = s.Name,
                 Manufacturer = s.Manufacturer, Price = s.Price, ImageUrl = s.ImageUrl,
                 PpScore = s.Price > 0 ? Math.Round((double)s.Capacity / (double)s.Price * 1_000_000, 2) : 0,
-                Specs = new() { ["Type"] = s.Type, ["Capacity"] = $"{s.Capacity}GB", ["Interface"] = s.Interface }
+                Specs = new() { ["Loại"] = s.Type, ["Dung lượng"] = FormatStorageCapacity(s.Capacity), ["Giao tiếp"] = s.Interface },
+                FilterData = new() { ["storageType"] = s.Type, ["interface"] = s.Interface, ["capacity"] = s.Capacity.ToString() }
             }));
         }
+
         if (all || category == "psu")
         {
             var rows = await _db.PowerSupplies.AsNoTracking()
@@ -354,9 +531,11 @@ public class ProductsController : Controller
                 Id = p.Id, Category = "psu", Name = p.Name,
                 Manufacturer = p.Manufacturer, Price = p.Price, ImageUrl = p.ImageUrl,
                 PpScore = p.Price > 0 ? Math.Round((double)p.Wattage / (double)p.Price * 100_000, 2) : 0,
-                Specs = new() { ["Wattage"] = $"{p.Wattage}W", ["Efficiency"] = p.Efficiency, ["Modular"] = p.Modular }
+                Specs = new() { ["Công suất"] = $"{p.Wattage}W", ["Hiệu suất"] = p.Efficiency, ["Kiểu dây"] = p.Modular },
+                FilterData = new() { ["wattage"] = p.Wattage.ToString(), ["efficiency"] = p.Efficiency, ["modular"] = p.Modular }
             }));
         }
+
         if (all || category == "case")
         {
             var rows = await _db.CaseEnclosures.AsNoTracking()
@@ -367,9 +546,11 @@ public class ProductsController : Controller
                 Id = c.Id, Category = "case", Name = c.Name,
                 Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
                 PpScore = c.Price > 0 ? Math.Round(10_000_000_000d / (double)c.Price, 2) : 0,
-                Specs = new() { ["Form Factor"] = c.FormFactorSupport, ["Max GPU"] = $"{c.MaxVGALength}mm", ["Color"] = c.Color ?? "—" }
+                Specs = new() { ["Hỗ trợ MB"] = c.FormFactorSupport, ["Max GPU"] = $"{c.MaxVGALength}mm", ["Màu sắc"] = c.Color ?? "—" },
+                FilterData = new() { ["formFactor"] = c.FormFactorSupport }
             }));
         }
+
         if (all || category == "cooler")
         {
             var rows = await _db.CpuCoolers.AsNoTracking()
@@ -380,7 +561,8 @@ public class ProductsController : Controller
                 Id = c.Id, Category = "cooler", Name = c.Name,
                 Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
                 PpScore = c.Price > 0 ? Math.Round((double)c.MaxTDP / (double)c.Price * 1_000_000, 2) : 0,
-                Specs = new() { ["Type"] = c.Type, ["Max TDP"] = $"{c.MaxTDP}W", ["Socket"] = c.SocketCompatibility.Length > 30 ? c.SocketCompatibility[..30] + "…" : c.SocketCompatibility }
+                Specs = new() { ["Loại"] = c.Type, ["Max TDP"] = $"{c.MaxTDP}W", ["Socket"] = c.SocketCompatibility.Length > 30 ? c.SocketCompatibility[..30] + "…" : c.SocketCompatibility },
+                FilterData = new() { ["coolerType"] = c.Type }
             }));
         }
 
@@ -391,11 +573,10 @@ public class ProductsController : Controller
     {
         "price-asc"  => items.OrderBy(x => x.Price).ToList(),
         "price-desc" => items.OrderByDescending(x => x.Price).ToList(),
-        "name"       => Interleave(items),   // "all" view: round-robin across categories
+        "name"       => Interleave(items),
         _            => items.OrderByDescending(x => x.PpScore).ToList(),
     };
 
-    /// Round-robin across categories so "all" view shows variety on every page.
     private static List<ProductListItem> Interleave(List<ProductListItem> items)
     {
         var groups = items
@@ -411,4 +592,26 @@ public class ProductsController : Controller
 
         return result;
     }
+
+    private static string GetGpuGeneration(string name)
+    {
+        var n = name.ToUpperInvariant();
+        if (n.Contains("RTX 50") || System.Text.RegularExpressions.Regex.IsMatch(n, @"\b50[678]0\b")) return "GeForce RTX 50";
+        if (n.Contains("RTX 40") || System.Text.RegularExpressions.Regex.IsMatch(n, @"\b40[678]0\b")) return "GeForce RTX 40";
+        if (n.Contains("RTX 30") || System.Text.RegularExpressions.Regex.IsMatch(n, @"\b30[678]0\b")) return "GeForce RTX 30";
+        if (n.Contains("RTX 20") || System.Text.RegularExpressions.Regex.IsMatch(n, @"\b20[678]0\b")) return "GeForce RTX 20";
+        if (n.Contains("GTX 16") || System.Text.RegularExpressions.Regex.IsMatch(n, @"\b16[56]0\b"))  return "GeForce GTX 16";
+        if (n.Contains("RX 9") || n.Contains("RX9"))  return "Radeon RX 9000";
+        if (n.Contains("RX 7") || n.Contains("RX7"))  return "Radeon RX 7000";
+        if (n.Contains("RX 6") || n.Contains("RX6"))  return "Radeon RX 6000";
+        if (n.Contains("ARC"))  return "Intel Arc";
+        return "Khác";
+    }
+
+    private static string FormatStorageCapacity(int gb) => gb switch
+    {
+        >= 1024 when gb % 1024 == 0 => $"{gb / 1024} TB",
+        >= 1024 => $"{gb / 1024.0:0.#} TB",
+        _ => $"{gb} GB"
+    };
 }

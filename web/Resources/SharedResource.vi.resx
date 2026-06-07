@@ -113,4 +113,50 @@
   <!-- JS Toast messages -->
   <data name="Toast.AddedToCart"><value>Đã thêm vào giỏ hàng</value></data>
   <data name="Toast.CannotAdd"><value>Không thể thêm vào giỏ</value></data>
+
+  <!-- Products page -->
+  <data name="Products.Title"><value>Linh kiện PC</value></data>
+  <data name="Products.Search"><value>Tìm kiếm linh kiện...</value></data>
+  <data name="Products.Results"><value>sản phẩm</value></data>
+  <data name="Products.BestValue"><value>Giá trị tốt nhất</value></data>
+  <data name="Products.PriceLow"><value>Giá thấp → cao</value></data>
+  <data name="Products.PriceHigh"><value>Giá cao → thấp</value></data>
+  <data name="Products.NameAZ"><value>Tên A–Z</value></data>
+  <data name="Products.AdvancedFilters"><value>Bộ lọc nâng cao</value></data>
+  <data name="Products.PriceRange"><value>Khoảng giá</value></data>
+  <data name="Products.Brand"><value>Thương hiệu</value></data>
+  <data name="Products.AllBrands"><value>Tất cả thương hiệu</value></data>
+  <data name="Products.Selected"><value>đã chọn</value></data>
+  <data name="Products.Reset"><value>Đặt lại</value></data>
+  <data name="Products.Loading"><value>Đang tải...</value></data>
+  <data name="Products.NoResults"><value>Không tìm thấy linh kiện</value></data>
+  <data name="Products.NoResultsHint"><value>Thử tìm kiếm khác hoặc đổi danh mục</value></data>
+  <data name="Products.LoadError"><value>Không thể tải sản phẩm. Vui lòng thử lại.</value></data>
+  <!-- Category names -->
+  <data name="Cat.All"><value>Tất cả</value></data>
+  <data name="Cat.CPU"><value>CPU</value></data>
+  <data name="Cat.Motherboard"><value>Mainboard</value></data>
+  <data name="Cat.Memory"><value>RAM</value></data>
+  <data name="Cat.GPU"><value>Card đồ họa</value></data>
+  <data name="Cat.Storage"><value>Ổ cứng</value></data>
+  <data name="Cat.PSU"><value>Nguồn</value></data>
+  <data name="Cat.Case"><value>Case</value></data>
+  <data name="Cat.Cooler"><value>Tản nhiệt</value></data>
+  <data name="Cat.Prebuilt"><value>Bộ PC</value></data>
+  <!-- Category filter labels -->
+  <data name="Filter.Socket"><value>Socket CPU</value></data>
+  <data name="Filter.FormFactor"><value>Form Factor</value></data>
+  <data name="Filter.RamType"><value>Loại RAM</value></data>
+  <data name="Filter.MemType"><value>Thế hệ RAM</value></data>
+  <data name="Filter.Capacity"><value>Dung lượng</value></data>
+  <data name="Filter.VRAM"><value>VRAM</value></data>
+  <data name="Filter.Generation"><value>Thế hệ</value></data>
+  <data name="Filter.StorageType"><value>Loại ổ cứng</value></data>
+  <data name="Filter.Interface"><value>Giao tiếp</value></data>
+  <data name="Filter.Wattage"><value>Công suất tối thiểu</value></data>
+  <data name="Filter.Efficiency"><value>Chuẩn 80 Plus</value></data>
+  <data name="Filter.Modular"><value>Kiểu dây nguồn</value></data>
+  <data name="Filter.CoolerType"><value>Loại tản nhiệt</value></data>
+  <data name="Filter.All"><value>Tất cả</value></data>
+  <data name="Filter.MinW"><value>W tối thiểu</value></data>
 </root>

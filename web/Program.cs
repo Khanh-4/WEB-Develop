@@ -95,7 +95,7 @@ app.UseStaticFiles();
 var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("vi") };
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
-    DefaultRequestCulture = new RequestCulture("en"),
+    DefaultRequestCulture = new RequestCulture("vi"),
     SupportedCultures     = supportedCultures,
     SupportedUICultures   = supportedCultures,
     RequestCultureProviders = new List<IRequestCultureProvider>

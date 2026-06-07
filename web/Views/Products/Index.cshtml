@@ -1,8 +1,8 @@
 @model TechSpecs.ViewModels.ProductsIndexViewModel
-@{ ViewData["Title"] = "PC Components"; }
+@{ ViewData["Title"] = L["Products.Title"].Value; }
 
 <div class="container-xl py-4 px-3">
-    <h1 class="text-white fw-bold mb-4">PC Components</h1>
+    <h1 class="text-white fw-bold mb-4">@L["Products.Title"]</h1>
 
     <!-- Filter Bar -->
     <div class="glass p-4 mb-4">
@@ -11,39 +11,43 @@
                 <div class="position-relative">
                     <i class="bi bi-search position-absolute text-muted-white" style="left:14px;top:50%;transform:translateY(-50%)"></i>
                     <input type="text" id="searchInput" class="form-control ps-5"
-                           placeholder="Search components..."
+                           placeholder="@L["Products.Search"]"
                            value="@Model.SearchQuery"
                            oninput="debounceSearch()">
                 </div>
             </div>
             <div class="col-lg-3">
                 <select class="form-select" id="sortSelect" onchange="applyFilters()">
-                    <option value="pp">Best Value (P/P)</option>
-                    <option value="price-asc">Price: Low → High</option>
-                    <option value="price-desc">Price: High → Low</option>
-                    <option value="name">Name A–Z</option>
+                    <option value="pp">@L["Products.BestValue"]</option>
+                    <option value="price-asc">@L["Products.PriceLow"]</option>
+                    <option value="price-desc">@L["Products.PriceHigh"]</option>
+                    <option value="name">@L["Products.NameAZ"]</option>
                 </select>
             </div>
             <div class="col-lg-2">
                 <span class="text-muted-white small d-flex align-items-center h-100">
-                    <span id="countLabel">@Model.TotalCount results</span>
+                    <span id="countLabel">@Model.TotalCount @L["Products.Results"]</span>
                 </span>
             </div>
         </div>
 
         <!-- Category pills -->
         <div class="d-flex flex-wrap gap-2 mb-3" id="catPills">
-            @foreach (var cat in new[] {
-                ("all",         "All Components"),
-                ("cpu",         "Processors"),
-                ("motherboard", "Motherboards"),
-                ("memory",      "Memory (RAM)"),
-                ("gpu",         "Graphics Cards"),
-                ("storage",     "Storage"),
-                ("psu",         "Power Supplies"),
-                ("case",        "Cases"),
-                ("cooler",      "Cooling"),
-            })
+            @{
+                var cats = new (string, string)[] {
+                    ("all",         L["Cat.All"].Value),
+                    ("cpu",         L["Cat.CPU"].Value),
+                    ("motherboard", L["Cat.Motherboard"].Value),
+                    ("memory",      L["Cat.Memory"].Value),
+                    ("gpu",         L["Cat.GPU"].Value),
+                    ("storage",     L["Cat.Storage"].Value),
+                    ("psu",         L["Cat.PSU"].Value),
+                    ("case",        L["Cat.Case"].Value),
+                    ("cooler",      L["Cat.Cooler"].Value),
+                    ("prebuilt",    L["Cat.Prebuilt"].Value),
+                };
+            }
+            @foreach (var cat in cats)
             {
                 <button class="category-pill @(Model.SelectedCategory == cat.Item1 ? "active" : "")"
                         data-cat="@cat.Item1"
@@ -58,40 +62,44 @@
             <button class="btn btn-sm glass text-white px-3" type="button"
                     data-bs-toggle="collapse" data-bs-target="#advFilters"
                     onclick="this.querySelector('i:last-child').classList.toggle('bi-chevron-up'); this.querySelector('i:last-child').classList.toggle('bi-chevron-down')">
-                <i class="bi bi-sliders me-1"></i>Advanced Filters
+                <i class="bi bi-sliders me-1"></i>@L["Products.AdvancedFilters"]
                 <i class="bi bi-chevron-down ms-1"></i>
             </button>
 
             <div class="collapse" id="advFilters">
                 <div class="row g-3 mt-2">
                     <!-- Price Range -->
-                    <div class="col-sm-6 col-lg-4">
-                        <label class="text-muted-white small mb-1 d-block">Price Range</label>
+                    <div class="col-sm-6 col-lg-3">
+                        <label class="text-muted-white small mb-1 d-block">@L["Products.PriceRange"]</label>
                         <div class="d-flex gap-2">
                             <input type="number" id="minPrice" class="form-control" placeholder="Min (đ)" min="0" oninput="debounceSearch()">
                             <input type="number" id="maxPrice" class="form-control" placeholder="Max (đ)" min="0" oninput="debounceSearch()">
                         </div>
                     </div>
                     <!-- Brand Filter -->
-                    <div class="col-sm-6 col-lg-4" id="brandFilterCol">
-                        <label class="text-muted-white small mb-1 d-block">Brand</label>
+                    <div class="col-sm-6 col-lg-3" id="brandFilterCol">
+                        <label class="text-muted-white small mb-1 d-block">@L["Products.Brand"]</label>
                         <div class="dropdown">
                             <button class="btn glass text-white w-100 d-flex justify-content-between align-items-center"
                                     type="button" id="brandDropdownBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <span id="brandLabel">All Brands</span>
+                                <span id="brandLabel">@L["Products.AllBrands"]</span>
                                 <i class="bi bi-chevron-down"></i>
                             </button>
                             <div class="dropdown-menu glass p-3" style="min-width:200px;max-height:220px;overflow-y:auto">
                                 <div id="brandCheckboxes">
-                                    <span class="text-muted-white small">Select a category first</span>
+                                    <span class="text-muted-white small">@L["Products.Loading"]</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Category-specific filters (dynamic) -->
+                    <div id="catSpecificFilters" class="col-12 p-0">
+                        <!-- populated by JS -->
+                    </div>
                     <!-- Reset -->
-                    <div class="col-sm-12 col-lg-4 d-flex align-items-end">
+                    <div class="col-sm-12 col-lg-2 d-flex align-items-end">
                         <button class="btn glass text-white px-4" onclick="resetAdvFilters()">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>@L["Products.Reset"]
                         </button>
                     </div>
                 </div>
@@ -110,13 +118,14 @@
         {
             var currentP = Model.Page;
             var totalP = Model.TotalPages;
-            
+
             <button class="btn glass text-white rounded-3 px-3" @(currentP == 1 ? "disabled" : "") onclick="goPage(@(currentP - 1))">&laquo;</button>
 
             var startP = Math.Max(1, currentP - 2);
             var endP = Math.Min(totalP, currentP + 2);
 
-            if (startP > 1) {
+            if (startP > 1)
+            {
                 <button class="btn glass text-white rounded-3 px-3" onclick="goPage(1)">1</button>
                 if (startP > 2) { <span class="text-muted-white align-self-end px-1 pb-1">...</span> }
             }
@@ -127,7 +136,8 @@
                         onclick="goPage(@p)">@p</button>
             }
 
-            if (endP < totalP) {
+            if (endP < totalP)
+            {
                 if (endP < totalP - 1) { <span class="text-muted-white align-self-end px-1 pb-1">...</span> }
                 <button class="btn glass text-white rounded-3 px-3" onclick="goPage(@totalP)">@totalP</button>
             }
@@ -139,6 +149,45 @@
 
 @section Scripts {
 <script>
+// Localization strings (injected from server)
+const i18n = {
+    allBrands:      '@L["Products.AllBrands"]',
+    selected:       '@L["Products.Selected"]',
+    loading:        '@L["Products.Loading"]',
+    noResults:      '@L["Products.NoResults"]',
+    noResultsHint:  '@L["Products.NoResultsHint"]',
+    loadError:      '@L["Products.LoadError"]',
+    results:        '@L["Products.Results"]',
+    filterAll:      '@L["Filter.All"]',
+    catLabels: {
+        cpu:         '@L["Cat.CPU"]',
+        motherboard: '@L["Cat.Motherboard"]',
+        memory:      '@L["Cat.Memory"]',
+        gpu:         '@L["Cat.GPU"]',
+        storage:     '@L["Cat.Storage"]',
+        psu:         '@L["Cat.PSU"]',
+        case:        '@L["Cat.Case"]',
+        cooler:      '@L["Cat.Cooler"]',
+        prebuilt:    '@L["Cat.Prebuilt"]',
+    },
+    filters: {
+        socket:      '@L["Filter.Socket"]',
+        formFactor:  '@L["Filter.FormFactor"]',
+        ramType:     '@L["Filter.RamType"]',
+        memType:     '@L["Filter.MemType"]',
+        capacity:    '@L["Filter.Capacity"]',
+        vram:        '@L["Filter.VRAM"]',
+        generation:  '@L["Filter.Generation"]',
+        storageType: '@L["Filter.StorageType"]',
+        iface:       '@L["Filter.Interface"]',
+        wattage:     '@L["Filter.Wattage"]',
+        efficiency:  '@L["Filter.Efficiency"]',
+        modular:     '@L["Filter.Modular"]',
+        coolerType:  '@L["Filter.CoolerType"]',
+        minW:        '@L["Filter.MinW"]',
+    }
+};
+
 let currentCat    = '@Model.SelectedCategory';
 let currentPage   = 1;
 let currentBrands = [];
@@ -150,29 +199,30 @@ function debounceSearch() {
 }
 
 function setCategory(cat) {
-    currentCat  = cat;
-    currentPage = 1;
+    currentCat    = cat;
+    currentPage   = 1;
     currentBrands = [];
     document.querySelectorAll('.category-pill').forEach(b =>
         b.classList.toggle('active', b.dataset.cat === cat));
     loadBrands(cat);
+    loadFilterOptions(cat);
     applyFilters();
 }
 
+/* ── Brand filter ── */
 function loadBrands(cat) {
     const col = document.getElementById('brandFilterCol');
-    if (cat === 'all') {
-        col.style.display = 'none';
-        return;
-    }
+    if (cat === 'all') { col.style.display = 'none'; return; }
     col.style.display = '';
-    document.getElementById('brandCheckboxes').innerHTML = '<span class="text-muted-white small"><span class="spinner-border spinner-border-sm me-1"></span>Loading…</span>';
+    document.getElementById('brandCheckboxes').innerHTML =
+        `<span class="text-muted-white small"><span class="spinner-border spinner-border-sm me-1"></span>${i18n.loading}</span>`;
 
     fetch('/Products/Brands?category=' + cat)
         .then(r => r.json())
         .then(brands => {
-            if (brands.length === 0) {
-                document.getElementById('brandCheckboxes').innerHTML = '<span class="text-muted-white small">No brands found</span>';
+            if (!brands.length) {
+                document.getElementById('brandCheckboxes').innerHTML =
+                    '<span class="text-muted-white small">—</span>';
                 return;
             }
             document.getElementById('brandCheckboxes').innerHTML = brands.map(b => `
@@ -186,10 +236,100 @@ function loadBrands(cat) {
 
 function updateBrands() {
     currentBrands = Array.from(document.querySelectorAll('#brandCheckboxes input:checked')).map(i => i.value);
-    const label = currentBrands.length === 0 ? 'All Brands' : `${currentBrands.length} selected`;
-    document.getElementById('brandLabel').textContent = label;
+    document.getElementById('brandLabel').textContent =
+        currentBrands.length ? `${currentBrands.length} ${i18n.selected}` : i18n.allBrands;
     currentPage = 1;
     applyFilters();
+}
+
+/* ── Category-specific filters ── */
+function loadFilterOptions(cat) {
+    const container = document.getElementById('catSpecificFilters');
+    container.innerHTML = '';
+
+    const noCatFilters = ['all', 'cpu', 'prebuilt'];
+    if (noCatFilters.includes(cat)) return;
+
+    fetch('/Products/FilterOptions?category=' + cat)
+        .then(r => r.json())
+        .then(opts => renderCatFilters(cat, opts))
+        .catch(() => {});
+}
+
+function renderCatFilters(cat, opts) {
+    const container = document.getElementById('catSpecificFilters');
+    let html = '<div class="row g-3 mt-0">';
+
+    function makeSelect(id, label, paramKey, items, fmtLabel) {
+        const options = items.map(v =>
+            `<option value="${esc(String(v))}">${fmtLabel ? fmtLabel(v) : esc(String(v))}</option>`
+        ).join('');
+        return `
+            <div class="col-sm-6 col-lg-3">
+                <label class="text-muted-white small mb-1 d-block">${label}</label>
+                <select class="form-select" id="${id}" data-param="${paramKey}" onchange="applyFilters()">
+                    <option value="">${i18n.filterAll}</option>
+                    ${options}
+                </select>
+            </div>`;
+    }
+
+    if (cat === 'motherboard') {
+        html += makeSelect('filterSocket',    i18n.filters.socket,    'socket',    opts.sockets    || []);
+        html += makeSelect('filterFormFactor',i18n.filters.formFactor,'formFactor',opts.formFactors|| []);
+        html += makeSelect('filterMemType',   i18n.filters.ramType,   'memType',   opts.memTypes   || []);
+    }
+    else if (cat === 'memory') {
+        html += makeSelect('filterMemType',  i18n.filters.memType, 'memType',  opts.types      || []);
+        html += makeSelect('filterCapacity', i18n.filters.capacity,'capacity', opts.capacities || [],
+            v => `${v} GB`);
+    }
+    else if (cat === 'gpu') {
+        html += makeSelect('filterGpuGen', i18n.filters.generation, 'gpuGen', opts.generations || []);
+        html += makeSelect('filterVram',   i18n.filters.vram,       'vram',   opts.vrams       || [],
+            v => `${v} GB`);
+    }
+    else if (cat === 'storage') {
+        html += makeSelect('filterStorageType',      i18n.filters.storageType, 'storageType',      opts.types      || []);
+        html += makeSelect('filterStorageInterface', i18n.filters.iface,       'storageInterface', opts.interfaces || []);
+        html += makeSelect('filterCapacity',         i18n.filters.capacity,    'capacity',         opts.capacities || [],
+            v => v >= 1024 ? (v % 1024 === 0 ? `≥ ${v/1024} TB` : `≥ ${(v/1024).toFixed(1)} TB`) : `≥ ${v} GB`);
+    }
+    else if (cat === 'psu') {
+        html += `
+            <div class="col-sm-6 col-lg-3">
+                <label class="text-muted-white small mb-1 d-block">${i18n.filters.wattage}</label>
+                <div class="input-group">
+                    <input type="number" id="filterMinWattage" data-param="minWattage"
+                           class="form-control" placeholder="${i18n.filters.minW}" min="0" step="50"
+                           oninput="debounceSearch()">
+                    <span class="input-group-text glass text-white border-0">W</span>
+                </div>
+            </div>`;
+        html += makeSelect('filterEfficiency', i18n.filters.efficiency, 'efficiency', opts.efficiencies || []);
+        html += makeSelect('filterModular',    i18n.filters.modular,    'modular',    opts.modulars     || []);
+    }
+    else if (cat === 'case') {
+        html += makeSelect('filterFormFactor', i18n.filters.formFactor, 'formFactor', opts.formFactors || []);
+    }
+    else if (cat === 'cooler') {
+        html += makeSelect('filterCoolerType', i18n.filters.coolerType, 'coolerType', opts.types || []);
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+/* ── Core filter logic ── */
+function getCatFilterParams() {
+    const params = {};
+    // Collect select elements
+    document.querySelectorAll('#catSpecificFilters [data-param]').forEach(el => {
+        const key = el.getAttribute('data-param');
+        const val = el.value;
+        if (val) params[key] = val;
+    });
+    return params;
 }
 
 function resetAdvFilters() {
@@ -197,7 +337,11 @@ function resetAdvFilters() {
     document.getElementById('maxPrice').value = '';
     currentBrands = [];
     document.querySelectorAll('#brandCheckboxes input').forEach(i => i.checked = false);
-    document.getElementById('brandLabel').textContent = 'All Brands';
+    document.getElementById('brandLabel').textContent = i18n.allBrands;
+    document.querySelectorAll('#catSpecificFilters [data-param]').forEach(el => {
+        if (el.tagName === 'SELECT') el.value = '';
+        else if (el.type === 'number') el.value = '';
+    });
     currentPage = 1;
     applyFilters();
 }
@@ -210,62 +354,79 @@ function applyFilters() {
     const grid   = document.getElementById('productGrid');
 
     grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
-        <div class="spinner-border me-2"></div>Loading...</div>`;
+        <div class="spinner-border me-2"></div>${i18n.loading}</div>`;
 
     const minP = document.getElementById('minPrice')?.value;
     const maxP = document.getElementById('maxPrice')?.value;
 
     const params = new URLSearchParams({ category: currentCat, sort, page: currentPage });
-    if (search) params.set('search', search);
-    if (minP)   params.set('minPrice', minP);
-    if (maxP)   params.set('maxPrice', maxP);
-    if (currentBrands.length > 0) params.set('brands', currentBrands.join(','));
+    if (search)              params.set('search', search);
+    if (minP)                params.set('minPrice', minP);
+    if (maxP)                params.set('maxPrice', maxP);
+    if (currentBrands.length) params.set('brands', currentBrands.join(','));
+
+    // Category-specific filters
+    Object.entries(getCatFilterParams()).forEach(([k, v]) => { if (v) params.set(k, v); });
 
     fetch('/Products/Filter?' + params)
-        .then(r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-        })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(data => {
             renderProducts(data.products);
             renderPagination(data.totalPages, data.page);
-            document.getElementById('countLabel').textContent = data.totalCount + ' results';
+            document.getElementById('countLabel').textContent = data.totalCount + ' ' + i18n.results;
         })
-        .catch(err => {
-            console.error('Products filter error:', err);
+        .catch(() => {
             grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
                 <i class="bi bi-exclamation-circle fs-1 mb-3 d-block"></i>
-                <p>Failed to load products. Please try again.</p></div>`;
+                <p>${i18n.loadError}</p></div>`;
         });
 }
 
 function renderProducts(products) {
     const grid = document.getElementById('productGrid');
-    if (!products || products.length === 0) {
+    if (!products || !products.length) {
         grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
             <i class="bi bi-search fs-1 mb-3 d-block"></i>
-            <p class="mb-0">No components found</p>
-            <small>Try a different search or category</small></div>`;
+            <p class="mb-0">${i18n.noResults}</p>
+            <small>${i18n.noResultsHint}</small></div>`;
         return;
     }
 
     grid.innerHTML = products.map(p => {
-        const specs = Object.entries(p.specs || {}).slice(0, 3)
-            .map(([k,v]) => `<span class="badge glass-sm text-white" style="font-size:.72rem">${k}: ${v}</span>`)
-            .join(' ');
+        const isPrebuilt = p.isPrebuilt;
+        const catLabel = isPrebuilt
+            ? i18n.catLabels.prebuilt
+            : (i18n.catLabels[p.category] || p.category.toUpperCase());
+
+        const badgeColor = isPrebuilt
+            ? 'background:rgba(16,185,129,.2);color:#34d399'
+            : 'background:rgba(168,85,247,.25);color:#c084fc';
+
+        const specs = isPrebuilt
+            ? ''
+            : Object.entries(p.specs || {}).slice(0, 3)
+                .map(([k,v]) => `<span class="badge glass-sm text-white" style="font-size:.72rem">${k}: ${v}</span>`)
+                .join(' ');
+
         const img = p.imageUrl
             ? `<img src="${p.imageUrl}" alt="${esc(p.name)}" class="w-100 h-100 object-fit-cover">`
             : `<i class="bi bi-cpu text-muted-white" style="font-size:3rem"></i>`;
-        const catLabel = {'cpu':'CPU','motherboard':'Motherboard','memory':'RAM','gpu':'GPU',
-            'storage':'Storage','psu':'PSU','case':'Case','cooler':'Cooler'}[p.category] || p.category;
 
         const detailUrl = `/Products/Detail/${p.category}/${p.id}`;
+        const builderBtn = !isPrebuilt
+            ? `<button class="btn btn-sm glass text-white px-2 py-1"
+                       onclick="goBuilder('${p.category}',${p.id})"
+                       title="Thêm vào PC Builder">
+                   <i class="bi bi-tools" style="font-size:.8rem"></i>
+               </button>`
+            : '';
+
         return `<div class="col-sm-6 col-lg-4 col-xl-3">
             <div class="component-card p-0 h-100 overflow-hidden d-flex flex-column">
                 <a href="${detailUrl}" class="text-decoration-none"
                    style="height:160px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;overflow:hidden">${img}</a>
                 <div class="p-3 d-flex flex-column flex-grow-1">
-                    <span class="badge mb-2" style="background:rgba(168,85,247,.25);color:#c084fc;font-size:.7rem">${catLabel}</span>
+                    <span class="badge mb-2" style="${badgeColor};font-size:.7rem">${catLabel}</span>
                     <h6 class="mb-2 lh-sm flex-grow-1" style="font-size:.82rem">
                         <a href="${detailUrl}" class="text-white text-decoration-none" style="opacity:.9">${esc(p.name)}</a>
                     </h6>
@@ -273,14 +434,10 @@ function renderProducts(products) {
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-white fw-bold">${fmt(p.price)}</span>
                         <div class="d-flex gap-2">
-                            <button class="btn btn-sm glass text-white px-2 py-1"
-                                    onclick="goBuilder('${p.category}',${p.id})"
-                                    title="Add to PC Builder">
-                                <i class="bi bi-tools" style="font-size:.8rem"></i>
-                            </button>
+                            ${builderBtn}
                             <button class="btn btn-sm btn-gradient px-2 py-1"
                                     onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${p.price},${p.imageUrl ? `'${esc(p.imageUrl)}'` : 'null'})"
-                                    title="Add to Cart">
+                                    title="Thêm vào giỏ hàng">
                                 <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
                             </button>
                         </div>
@@ -294,21 +451,20 @@ function renderProducts(products) {
 function renderPagination(totalPages, currentP) {
     const el = document.getElementById('pagination');
     if (totalPages <= 1) { el.innerHTML = ''; return; }
-    
+
     let html = '';
     html += `<button class="btn glass text-white rounded-3 px-3" ${currentP === 1 ? 'disabled' : `onclick="goPage(${currentP - 1})"`}>&laquo;</button>`;
 
     let start = Math.max(1, currentP - 2);
-    let end = Math.min(totalPages, currentP + 2);
+    let end   = Math.min(totalPages, currentP + 2);
 
     if (start > 1) {
         html += `<button class="btn glass text-white rounded-3 px-3" onclick="goPage(1)">1</button>`;
         if (start > 2) html += `<span class="text-muted-white align-self-end px-1 pb-1">...</span>`;
     }
 
-    for (let p = start; p <= end; p++) {
+    for (let p = start; p <= end; p++)
         html += `<button class="btn ${p===currentP?'btn-gradient':'glass text-white'} rounded-3 px-3" onclick="goPage(${p})">${p}</button>`;
-    }
 
     if (end < totalPages) {
         if (end < totalPages - 1) html += `<span class="text-muted-white align-self-end px-1 pb-1">...</span>`;
@@ -316,7 +472,6 @@ function renderPagination(totalPages, currentP) {
     }
 
     html += `<button class="btn glass text-white rounded-3 px-3" ${currentP === totalPages ? 'disabled' : `onclick="goPage(${currentP + 1})"`}>&raquo;</button>`;
-    
     el.innerHTML = html;
 }
 
@@ -324,14 +479,12 @@ function goBuilder(category, id) {
     window.location.href = '/Builder?preselect=' + category + ':' + id;
 }
 
-// addToCart is defined in site.js
+document.addEventListener('DOMContentLoaded', () => {
+    loadBrands(currentCat);
+    loadFilterOptions(currentCat);
+});
 
-// Load brands for initial category on page load
-document.addEventListener('DOMContentLoaded', () => loadBrands(currentCat));
-
-function fmt(n) {
-    return new Intl.NumberFormat('vi-VN').format(n) + 'đ';
-}
+function fmt(n) { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }
 function esc(s) {
     return String(s).replace(/[&<>"']/g, c =>
         ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
