@@ -41,7 +41,20 @@ else
                     }
                 </a>
                 <div class="p-3 d-flex flex-column flex-grow-1">
-                    <span class="badge mb-2" style="@badgeStyle;font-size:.7rem">@catLabel</span>
+                    <div class="d-flex align-items-center gap-1 mb-2">
+                        <span class="badge" style="@badgeStyle;font-size:.7rem">@catLabel</span>
+                        @if (!p.IsPrebuilt)
+                        {
+                            if (p.Stock == 0)
+                            {
+                                <span class="badge" style="background:rgba(239,68,68,.15);color:#f87171;font-size:.65rem">Hết hàng</span>
+                            }
+                            else if (p.Stock <= 5)
+                            {
+                                <span class="badge" style="background:rgba(251,146,60,.15);color:#fb923c;font-size:.65rem">Còn @p.Stock</span>
+                            }
+                        }
+                    </div>
                     <h6 class="mb-2 lh-sm flex-grow-1" style="font-size:.82rem">
                         <a href="/Products/Detail/@p.Category/@p.Id"
                            class="text-white text-decoration-none"
@@ -77,12 +90,13 @@ else
                                     <i class="bi bi-bar-chart-steps" style="font-size:.8rem"></i>
                                 </button>
                             }
-                            <button class="btn btn-sm btn-gradient px-2 py-1"
+                            <button class="btn btn-sm btn-gradient px-2 py-1 @(p.Stock == 0 && !p.IsPrebuilt ? "disabled" : "")"
                                     data-pid="@p.Id" data-pcat="@p.Category"
                                     data-pname="@p.Name" data-pprice="@p.Price"
                                     data-pimg="@p.ImageUrl"
                                     onclick="addToCartFromData(this)"
-                                    title="Thêm vào giỏ hàng">
+                                    title="@(p.Stock == 0 && !p.IsPrebuilt ? "Hết hàng" : "Thêm vào giỏ hàng")"
+                                    @(p.Stock == 0 && !p.IsPrebuilt ? "disabled" : "")>
                                 <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
                             </button>
                         </div>

@@ -1,0 +1,105 @@
+@model List<TechSpecs.Models.WarrantyRecord>
+@{ ViewData["Title"] = "Admin — Bảo hành"; }
+
+@{
+    var catLabel = new Dictionary<string, string>
+    {
+        ["cpu"] = "CPU", ["gpu"] = "GPU", ["ram"] = "RAM", ["motherboard"] = "Mainboard",
+        ["storage"] = "Ổ cứng", ["psu"] = "Nguồn", ["cooler"] = "Tản nhiệt", ["case"] = "Case"
+    };
+    var now = DateTime.UtcNow;
+}
+
+<div class="container-xl py-4 px-3">
+    <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+        <a href="/Admin/Dashboard" class="btn glass text-white px-2 py-1">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1 class="text-white fw-bold mb-0">Bảo hành</h1>
+        <span class="badge glass-sm text-white">@Model.Count</span>
+
+        <form method="get" class="ms-auto d-flex gap-2" style="min-width:260px">
+            <input name="search" value="@ViewBag.Search" type="text" class="form-control glass-sm"
+                   placeholder="Tìm theo SĐT, serial, tên sản phẩm…">
+            <button type="submit" class="btn glass-sm px-3">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass p-5 text-center text-muted">
+            <i class="bi bi-shield-x" style="font-size:2.5rem;opacity:.3"></i>
+            <p class="mt-3">Không có bản ghi bảo hành nào.</p>
+        </div>
+    }
+    else
+    {
+        <div class="glass rounded-4 overflow-hidden">
+            <table class="table table-dark table-hover mb-0" style="font-size:.85rem">
+                <thead>
+                    <tr class="border-bottom border-white border-opacity-10">
+                        <th class="ps-3 py-3">Sản phẩm</th>
+                        <th>SĐT</th>
+                        <th>Serial</th>
+                        <th>Ngày mua</th>
+                        <th>Hết hạn</th>
+                        <th>Trạng thái</th>
+                        <th>Đơn hàng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var w in Model)
+                    {
+                        var expiry   = w.PurchaseDate.AddMonths(w.WarrantyMonths);
+                        var daysLeft = (int)(expiry - now).TotalDays;
+                        var isExp    = expiry < now;
+                        var isSoon   = !isExp && daysLeft <= 30;
+                        var badgeClass = isExp ? "text-danger" : isSoon ? "text-warning" : "text-success";
+                        var badgeText  = isExp ? "Hết hạn" : isSoon ? $"Còn {daysLeft}d" : $"Còn {daysLeft}d";
+
+                        <tr>
+                            <td class="ps-3 py-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(w.ImageUrl))
+                                    {
+                                        <img src="@w.ImageUrl" alt="" style="width:32px;height:32px;object-fit:contain;border-radius:4px;background:rgba(255,255,255,.05)">
+                                    }
+                                    <div>
+                                        <div class="text-white" style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@w.ProductName</div>
+                                        <span class="badge glass-sm" style="font-size:.65rem">@(catLabel.TryGetValue(w.Category, out var cl) ? cl : w.Category)</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-2">@(w.Phone ?? "—")</td>
+                            <td class="py-2">@(w.SerialNumber ?? "—")</td>
+                            <td class="py-2">@w.PurchaseDate.ToString("dd/MM/yy")</td>
+                            <td class="py-2">@expiry.ToString("dd/MM/yy")</td>
+                            <td class="py-2">
+                                <span class="@badgeClass fw-semibold">@badgeText</span>
+                            </td>
+                            <td class="py-2">
+                                @if (w.OrderId.HasValue)
+                                {
+                                    <a href="/Admin/Orders" class="text-purple">#@w.OrderId</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .text-purple { color: #a855f7; }
+    .table-dark { background: transparent; }
+    .table-dark td, .table-dark th { background: transparent; border-color: rgba(255,255,255,.06); }
+    .table-dark tbody tr:hover td { background: rgba(255,255,255,.03); }
+</style>

@@ -22,6 +22,7 @@ public class ProductListItem
     public string? ImageUrl { get; set; }
     public double PpScore { get; set; }
     public bool IsPrebuilt { get; set; }
+    public int Stock { get; set; }
     public Dictionary<string, string> Specs { get; set; } = new();
 
     [System.Text.Json.Serialization.JsonIgnore]

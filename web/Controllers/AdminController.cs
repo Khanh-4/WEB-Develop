@@ -186,6 +186,23 @@ public class AdminController : Controller
         return Ok(new { status = status.ToString() });
     }
 
+    // ── Warranties ───────────────────────────────────────────────
+
+    public async Task<IActionResult> Warranties(string? search = null)
+    {
+        var q = _db.WarrantyRecords.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim().ToLower();
+            q = q.Where(w => (w.Phone != null && w.Phone.Contains(s))
+                          || w.ProductName.ToLower().Contains(s)
+                          || (w.SerialNumber != null && w.SerialNumber.Contains(s)));
+        }
+        var records = await q.OrderByDescending(w => w.PurchaseDate).Take(200).ToListAsync();
+        ViewBag.Search = search;
+        return View(records);
+    }
+
     // ── Scraper ──────────────────────────────────────────────────
 
     public IActionResult Scraper() => View();

@@ -722,7 +722,7 @@ public class ProductsController : Controller
                 {
                     Id = c.Id, Category = "cpu", Name = c.Name,
                     Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
-                    IsPrebuilt = prebuilt,
+                    Stock = c.Stock, IsPrebuilt = prebuilt,
                     PpScore = c.Price > 0 ? Math.Round((double)c.ApproximatePerformance / (double)c.Price * 1_000_000, 2) : 0,
                     Specs = prebuilt
                         ? new()
@@ -740,7 +740,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(m => new ProductListItem
             {
                 Id = m.Id, Category = "motherboard", Name = m.Name,
-                Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl,
+                Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock,
                 PpScore = m.Price > 0 ? Math.Round(10_000_000_000d / (double)m.Price, 2) : 0,
                 Specs = new() { ["Socket"] = m.SocketCompatibility, ["Chuẩn"] = m.FormFactor, ["RAM"] = m.MemoryCompatibility },
                 FilterData = new() { ["socket"] = m.SocketCompatibility, ["formFactor"] = m.FormFactor, ["memType"] = m.MemoryCompatibility, ["chipset"] = m.Chipset }
@@ -755,7 +755,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(m => new ProductListItem
             {
                 Id = m.Id, Category = "memory", Name = m.Name,
-                Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl,
+                Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock,
                 PpScore = m.Price > 0 ? Math.Round((double)(m.Capacity * m.Speed) / (double)m.Price * 1000, 2) : 0,
                 Specs = new() { ["Loại"] = m.Type, ["Dung lượng"] = $"{m.Capacity}GB", ["Tốc độ"] = $"{m.Speed}MHz" },
                 FilterData = new() { ["memType"] = m.Type, ["capacity"] = m.Capacity.ToString(), ["profile"] = m.Profile }
@@ -770,7 +770,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(g => new ProductListItem
             {
                 Id = g.Id, Category = "gpu", Name = g.Name,
-                Manufacturer = g.Manufacturer, Price = g.Price, ImageUrl = g.ImageUrl,
+                Manufacturer = g.Manufacturer, Price = g.Price, ImageUrl = g.ImageUrl, Stock = g.Stock,
                 PpScore = g.Price > 0 ? Math.Round((double)g.ApproximatePerformance / (double)g.Price * 1_000_000, 2) : 0,
                 Specs = new() { ["VRAM"] = $"{g.VRAM}GB", ["Chiều dài"] = $"{g.Length}mm", ["TDP"] = $"{g.TDP}W" },
                 FilterData = new() { ["vram"] = g.VRAM.ToString(), ["generation"] = GetGpuGeneration(g.Name) }
@@ -785,7 +785,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(s => new ProductListItem
             {
                 Id = s.Id, Category = "storage", Name = s.Name,
-                Manufacturer = s.Manufacturer, Price = s.Price, ImageUrl = s.ImageUrl,
+                Manufacturer = s.Manufacturer, Price = s.Price, ImageUrl = s.ImageUrl, Stock = s.Stock,
                 PpScore = s.Price > 0 ? Math.Round((double)s.Capacity / (double)s.Price * 1_000_000, 2) : 0,
                 Specs = new() { ["Loại"] = s.Type, ["Dung lượng"] = FormatStorageCapacity(s.Capacity), ["Giao tiếp"] = s.Interface },
                 FilterData = new() { ["storageType"] = s.Type, ["interface"] = s.Interface, ["capacity"] = s.Capacity.ToString() }
@@ -800,7 +800,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(p => new ProductListItem
             {
                 Id = p.Id, Category = "psu", Name = p.Name,
-                Manufacturer = p.Manufacturer, Price = p.Price, ImageUrl = p.ImageUrl,
+                Manufacturer = p.Manufacturer, Price = p.Price, ImageUrl = p.ImageUrl, Stock = p.Stock,
                 PpScore = p.Price > 0 ? Math.Round((double)p.Wattage / (double)p.Price * 100_000, 2) : 0,
                 Specs = new() { ["Công suất"] = $"{p.Wattage}W", ["Hiệu suất"] = p.Efficiency, ["Kiểu dây"] = p.Modular },
                 FilterData = new() { ["wattage"] = p.Wattage.ToString(), ["efficiency"] = p.Efficiency, ["modular"] = p.Modular, ["psuFormFactor"] = p.PsuFormFactor }
@@ -815,7 +815,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(c => new ProductListItem
             {
                 Id = c.Id, Category = "case", Name = c.Name,
-                Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
+                Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
                 PpScore = c.Price > 0 ? Math.Round(10_000_000_000d / (double)c.Price, 2) : 0,
                 Specs = new() { ["Hỗ trợ MB"] = c.FormFactorSupport, ["Max GPU"] = $"{c.MaxVGALength}mm", ["Màu sắc"] = c.Color ?? "—" },
                 FilterData = new() { ["formFactor"] = c.FormFactorSupport, ["caseType"] = c.CaseType, ["radiatorSupport"] = c.RadiatorSupport }
@@ -830,7 +830,7 @@ public class ProductsController : Controller
             result.AddRange(rows.Select(c => new ProductListItem
             {
                 Id = c.Id, Category = "cooler", Name = c.Name,
-                Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
+                Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
                 PpScore = c.Price > 0 ? Math.Round((double)c.MaxTDP / (double)c.Price * 1_000_000, 2) : 0,
                 Specs = new() { ["Loại"] = c.Type, ["Max TDP"] = $"{c.MaxTDP}W", ["Socket"] = c.SocketCompatibility.Length > 30 ? c.SocketCompatibility[..30] + "…" : c.SocketCompatibility },
                 FilterData = new() { ["coolerType"] = c.Type }
