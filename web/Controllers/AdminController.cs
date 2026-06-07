@@ -143,10 +143,45 @@ public class AdminController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateOrderStatus(int id, OrderStatus status)
     {
-        var order = await _db.Orders.FindAsync(id);
+        var order = await _db.Orders
+            .Include(o => o.Details)
+            .FirstOrDefaultAsync(o => o.Id == id);
         if (order == null) return NotFound();
 
+        var wasConfirmed = order.Status == OrderStatus.Confirmed;
         order.Status = status;
+
+        if (status == OrderStatus.Confirmed && !wasConfirmed)
+        {
+            var warrantyMonths = new Dictionary<string, int>
+            {
+                ["cpu"] = 36, ["gpu"] = 36, ["ram"] = 36, ["motherboard"] = 36,
+                ["storage"] = 36, ["psu"] = 24, ["cooler"] = 24, ["case"] = 12
+            };
+
+            bool alreadyHasWarranty = await _db.WarrantyRecords
+                .AnyAsync(w => w.OrderId == id);
+
+            if (!alreadyHasWarranty)
+            {
+                foreach (var detail in order.Details)
+                {
+                    var months = warrantyMonths.TryGetValue(detail.Category, out var m) ? m : 24;
+                    _db.WarrantyRecords.Add(new WarrantyRecord
+                    {
+                        OrderId      = id,
+                        Phone        = order.Phone,
+                        ProductName  = detail.ComponentName,
+                        Category     = detail.Category,
+                        ComponentId  = detail.ComponentId,
+                        ImageUrl     = detail.ImageUrl,
+                        PurchaseDate = DateTime.UtcNow,
+                        WarrantyMonths = months,
+                    });
+                }
+            }
+        }
+
         await _db.SaveChangesAsync();
         return Ok(new { status = status.ToString() });
     }

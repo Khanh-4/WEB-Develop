@@ -29,6 +29,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
     public DbSet<ProductReview> ProductReviews { get; set; }
     public DbSet<ProductQuestion> ProductQuestions { get; set; }
     public DbSet<ProductAnswer> ProductAnswers { get; set; }
+    public DbSet<WarrantyRecord> WarrantyRecords { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -55,5 +56,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
 
         builder.Entity<ProductQuestion>()
             .HasIndex(q => new { q.Category, q.ComponentId });
+
+        builder.Entity<WarrantyRecord>()
+            .HasIndex(w => w.Phone);
+
+        builder.Entity<WarrantyRecord>()
+            .HasIndex(w => w.SerialNumber);
     }
 }
