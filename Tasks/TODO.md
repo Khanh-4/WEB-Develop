@@ -1,7 +1,7 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-07 (session 5 bugs fixed — all tests restored)
+> Last updated: 2026-06-07 (session 6 — all 4 original feature groups complete)
 > Status: **Production live** at https://web-develop-production.up.railway.app
 
 ---
@@ -137,6 +137,54 @@
 - [x] **Wishlist**: heart button trên Product Detail, trang `/Wishlist`, Add to Cart từ wishlist
 - [x] **Multi-language**: ASP.NET Core localization, SharedResource.vi.resx, VI/EN toggle trong navbar
 - [x] **Dark/Light mode toggle**: sun/moon button navbar, `.light-mode` CSS, persist localStorage
+
+---
+
+---
+
+## ✅ Done — Session 6 (2026-06-07) — All 4 original feature groups complete
+
+| Task | File(s) |
+|------|---------|
+| **P7 Warranty Check** — tra cứu SĐT/serial, auto-tạo khi Confirmed | `Models/WarrantyRecord.cs`, `Controllers/WarrantyController.cs`, `Views/Warranty/` |
+| **P8 One-page Checkout** — COD/bank transfer, coupon TECHSPECS10=10%, AJAX | `Views/Orders/Checkout.cshtml`, `Models/Order.cs` (PaymentMethod+DiscountAmount) |
+| **Stock Status 5 trạng thái** — Còn hàng/Còn ít/Hết hàng/Sắp về/Liên hệ | `Models/*.cs` (StockStatusOverride), `ViewModels/ProductListItem.cs`, `_ProductGrid.cshtml` |
+| **Public Order Tracking** — /OrderTracking không cần login | `Controllers/OrderTrackingController.cs`, `Views/OrderTracking/` |
+| **Admin Warranty** — bảng quản lý bảo hành, search, ngày hết hạn | `Controllers/AdminController.cs`, `Views/Admin/Warranties.cshtml` |
+| **Reviews & Q&A** — star rating, comment, hỏi đáp thread | `Models/ProductReview.cs`, `Controllers/ReviewsController.cs`, `Views/Products/Detail.cshtml` |
+| **Cross-selling** — gợi ý linh kiện phù hợp trên Product Detail | `Controllers/ProductsController.cs` (CrossSell endpoint) |
+
+---
+
+## Priority 7 — Build PC Utilities & Advanced Features (Session 7)
+
+### Group A — Build PC Nâng cao
+- [ ] **P9 — Export Quotation PDF**: In báo giá từ Builder ra PDF. Dùng QuestPDF. Nút "Xuất PDF" trên Builder page, trả về file PDF với logo, bảng linh kiện, tổng tiền.
+- [x] ~~Share Build Link~~ — đã có từ session 3 (`/Build/Share/{token}`)
+- [x] ~~Save Build~~ — đã có từ session 3 (`/Build/MyBuilds`)
+
+### Group B — Tài chính & Thanh toán
+- [ ] **P10 — Installment Calculator**: Widget tính trả góp 3/6/9/12 tháng, phí chuyển đổi 0%/1.5%/2%. Hiển thị trên Product Detail và Checkout. Frontend-only, không cần API.
+- [ ] **P18 — Payment Gateway (Mock)**: UI + flow đầy đủ cho VNPAY-QR, MoMo, ZaloPay với mock responses. Điền API key vào appsettings là live ngay khi có merchant account.
+
+### Group C — Khuyến mãi & Marketing
+- [ ] **P11 — Flash Sale**: Model `FlashSale` (product, discount%, start/end time, total_qty, sold_qty), countdown timer frontend, thanh tiến độ "Đã bán X/Y", admin CRUD.
+- [ ] **P12 — Voucher/Coupon nâng cao**: Model `Coupon` với điều kiện (brand filter, min order, freeship, category), thay thế hardcode TECHSPECS10, admin quản lý mã.
+- [ ] **P13 — Combo/Bundle discount**: Model `Bundle` (danh sách sản phẩm + mức giảm giá), auto-apply discount khi cart đủ điều kiện bundle.
+
+### Group D — CRM & Loyalty
+- [ ] **P14 — Membership Tiers**: `LoyaltyPoints` table, 4 bậc (Đồng <1tr / Bạc <5tr / Vàng <20tr / Kim Cương 20tr+), tích điểm khi mua hàng, hiển thị tier trên Profile.
+- [ ] **P15 — My Warranties (account)**: Trang `/Account/Warranties` — user login thấy danh sách bảo hành của mình theo SĐT đăng ký.
+
+### Group E — Nội dung & Tương tác
+- [ ] **P16 — YouTube embed**: Thêm field `VideoUrl` vào hardware models, nhúng video trên Product Detail nếu có.
+- [ ] **P17 — Live Chat buttons**: Floating button Zalo + Messenger trên mọi trang. Cần link Zalo OA và Facebook Page ID từ user.
+- [ ] **P19 — Photo upload Reviews**: Supabase Storage bucket, upload ảnh review, hiển thị thumbnail dưới comment.
+
+---
+
+## Thứ tự làm (session 7)
+P9 → P10 → P11 → P12 → P15 → P16 → P17 → P13 → P14 → P18 → P19
 
 ---
 
