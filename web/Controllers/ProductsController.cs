@@ -326,6 +326,141 @@ public class ProductsController : Controller
         return View(products);
     }
 
+    // GET /Products/CrossSell?category=cpu&id=123
+    // Returns up to 4 complementary product suggestions
+    [HttpGet]
+    public async Task<IActionResult> CrossSell(string category, int id)
+    {
+        var results = new List<object>();
+
+        switch (category)
+        {
+            case "cpu":
+            {
+                var cpu = await _db.Cpus.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (cpu != null)
+                {
+                    // Coolers that support the CPU socket and have enough TDP headroom
+                    var coolers = await _db.CpuCoolers.AsNoTracking()
+                        .Where(c => c.SocketCompatibility.Contains(cpu.Socket) && c.MaxTDP >= cpu.TDP && c.Stock > 0)
+                        .OrderBy(c => c.Price).Take(4)
+                        .Select(c => new { c.Id, c.Name, c.Price, c.ImageUrl, Category = "cooler", Hint = "Tản nhiệt tương thích" })
+                        .ToListAsync();
+                    results.AddRange(coolers);
+                }
+                // Pad with popular RAM if fewer than 4
+                if (results.Count < 4)
+                {
+                    int take = 4 - results.Count;
+                    var ram = await _db.Memories.AsNoTracking()
+                        .Where(m => m.Stock > 0).OrderBy(m => m.Price).Take(take)
+                        .Select(m => new { m.Id, m.Name, m.Price, m.ImageUrl, Category = "memory", Hint = "RAM phổ biến" })
+                        .ToListAsync();
+                    results.AddRange(ram);
+                }
+                break;
+            }
+            case "motherboard":
+            {
+                var mb = await _db.Motherboards.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (mb != null)
+                {
+                    // CPUs with matching socket
+                    var cpus = await _db.Cpus.AsNoTracking()
+                        .Where(c => c.Socket == mb.SocketCompatibility && !c.Name.ToLower().StartsWith("pc ") && c.Stock > 0)
+                        .OrderBy(c => c.Price).Take(4)
+                        .Select(c => new { c.Id, c.Name, c.Price, c.ImageUrl, Category = "cpu", Hint = "CPU tương thích" })
+                        .ToListAsync();
+                    results.AddRange(cpus);
+                }
+                break;
+            }
+            case "gpu":
+            {
+                var gpu = await _db.VideoCards.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (gpu != null)
+                {
+                    int minPsu = (int)(gpu.TDP * 2); // rough: PSU should be ~2× GPU TDP
+                    var psus = await _db.PowerSupplies.AsNoTracking()
+                        .Where(p => p.Wattage >= minPsu && p.Stock > 0)
+                        .OrderBy(p => p.Price).Take(4)
+                        .Select(p => new { p.Id, p.Name, p.Price, p.ImageUrl, Category = "psu", Hint = "Nguồn đủ công suất" })
+                        .ToListAsync();
+                    results.AddRange(psus);
+                }
+                break;
+            }
+            case "psu":
+            {
+                // Suggest cases
+                var cases = await _db.CaseEnclosures.AsNoTracking()
+                    .Where(c => c.Stock > 0).OrderBy(c => c.Price).Take(4)
+                    .Select(c => new { c.Id, c.Name, c.Price, c.ImageUrl, Category = "case", Hint = "Case phổ biến" })
+                    .ToListAsync();
+                results.AddRange(cases);
+                break;
+            }
+            case "case":
+            {
+                // Suggest coolers that would fit (height-agnostic, just popular)
+                var coolers = await _db.CpuCoolers.AsNoTracking()
+                    .Where(c => c.Stock > 0).OrderBy(c => c.Price).Take(4)
+                    .Select(c => new { c.Id, c.Name, c.Price, c.ImageUrl, Category = "cooler", Hint = "Tản nhiệt phổ biến" })
+                    .ToListAsync();
+                results.AddRange(coolers);
+                break;
+            }
+            case "memory":
+            {
+                var ram = await _db.Memories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (ram != null)
+                {
+                    // More RAM of the same type (different capacity)
+                    var moreRam = await _db.Memories.AsNoTracking()
+                        .Where(m => m.Type == ram.Type && m.Id != id && m.Stock > 0)
+                        .OrderBy(m => m.Price).Take(4)
+                        .Select(m => new { m.Id, m.Name, m.Price, m.ImageUrl, Category = "memory", Hint = "RAM cùng chuẩn" })
+                        .ToListAsync();
+                    results.AddRange(moreRam);
+                }
+                break;
+            }
+            case "storage":
+            {
+                var s = await _db.Storages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (s != null)
+                {
+                    // Suggest storage of a different type (SSD ↔ HDD) or same type different capacity
+                    var other = await _db.Storages.AsNoTracking()
+                        .Where(x => x.Id != id && x.Stock > 0)
+                        .OrderBy(x => x.Price).Take(4)
+                        .Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "storage", Hint = "Mở rộng lưu trữ" })
+                        .ToListAsync();
+                    results.AddRange(other);
+                }
+                break;
+            }
+            case "cooler":
+            {
+                // Suggest thermal paste alternative: CPUs that this cooler supports
+                var cooler = await _db.CpuCoolers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                if (cooler != null && !string.IsNullOrEmpty(cooler.SocketCompatibility))
+                {
+                    var sockets = cooler.SocketCompatibility.Split(',').Select(s => s.Trim()).Take(2).ToList();
+                    var cpus = await _db.Cpus.AsNoTracking()
+                        .Where(c => sockets.Contains(c.Socket) && !c.Name.ToLower().StartsWith("pc ") && c.Stock > 0)
+                        .OrderBy(c => c.Price).Take(4)
+                        .Select(c => new { c.Id, c.Name, c.Price, c.ImageUrl, Category = "cpu", Hint = "CPU tương thích" })
+                        .ToListAsync();
+                    results.AddRange(cpus);
+                }
+                break;
+            }
+        }
+
+        return Json(results.Take(4));
+    }
+
     // Returns filter option values for category-specific dropdowns
     [HttpGet]
     public async Task<IActionResult> FilterOptions(string category)

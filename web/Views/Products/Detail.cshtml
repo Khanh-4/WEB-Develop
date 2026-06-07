@@ -150,6 +150,14 @@
             </div>
         </div>
     </div>
+
+    <!-- Cross-sell: related products -->
+    <div id="crossSellSection" class="mt-4" style="display:none">
+        <h5 class="text-white fw-semibold mb-3">
+            <i class="bi bi-bag-heart me-2" style="color:#a855f7"></i>Mua kèm phù hợp
+        </h5>
+        <div id="crossSellGrid" class="row g-3"></div>
+    </div>
 </div>
 
 @section Scripts {
@@ -251,6 +259,44 @@ async function toggleWishlist(btn) {
                 }
             }
         });
+    } catch {}
+})();
+
+// Cross-sell
+(async () => {
+    const category = '@Model.Category';
+    const id       = @Model.Id;
+    try {
+        const r = await fetch(`/Products/CrossSell?category=${category}&id=${id}`);
+        const items = await r.json();
+        if (!items.length) return;
+
+        const catLabels = { cpu:'CPU', motherboard:'Mainboard', memory:'RAM', gpu:'VGA',
+                            storage:'Storage', psu:'Nguồn', case:'Case', cooler:'Tản nhiệt' };
+        const grid = document.getElementById('crossSellGrid');
+        grid.innerHTML = items.map(item => `
+            <div class="col-sm-6 col-lg-3">
+                <a href="/Products/Detail/${item.category}/${item.id}"
+                   class="component-card p-0 h-100 overflow-hidden d-flex flex-column text-decoration-none">
+                    <div style="height:120px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center">
+                        ${item.imageUrl
+                            ? `<img src="${item.imageUrl}" alt="" style="max-height:110px;max-width:100%;object-fit:contain">`
+                            : `<i class="bi bi-cpu" style="font-size:2.5rem;color:rgba(255,255,255,.2)"></i>`}
+                    </div>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <span class="badge mb-2" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.68rem;width:fit-content">
+                            ${catLabels[item.category] || item.category.toUpperCase()}
+                        </span>
+                        <p class="text-white mb-1 flex-grow-1 lh-sm" style="font-size:.8rem;opacity:.9">${item.name}</p>
+                        <p class="fw-bold mb-0" style="font-size:.9rem;color:#a855f7">
+                            ${item.price > 0 ? item.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'}
+                        </p>
+                        ${item.hint ? `<p class="mb-0 mt-1" style="font-size:.68rem;color:rgba(255,255,255,.4)">${item.hint}</p>` : ''}
+                    </div>
+                </a>
+            </div>
+        `).join('');
+        document.getElementById('crossSellSection').style.display = '';
     } catch {}
 })();
 </script>
