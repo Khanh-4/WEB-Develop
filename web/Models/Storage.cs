@@ -29,6 +29,7 @@ public class Storage
     public int WriteSpeed { get; set; }                     // MB/s
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }

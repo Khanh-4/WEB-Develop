@@ -78,16 +78,24 @@
                 <button class="btn btn-gradient w-100 mb-2" onclick="addAllToCart()">
                     <i class="bi bi-cart-plus me-2"></i>Add All to Cart
                 </button>
-                <button class="btn glass text-white w-100" onclick="openSaveModal()">
+                <button class="btn glass text-white w-100 mb-2" onclick="openSaveModal()">
                     <i class="bi bi-bookmark-plus me-2"></i>Save Build
+                </button>
+                <button class="btn glass text-white w-100" id="exportPdfBtn" onclick="exportPdf()">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Xuất báo giá PDF
                 </button>
             </div>
 
             <!-- Save partial build (always visible when ≥1 component) -->
             <div id="partialSaveBar" class="d-none mb-3">
-                <button class="btn glass text-white w-100 btn-sm" onclick="openSaveModal()">
-                    <i class="bi bi-bookmark me-2"></i>Save / Share Build
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn glass text-white flex-grow-1 btn-sm" onclick="openSaveModal()">
+                        <i class="bi bi-bookmark me-2"></i>Lưu / Chia sẻ
+                    </button>
+                    <button class="btn glass text-white flex-grow-1 btn-sm" id="exportPdfBtnPartial" onclick="exportPdf()">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Xuất PDF
+                    </button>
+                </div>
             </div>
 
             <!-- Budget filter -->
@@ -573,6 +581,36 @@ function copyShareLink(btn) {
         btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
         setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard"></i>', 2000);
     });
+}
+
+async function exportPdf() {
+    const hasItems = Object.keys(selectedComponents).length > 0;
+    if (!hasItems) { showToast('Chưa chọn linh kiện nào.', 'warning'); return; }
+
+    const btns = document.querySelectorAll('#exportPdfBtn,#exportPdfBtnPartial');
+    btns.forEach(b => { b.disabled = true; b.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang tạo…'; });
+
+    try {
+        const r = await fetch('/Builder/ExportPdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(buildState)
+        });
+        if (!r.ok) { showToast('Lỗi tạo PDF, thử lại.', 'warning'); return; }
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `TechSpecs-BaoGia-${new Date().toISOString().slice(0,10)}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch {
+        showToast('Lỗi kết nối, thử lại.', 'warning');
+    } finally {
+        btns.forEach(b => { b.disabled = false; b.innerHTML = '<i class="bi bi-file-earmark-pdf me-2"></i>Xuất PDF'; });
+        const full = document.getElementById('exportPdfBtn');
+        if (full) full.innerHTML = '<i class="bi bi-file-earmark-pdf me-2"></i>Xuất báo giá PDF';
+    }
 }
 </script>
 }

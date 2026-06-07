@@ -33,6 +33,7 @@ public class Motherboard
     public string Chipset { get; set; } = string.Empty;             // Z790, B650, X870…
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }

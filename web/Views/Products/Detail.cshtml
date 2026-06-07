@@ -112,6 +112,10 @@
                             onclick="goBuilder('@Model.Category',@Model.Id)">
                         <i class="bi bi-tools me-2"></i>Add to Builder
                     </button>
+                    <button class="btn glass text-white px-4 py-2 rounded-3 fw-semibold"
+                            onclick="showInstallment(@Model.Price, '@Html.Raw(Model.Name.Replace("'","\\'"  ))')">
+                        <i class="bi bi-calculator me-2"></i>Trả góp
+                    </button>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <button class="btn glass px-3 py-2 rounded-3" id="wishBtn"
@@ -158,6 +162,24 @@
         </h5>
         <div id="crossSellGrid" class="row g-3"></div>
     </div>
+
+    @if (!string.IsNullOrEmpty(Model.VideoUrl))
+    {
+        <div class="mt-4">
+            <h5 class="text-white fw-semibold mb-3">
+                <i class="bi bi-play-circle me-2" style="color:#a855f7"></i>Video đánh giá
+            </h5>
+            <div class="glass p-3" style="border-radius:16px">
+                <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px">
+                    <iframe src="@Model.VideoUrl"
+                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
+                            allowfullscreen loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    }
 
     <!-- Reviews & Q&A -->
     <div class="row g-4 mt-2">

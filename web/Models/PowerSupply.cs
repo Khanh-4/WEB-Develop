@@ -29,6 +29,7 @@ public class PowerSupply
     public string PsuFormFactor { get; set; } = "ATX";      // ATX / SFX / SFX-L / TFX
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }

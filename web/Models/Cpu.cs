@@ -35,6 +35,7 @@ public class Cpu
     public decimal ApproximatePerformance { get; set; }      // Heuristic score for P/P
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }

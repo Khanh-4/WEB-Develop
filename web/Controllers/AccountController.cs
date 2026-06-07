@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TechSpecs.Data;
 using TechSpecs.Models;
 using TechSpecs.Services;
 using TechSpecs.ViewModels;
@@ -12,12 +14,15 @@ public class AccountController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IEmailSender _emailSender;
+    private readonly AppDbContext _db;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        AppDbContext db)
     {
+        _db = db;
         _userManager = userManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
@@ -269,4 +274,22 @@ public class AccountController : Controller
 
     [HttpGet]
     public IActionResult ResetPasswordConfirmation() => View();
+
+    // GET /Account/Warranties — user's own warranty records (via order history)
+    [HttpGet, Authorize]
+    public async Task<IActionResult> Warranties()
+    {
+        var userId = _userManager.GetUserId(User)!;
+        var orderIds = await _db.Orders
+            .Where(o => o.UserId == userId)
+            .Select(o => o.Id)
+            .ToListAsync();
+
+        var records = await _db.WarrantyRecords
+            .Where(w => w.OrderId.HasValue && orderIds.Contains(w.OrderId.Value))
+            .OrderByDescending(w => w.PurchaseDate)
+            .ToListAsync();
+
+        return View(records);
+    }
 }

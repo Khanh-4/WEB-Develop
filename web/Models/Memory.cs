@@ -28,6 +28,7 @@ public class Memory
     public string Profile { get; set; } = string.Empty; // Intel XMP, AMD Expo, XMP 3.0…
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }

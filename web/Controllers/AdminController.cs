@@ -203,6 +203,101 @@ public class AdminController : Controller
         return View(records);
     }
 
+    // ── Flash Sales ───────────────────────────────────────────────
+
+    public async Task<IActionResult> FlashSales()
+    {
+        var sales = await _db.FlashSales.OrderByDescending(f => f.CreatedAt).ToListAsync();
+        return View(sales);
+    }
+
+    [HttpGet]
+    public IActionResult CreateFlashSale() => View(new FlashSale
+    {
+        StartsAt = DateTime.UtcNow,
+        EndsAt   = DateTime.UtcNow.AddHours(24),
+    });
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateFlashSale(FlashSale model)
+    {
+        if (!ModelState.IsValid) return View(model);
+        model.SalePrice = Math.Round(model.OriginalPrice * (1 - model.DiscountPercent / 100m), 0);
+        _db.FlashSales.Add(model);
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(FlashSales));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleFlashSale(int id)
+    {
+        var sale = await _db.FlashSales.FindAsync(id);
+        if (sale != null) { sale.IsActive = !sale.IsActive; await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(FlashSales));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteFlashSale(int id)
+    {
+        var sale = await _db.FlashSales.FindAsync(id);
+        if (sale != null) { _db.FlashSales.Remove(sale); await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(FlashSales));
+    }
+
+    // GET /Admin/FlashSalesApi — called by product grid to overlay prices
+    [HttpGet]
+    public async Task<IActionResult> FlashSalesApi()
+    {
+        var now = DateTime.UtcNow;
+        var active = await _db.FlashSales
+            .Where(f => f.IsActive && f.StartsAt <= now && f.EndsAt > now && f.SoldQty < f.TotalQty)
+            .Select(f => new {
+                f.Category, f.ProductId, f.ProductName,
+                f.OriginalPrice, f.SalePrice, f.DiscountPercent,
+                f.TotalQty, f.SoldQty,
+                EndsAtMs = new DateTimeOffset(f.EndsAt).ToUnixTimeMilliseconds()
+            })
+            .ToListAsync();
+        return Json(active);
+    }
+
+    // ── Coupons ───────────────────────────────────────────────────
+
+    public async Task<IActionResult> Coupons()
+    {
+        var coupons = await _db.Coupons.OrderByDescending(c => c.CreatedAt).ToListAsync();
+        return View(coupons);
+    }
+
+    [HttpGet]
+    public IActionResult CreateCoupon() => View(new Coupon());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateCoupon(Coupon model)
+    {
+        if (!ModelState.IsValid) return View(model);
+        model.Code = model.Code.Trim().ToUpperInvariant();
+        _db.Coupons.Add(model);
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(Coupons));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleCoupon(int id)
+    {
+        var coupon = await _db.Coupons.FindAsync(id);
+        if (coupon != null) { coupon.IsActive = !coupon.IsActive; await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(Coupons));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteCoupon(int id)
+    {
+        var coupon = await _db.Coupons.FindAsync(id);
+        if (coupon != null) { _db.Coupons.Remove(coupon); await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(Coupons));
+    }
+
     // ── Scraper ──────────────────────────────────────────────────
 
     public IActionResult Scraper() => View();

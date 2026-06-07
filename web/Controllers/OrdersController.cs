@@ -81,7 +81,7 @@ public class OrdersController : Controller
             return View(vm);
 
         var subtotal = cart.Items.Sum(i => i.Price * i.Quantity);
-        var discount = ApplyCoupon(vm.CouponCode, subtotal);
+        var (discount, _) = await ApplyCouponAsync(vm.CouponCode, subtotal);
 
         var order = new Order
         {
@@ -107,6 +107,13 @@ public class OrdersController : Controller
 
         _db.Orders.Add(order);
         _db.CartItems.RemoveRange(cart.Items);
+        // Increment coupon usage if applied
+        if (!string.IsNullOrWhiteSpace(vm.CouponCode) && discount > 0)
+        {
+            var coupon = await _db.Coupons.FirstOrDefaultAsync(c =>
+                c.Code == vm.CouponCode.Trim().ToUpper() && c.IsActive);
+            if (coupon != null) coupon.UsedCount++;
+        }
         await _db.SaveChangesAsync();
 
         return RedirectToAction(nameof(Confirmation), new { id = order.Id });
@@ -114,11 +121,11 @@ public class OrdersController : Controller
 
     // GET /Orders/CheckCoupon?code=X&subtotal=Y
     [HttpGet]
-    public IActionResult CheckCoupon(string? code, decimal subtotal)
+    public async Task<IActionResult> CheckCoupon(string? code, decimal subtotal)
     {
-        var discount = ApplyCoupon(code, subtotal);
-        bool valid = discount > 0;
-        return Json(new { valid, discount, total = subtotal - discount });
+        var (discount, message) = await ApplyCouponAsync(code, subtotal);
+        bool valid = discount > 0 || (message != null && message.Contains("freeship", StringComparison.OrdinalIgnoreCase));
+        return Json(new { valid, discount, total = subtotal - discount, message });
     }
 
     // GET /Orders/Confirmation/5
@@ -197,11 +204,28 @@ public class OrdersController : Controller
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
-    private static decimal ApplyCoupon(string? code, decimal subtotal) => code?.ToUpper() switch
+    private async Task<(decimal discount, string? message)> ApplyCouponAsync(string? code, decimal subtotal)
     {
-        "TECHSPECS10" => Math.Round(subtotal * 0.10m),
-        _             => 0m,
-    };
+        if (string.IsNullOrWhiteSpace(code)) return (0, null);
+        var now = DateTime.UtcNow;
+        var coupon = await _db.Coupons.FirstOrDefaultAsync(c =>
+            c.Code == code.Trim().ToUpper() &&
+            c.IsActive &&
+            (c.StartsAt == null || c.StartsAt <= now) &&
+            (c.ExpiresAt == null || c.ExpiresAt > now) &&
+            (c.MaxUses == null || c.UsedCount < c.MaxUses));
+
+        if (coupon == null) return (0, null);
+        if (coupon.MinOrderAmount.HasValue && subtotal < coupon.MinOrderAmount.Value)
+            return (0, $"Đơn tối thiểu {coupon.MinOrderAmount.Value:N0}đ");
+
+        decimal discount = coupon.DiscountType == DiscountType.Percent
+            ? Math.Round(subtotal * coupon.DiscountValue / 100m)
+            : Math.Min(coupon.DiscountValue, subtotal);
+
+        var msg = coupon.IsFreeShip ? "Freeship!" : null;
+        return (discount, msg);
+    }
 
     private static CartViewModel BuildCartVm(Cart cart) => new()
     {

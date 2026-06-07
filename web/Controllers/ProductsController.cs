@@ -151,7 +151,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = c.Id, Category = "cpu", Name = c.Name, Manufacturer = c.Manufacturer,
-            Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
+            Price = c.Price, ImageUrl = c.ImageUrl, VideoUrl = c.VideoUrl, Stock = c.Stock,
             Specs = new()
             {
                 ["Socket"]      = c.Socket,
@@ -170,7 +170,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = m.Id, Category = "motherboard", Name = m.Name, Manufacturer = m.Manufacturer,
-            Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock,
+            Price = m.Price, ImageUrl = m.ImageUrl, VideoUrl = m.VideoUrl, Stock = m.Stock,
             Specs = new()
             {
                 ["Socket"]        = m.SocketCompatibility,
@@ -190,7 +190,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = m.Id, Category = "memory", Name = m.Name, Manufacturer = m.Manufacturer,
-            Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock,
+            Price = m.Price, ImageUrl = m.ImageUrl, VideoUrl = m.VideoUrl, Stock = m.Stock,
             Specs = new()
             {
                 ["Loại"]       = m.Type,
@@ -209,7 +209,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = g.Id, Category = "gpu", Name = g.Name, Manufacturer = g.Manufacturer,
-            Price = g.Price, ImageUrl = g.ImageUrl, Stock = g.Stock,
+            Price = g.Price, ImageUrl = g.ImageUrl, VideoUrl = g.VideoUrl, Stock = g.Stock,
             Specs = new()
             {
                 ["VRAM"]        = $"{g.VRAM} GB",
@@ -226,7 +226,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = s.Id, Category = "storage", Name = s.Name, Manufacturer = s.Manufacturer,
-            Price = s.Price, ImageUrl = s.ImageUrl, Stock = s.Stock,
+            Price = s.Price, ImageUrl = s.ImageUrl, VideoUrl = s.VideoUrl, Stock = s.Stock,
             Specs = new()
             {
                 ["Loại"]        = s.Type,
@@ -245,7 +245,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = p.Id, Category = "psu", Name = p.Name, Manufacturer = p.Manufacturer,
-            Price = p.Price, ImageUrl = p.ImageUrl, Stock = p.Stock,
+            Price = p.Price, ImageUrl = p.ImageUrl, VideoUrl = p.VideoUrl, Stock = p.Stock,
             Specs = new()
             {
                 ["Công suất"]     = $"{p.Wattage} W",
@@ -263,7 +263,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = c.Id, Category = "case", Name = c.Name, Manufacturer = c.Manufacturer,
-            Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
+            Price = c.Price, ImageUrl = c.ImageUrl, VideoUrl = c.VideoUrl, Stock = c.Stock,
             Specs = new()
             {
                 ["Loại case"]        = string.IsNullOrEmpty(c.CaseType) ? "—" : c.CaseType,
@@ -282,7 +282,7 @@ public class ProductsController : Controller
         return new ProductDetailViewModel
         {
             Id = c.Id, Category = "cooler", Name = c.Name, Manufacturer = c.Manufacturer,
-            Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
+            Price = c.Price, ImageUrl = c.ImageUrl, VideoUrl = c.VideoUrl, Stock = c.Stock,
             Specs = new()
             {
                 ["Loại"]        = c.Type,
@@ -885,4 +885,21 @@ public class ProductsController : Controller
         >= 1024 => $"{gb / 1024.0:0.#} TB",
         _ => $"{gb} GB"
     };
+
+    // GET /Products/ActiveSales — public endpoint for flash sale overlay on product grid
+    [HttpGet]
+    public async Task<IActionResult> ActiveSales()
+    {
+        var now = DateTime.UtcNow;
+        var sales = await _db.FlashSales
+            .Where(f => f.IsActive && f.StartsAt <= now && f.EndsAt > now && f.SoldQty < f.TotalQty)
+            .Select(f => new {
+                key = f.Category + "_" + f.ProductId,
+                f.OriginalPrice, f.SalePrice, f.DiscountPercent,
+                f.TotalQty, f.SoldQty,
+                endsAtMs = new DateTimeOffset(f.EndsAt).ToUnixTimeMilliseconds()
+            })
+            .ToListAsync();
+        return Json(sales);
+    }
 }

@@ -1,0 +1,74 @@
+@model TechSpecs.Models.FlashSale
+@{
+    ViewData["Title"] = "Tạo Flash Sale";
+    Layout = "_Layout";
+}
+
+<div class="container py-4" style="max-width:640px">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/Admin/FlashSales" class="btn glass text-white"><i class="bi bi-arrow-left"></i></a>
+        <h3 class="text-white fw-bold mb-0"><i class="bi bi-lightning-charge me-2" style="color:#f59e0b"></i>Tạo Flash Sale</h3>
+    </div>
+
+    <div class="glass p-4">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="text-muted-white small mb-1">Danh mục</label>
+                    <select name="Category" class="form-select glass border-0 text-white" required style="background:rgba(255,255,255,.06)">
+                        @foreach (var cat in new[] {"cpu","motherboard","memory","gpu","storage","psu","case","cooler"})
+                        {
+                            <option value="@cat">@cat.ToUpper()</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="text-muted-white small mb-1">ID sản phẩm</label>
+                    <input name="ProductId" type="number" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@Model.ProductId" />
+                </div>
+                <div class="col-12">
+                    <label class="text-muted-white small mb-1">Tên sản phẩm</label>
+                    <input name="ProductName" type="text" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@Model.ProductName" maxlength="300" />
+                </div>
+                <div class="col-6">
+                    <label class="text-muted-white small mb-1">Giá gốc (đ)</label>
+                    <input name="OriginalPrice" type="number" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@Model.OriginalPrice" min="0" />
+                </div>
+                <div class="col-6">
+                    <label class="text-muted-white small mb-1">Giảm giá (%)</label>
+                    <input name="DiscountPercent" type="number" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@Model.DiscountPercent" min="1" max="99" />
+                </div>
+                <div class="col-6">
+                    <label class="text-muted-white small mb-1">Số lượng</label>
+                    <input name="TotalQty" type="number" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@(Model.TotalQty > 0 ? Model.TotalQty : 20)" min="1" />
+                </div>
+                <div class="col-6">
+                    <label class="text-muted-white small mb-1">Đã bán</label>
+                    <input name="SoldQty" type="number" class="form-control glass border-0 text-white"
+                           style="background:rgba(255,255,255,.06)" value="0" min="0" />
+                </div>
+                <div class="col-6">
+                    <label class="text-muted-white small mb-1">Bắt đầu (UTC)</label>
+                    <input name="StartsAt" type="datetime-local" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@Model.StartsAt.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <div class="col-6">
+                    <label class="text-muted-white small mb-1">Kết thúc (UTC)</label>
+                    <input name="EndsAt" type="datetime-local" class="form-control glass border-0 text-white" required
+                           style="background:rgba(255,255,255,.06)" value="@Model.EndsAt.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-gradient w-100">
+                        <i class="bi bi-lightning-charge me-2"></i>Tạo Flash Sale
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

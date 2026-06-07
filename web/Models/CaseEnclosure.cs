@@ -32,6 +32,7 @@ public class CaseEnclosure
     public string RadiatorSupport { get; set; } = string.Empty;    // "240mm, 360mm" etc.
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }

@@ -439,17 +439,37 @@ function renderProducts(products) {
                         <a href="${detailUrl}" class="text-white text-decoration-none" style="opacity:.9">${esc(p.name)}</a>
                     </h6>
                     <div class="d-flex flex-wrap gap-1 mb-3">${specs}</div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-white fw-bold">${fmt(p.price)}</span>
-                        <div class="d-flex gap-2">
-                            ${builderBtn}
-                            <button class="btn btn-sm btn-gradient px-2 py-1"
-                                    onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${p.price},${p.imageUrl ? `'${esc(p.imageUrl)}'` : 'null'})"
-                                    title="Thêm vào giỏ hàng">
-                                <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
-                            </button>
-                        </div>
-                    </div>
+                    ${(() => {
+                        const sale = activeSalesMap[`${p.category}_${p.id}`];
+                        if (sale) {
+                            return `<div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-white fw-bold" style="color:#f59e0b!important">${fmt(sale.salePrice)}</span>
+                                    <span class="text-muted-white ms-1" style="text-decoration:line-through;font-size:.78rem">${fmt(p.price)}</span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    ${builderBtn}
+                                    <button class="btn btn-sm btn-gradient px-2 py-1"
+                                            onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${sale.salePrice},${p.imageUrl ? `'${esc(p.imageUrl)}'` : 'null'})"
+                                            title="Thêm vào giỏ hàng">
+                                        <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            ${flashSaleHtml(sale)}`;
+                        }
+                        return `<div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white fw-bold">${fmt(p.price)}</span>
+                            <div class="d-flex gap-2">
+                                ${builderBtn}
+                                <button class="btn btn-sm btn-gradient px-2 py-1"
+                                        onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${p.price},${p.imageUrl ? `'${esc(p.imageUrl)}'` : 'null'})"
+                                        title="Thêm vào giỏ hàng">
+                                    <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                    })()}
                 </div>
             </div>
         </div>`;
@@ -487,9 +507,50 @@ function goBuilder(category, id) {
     window.location.href = '/Builder?preselect=' + category + ':' + id;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+let activeSalesMap = {};
+async function loadActiveSales() {
+    try {
+        const data = await fetch('/Products/ActiveSales').then(r => r.json());
+        activeSalesMap = {};
+        data.forEach(s => activeSalesMap[s.key] = s);
+    } catch { activeSalesMap = {}; }
+}
+
+function flashSaleHtml(sale) {
+    const now = Date.now();
+    const left = Math.max(0, sale.endsAtMs - now);
+    const h = Math.floor(left / 3600000);
+    const m = Math.floor((left % 3600000) / 60000);
+    const s = Math.floor((left % 60000) / 1000);
+    const timer = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const pct = Math.round(sale.soldQty / sale.totalQty * 100);
+    return `
+        <div class="flash-sale-overlay px-2 pt-1 pb-2" style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(245,158,11,.1));border-top:1px solid rgba(239,68,68,.25)">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="badge" style="background:#ef4444;font-size:.68rem"><i class="bi bi-lightning-charge"></i> -${sale.discountPercent}%</span>
+                <span style="font-size:.68rem;color:#fb923c;font-variant-numeric:tabular-nums" class="flash-timer" data-ends="${sale.endsAtMs}">${timer}</span>
+            </div>
+            <div style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-bottom:4px">
+                <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b);border-radius:2px"></div>
+            </div>
+            <div style="font-size:.68rem;color:rgba(255,255,255,.5)">Đã bán ${sale.soldQty}/${sale.totalQty}</div>
+        </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
     loadBrands(currentCat);
     loadFilterOptions(currentCat);
+    await loadActiveSales();
+    // Refresh timers every second
+    setInterval(() => {
+        document.querySelectorAll('.flash-timer').forEach(el => {
+            const left = Math.max(0, parseInt(el.dataset.ends) - Date.now());
+            const h = Math.floor(left / 3600000);
+            const m = Math.floor((left % 3600000) / 60000);
+            const s = Math.floor((left % 60000) / 1000);
+            el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        });
+    }, 1000);
 });
 
 function fmt(n) { return new Intl.NumberFormat('vi-VN').format(n) + 'đ'; }

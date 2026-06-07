@@ -27,6 +27,7 @@ public class CpuCooler
     public string Type { get; set; } = string.Empty;   // Air / AIO-240 / AIO-360
 
     public string? ImageUrl { get; set; }
+    public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
 }
