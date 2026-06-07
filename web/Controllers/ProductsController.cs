@@ -703,6 +703,7 @@ public class ProductsController : Controller
         bool all = category == "all";
         bool isCpu = category == "cpu";
         bool isPrebuilt = category == "prebuilt";
+        if (category == "ram") category = "memory"; // alias
         string? q = string.IsNullOrWhiteSpace(search) ? null : search.Trim().ToLower();
 
         // CPU + Prebuilt are both in the cpu table
@@ -856,6 +857,7 @@ public class ProductsController : Controller
             .ToList();
 
         var result = new List<ProductListItem>();
+        if (groups.Count == 0) return result;
         int maxLen = groups.Max(g => g.Count);
         for (int i = 0; i < maxLen; i++)
             foreach (var g in groups)

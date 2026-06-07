@@ -377,6 +377,57 @@ public class AdminController : Controller
         return Json(bundles);
     }
 
+    // ── Users ────────────────────────────────────────────────────
+
+    public async Task<IActionResult> Users(string? search = null, int page = 1)
+    {
+        const int pageSize = 30;
+        var query = _users.Users.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim().ToLower();
+            query = query.Where(u => u.Email!.ToLower().Contains(s)
+                                  || (u.FullName != null && u.FullName.ToLower().Contains(s)));
+        }
+
+        var total = await query.CountAsync();
+        var users = await query
+            .OrderByDescending(u => u.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        // Resolve roles for each user
+        var userRows = new List<(ApplicationUser User, IList<string> Roles)>();
+        foreach (var u in users)
+            userRows.Add((u, await _users.GetRolesAsync(u)));
+
+        ViewBag.Search     = search;
+        ViewBag.Page       = page;
+        ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
+        ViewBag.Total      = total;
+        return View(userRows);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetRole(string userId, string role)
+    {
+        var user = await _users.FindByIdAsync(userId);
+        if (user == null) return NotFound();
+
+        // Toggle: remove if already has it, add if not
+        if (await _users.IsInRoleAsync(user, role))
+            await _users.RemoveFromRoleAsync(user, role);
+        else
+        {
+            await _users.RemoveFromRolesAsync(user, await _users.GetRolesAsync(user));
+            await _users.AddToRoleAsync(user, role);
+        }
+
+        return RedirectToAction(nameof(Users));
+    }
+
     // ── Scraper ──────────────────────────────────────────────────
 
     public IActionResult Scraper() => View();
