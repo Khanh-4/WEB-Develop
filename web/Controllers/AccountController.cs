@@ -110,10 +110,20 @@ public class AccountController : Controller
         if (result.Succeeded)
             return LocalRedirect(returnUrl ?? "/");
 
-        // First time — create account automatically
+        // First time with this Google account
         var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? string.Empty;
-        var name = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? string.Empty;
+        var name  = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? string.Empty;
 
+        // If a local account with same email already exists, link it to Google and sign in
+        var existingUser = await _userManager.FindByEmailAsync(email);
+        if (existingUser != null)
+        {
+            await _userManager.AddLoginAsync(existingUser, info);
+            await _signInManager.SignInAsync(existingUser, isPersistent: false);
+            return LocalRedirect(returnUrl ?? "/");
+        }
+
+        // Brand-new user — create account
         var user = new ApplicationUser { UserName = email, Email = email, FullName = name };
         var createResult = await _userManager.CreateAsync(user);
 
@@ -125,7 +135,9 @@ public class AccountController : Controller
             return LocalRedirect(returnUrl ?? "/");
         }
 
-        ModelState.AddModelError(string.Empty, "Could not create account from Google login.");
+        // Fallback: show specific errors on login page
+        foreach (var e in createResult.Errors)
+            TempData["LoginError"] = e.Description;
         return RedirectToAction(nameof(Login));
     }
 
