@@ -44,4 +44,62 @@
   <data name="Label.Specifications"><value>Thông số kỹ thuật</value></data>
   <data name="Label.PriceHistory"><value>Lịch sử giá</value></data>
   <data name="Label.NoData"><value>Chưa có dữ liệu.</value></data>
+  <data name="Label.Items"><value>sản phẩm</value></data>
+  <data name="Label.Free"><value>Miễn phí</value></data>
+  <data name="Label.Shipping"><value>Phí vận chuyển</value></data>
+  <data name="Label.Subtotal"><value>Tạm tính</value></data>
+  <data name="Label.ContinueShopping"><value>Tiếp tục mua hàng</value></data>
+
+  <!-- Cart -->
+  <data name="Cart.Title"><value>Giỏ hàng</value></data>
+  <data name="Cart.Empty"><value>Giỏ hàng trống</value></data>
+  <data name="Cart.EmptyHint"><value>Hãy thêm linh kiện vào giỏ từ trang Sản phẩm.</value></data>
+  <data name="Cart.BrowseProducts"><value>Xem sản phẩm</value></data>
+  <data name="Cart.OrderSummary"><value>Tổng đơn hàng</value></data>
+  <data name="Cart.UnitPrice"><value>/ cái</value></data>
+  <data name="Cart.ClearAll"><value>Xoá tất cả</value></data>
+  <data name="Cart.ClearConfirm"><value>Xoá tất cả sản phẩm khỏi giỏ hàng?</value></data>
+  <data name="Cart.Checkout"><value>Thanh toán</value></data>
+
+  <!-- Checkout -->
+  <data name="Checkout.Title"><value>Thanh toán</value></data>
+  <data name="Checkout.ShippingInfo"><value>Thông tin giao hàng</value></data>
+  <data name="Checkout.YourOrder"><value>Đơn hàng của bạn</value></data>
+  <data name="Checkout.PlaceOrder"><value>Xác nhận đặt hàng</value></data>
+
+  <!-- Orders -->
+  <data name="Order.MyOrders"><value>Đơn hàng của tôi</value></data>
+  <data name="Order.NoOrders"><value>Chưa có đơn hàng nào</value></data>
+  <data name="Order.ShopNow"><value>Mua ngay</value></data>
+  <data name="Order.ViewDetail"><value>Chi tiết</value></data>
+  <data name="Order.PlacedSuccess"><value>Đặt hàng thành công!</value></data>
+  <data name="Order.PlacedSuccessDesc"><value>Chúng tôi sẽ liên hệ với bạn sớm để xác nhận đơn hàng.</value></data>
+  <data name="Order.Number"><value>Mã đơn hàng:</value></data>
+  <data name="Order.ShippingInfo"><value>Thông tin giao hàng</value></data>
+  <data name="Order.Recipient"><value>Người nhận:</value></data>
+  <data name="Order.Phone"><value>Số điện thoại:</value></data>
+  <data name="Order.Address"><value>Địa chỉ:</value></data>
+  <data name="Order.Note"><value>Ghi chú:</value></data>
+  <data name="Order.ItemsOrdered"><value>Sản phẩm đã đặt</value></data>
+  <data name="Order.Products"><value>Sản phẩm</value></data>
+  <data name="Order.ViewHistory"><value>Lịch sử đơn hàng</value></data>
+  <data name="Order.PlacedDate"><value>Ngày đặt:</value></data>
+  <data name="Order.Status.Pending"><value>Chờ xác nhận</value></data>
+  <data name="Order.Status.Confirmed"><value>Đã xác nhận</value></data>
+  <data name="Order.Status.Shipped"><value>Đang giao</value></data>
+  <data name="Order.Status.Delivered"><value>Đã nhận</value></data>
+  <data name="Order.Status.Cancelled"><value>Đã huỷ</value></data>
+
+  <!-- Wishlist -->
+  <data name="Wishlist.Title"><value>Yêu thích</value></data>
+  <data name="Wishlist.Empty"><value>Danh sách trống</value></data>
+  <data name="Wishlist.EmptyDesc"><value>Lưu các sản phẩm yêu thích để xem lại sau.</value></data>
+  <data name="Wishlist.Explore"><value>Khám phá sản phẩm</value></data>
+  <data name="Wishlist.Browse"><value>Tìm sản phẩm</value></data>
+  <data name="Wishlist.SavedOn"><value>Đã lưu</value></data>
+  <data name="Wishlist.ViewDetail"><value>Chi tiết</value></data>
+
+  <!-- JS Toast messages -->
+  <data name="Toast.AddedToCart"><value>Đã thêm vào giỏ hàng</value></data>
+  <data name="Toast.CannotAdd"><value>Không thể thêm vào giỏ</value></data>
 </root>

@@ -1,14 +1,14 @@
 @model TechSpecs.ViewModels.OrderListViewModel
-@{ ViewData["Title"] = "Đơn hàng của tôi"; }
+@{ ViewData["Title"] = L["Order.MyOrders"].Value; }
 
 @{
     string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch
     {
-        TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
-        TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",
-        TechSpecs.Models.OrderStatus.Shipped   => "Đang giao",
-        TechSpecs.Models.OrderStatus.Delivered => "Đã nhận",
-        TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
+        TechSpecs.Models.OrderStatus.Pending   => L["Order.Status.Pending"].Value,
+        TechSpecs.Models.OrderStatus.Confirmed => L["Order.Status.Confirmed"].Value,
+        TechSpecs.Models.OrderStatus.Shipped   => L["Order.Status.Shipped"].Value,
+        TechSpecs.Models.OrderStatus.Delivered => L["Order.Status.Delivered"].Value,
+        TechSpecs.Models.OrderStatus.Cancelled => L["Order.Status.Cancelled"].Value,
         _ => s.ToString()
     };
 
@@ -25,15 +25,15 @@
 
 <div class="container-xl py-5 px-3">
     <h1 class="text-white fw-bold mb-4">
-        <i class="bi bi-bag-check me-2"></i>Đơn hàng của tôi
+        <i class="bi bi-bag-check me-2"></i>@L["Order.MyOrders"]
     </h1>
 
     @if (!Model.Orders.Any())
     {
         <div class="glass p-5 text-center">
             <i class="bi bi-bag-x text-muted-white" style="font-size:3.5rem"></i>
-            <h5 class="text-white mt-3">Chưa có đơn hàng nào</h5>
-            <a href="/Products" class="btn btn-gradient px-4 mt-2">Mua ngay</a>
+            <h5 class="text-white mt-3">@L["Order.NoOrders"]</h5>
+            <a href="/Products" class="btn btn-gradient px-4 mt-2">@L["Order.ShopNow"]</a>
         </div>
     }
     else
@@ -48,7 +48,7 @@
                             <span class="@StatusClass(o.Status) small fw-semibold">● @StatusLabel(o.Status)</span>
                         </div>
                         <p class="text-muted-white small mb-0">
-                            @o.ItemCount sản phẩm &nbsp;·&nbsp;
+                            @o.ItemCount @L["Label.Items"] &nbsp;·&nbsp;
                             @o.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
                         </p>
                     </div>
@@ -56,7 +56,7 @@
                         <span class="text-white fw-bold">@o.TotalAmount.ToString("N0")đ</span>
                     </div>
                     <a href="/Orders/Detail/@o.Id" class="btn glass text-white px-3 py-1 flex-shrink-0">
-                        Chi tiết <i class="bi bi-arrow-right ms-1"></i>
+                        @L["Order.ViewDetail"] <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             }

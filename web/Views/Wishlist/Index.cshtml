@@ -1,13 +1,13 @@
 @model List<TechSpecs.Models.WishlistItem>
-@{ ViewData["Title"] = "Wishlist"; }
+@{ ViewData["Title"] = L["Wishlist.Title"].Value; }
 
 <div class="container-xl py-4 px-3">
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h1 class="text-white fw-bold mb-0">
-            <i class="bi bi-heart me-2" style="color:#f472b6"></i>Wishlist
+            <i class="bi bi-heart me-2" style="color:#f472b6"></i>@L["Wishlist.Title"]
         </h1>
         <a asp-controller="Products" asp-action="Index" class="btn glass text-white px-4">
-            <i class="bi bi-search me-2"></i>Tìm sản phẩm
+            <i class="bi bi-search me-2"></i>@L["Wishlist.Browse"]
         </a>
     </div>
 
@@ -15,10 +15,10 @@
     {
         <div class="glass p-5 text-center">
             <i class="bi bi-heart fs-1 d-block mb-3" style="color:rgba(244,114,182,.3)"></i>
-            <h5 class="text-white mb-2">Wishlist trống</h5>
-            <p class="text-muted-white mb-4">Lưu các sản phẩm yêu thích để xem lại sau.</p>
+            <h5 class="text-white mb-2">@L["Wishlist.Empty"]</h5>
+            <p class="text-muted-white mb-4">@L["Wishlist.EmptyDesc"]</p>
             <a asp-controller="Products" asp-action="Index" class="btn btn-gradient px-4">
-                <i class="bi bi-search me-2"></i>Khám phá sản phẩm
+                <i class="bi bi-search me-2"></i>@L["Wishlist.Explore"]
             </a>
         </div>
     }
@@ -55,22 +55,22 @@
                         </div>
 
                         <div class="text-muted-white small mb-3">
-                            Đã lưu @item.AddedAt.ToString("dd/MM/yyyy HH:mm")
+                            @L["Wishlist.SavedOn"] @item.AddedAt.ToString("dd/MM/yyyy HH:mm")
                         </div>
 
                         <div class="d-flex gap-2 mt-auto">
                             <a href="/Products/Detail/@item.Category/@item.ComponentId"
                                class="btn glass text-white flex-grow-1">
-                                <i class="bi bi-eye me-1"></i>Chi tiết
+                                <i class="bi bi-eye me-1"></i>@L["Wishlist.ViewDetail"]
                             </a>
                             <button class="btn btn-gradient px-3"
                                     data-pid="@item.ComponentId" data-pcat="@item.Category"
                                     data-pname="@item.ComponentName" data-pprice="@item.Price"
                                     data-pimg="@item.ImageUrl"
-                                    onclick="addToCartFromData(this)" title="Add to Cart">
+                                    onclick="addToCartFromData(this)" title="@L["Btn.AddToCart"]">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
-                            <button class="btn glass text-danger px-3" title="Remove from wishlist"
+                            <button class="btn glass text-danger px-3" title="@L["Btn.Delete"]"
                                     onclick="removeWish(@item.Id, this)">
                                 <i class="bi bi-heart-fill"></i>
                             </button>

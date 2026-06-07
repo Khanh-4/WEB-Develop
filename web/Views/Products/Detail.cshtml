@@ -210,7 +210,7 @@ async function toggleWishlist(btn) {
     try {
         const r = await fetch(`/Products/PriceHistory?category=${encodeURIComponent(category)}&name=${encodeURIComponent(name)}`);
         const data = await r.json();
-        if (!data || data.length < 2) {
+        if (!data || data.length < 1) {
             section.querySelector('.no-data').style.display = '';
             canvas.style.display = 'none';
             return;

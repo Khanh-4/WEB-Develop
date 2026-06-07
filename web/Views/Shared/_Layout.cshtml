@@ -1,6 +1,3 @@
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
-@inject IHtmlLocalizer<TechSpecs.SharedResource> L
 <!DOCTYPE html>
 <html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
@@ -121,6 +118,12 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+window.i18n = {
+    addedToCart: '@Html.Raw(L["Toast.AddedToCart"].Value.Replace("'", "\\'"))',
+    cannotAdd:   '@Html.Raw(L["Toast.CannotAdd"].Value.Replace("'", "\\'"))'
+};
+</script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 <script>
 // Apply theme before paint to avoid flash

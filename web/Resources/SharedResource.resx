@@ -44,4 +44,62 @@
   <data name="Label.Specifications"><value>Specifications</value></data>
   <data name="Label.PriceHistory"><value>Price History</value></data>
   <data name="Label.NoData"><value>No data available.</value></data>
+  <data name="Label.Items"><value>items</value></data>
+  <data name="Label.Free"><value>Free</value></data>
+  <data name="Label.Shipping"><value>Shipping</value></data>
+  <data name="Label.Subtotal"><value>Subtotal</value></data>
+  <data name="Label.ContinueShopping"><value>Continue Shopping</value></data>
+
+  <!-- Cart -->
+  <data name="Cart.Title"><value>Shopping Cart</value></data>
+  <data name="Cart.Empty"><value>Your cart is empty</value></data>
+  <data name="Cart.EmptyHint"><value>Add components from the Products page.</value></data>
+  <data name="Cart.BrowseProducts"><value>Browse Products</value></data>
+  <data name="Cart.OrderSummary"><value>Order Summary</value></data>
+  <data name="Cart.UnitPrice"><value>/unit</value></data>
+  <data name="Cart.ClearAll"><value>Clear All</value></data>
+  <data name="Cart.ClearConfirm"><value>Remove all items from cart?</value></data>
+  <data name="Cart.Checkout"><value>Checkout</value></data>
+
+  <!-- Checkout -->
+  <data name="Checkout.Title"><value>Checkout</value></data>
+  <data name="Checkout.ShippingInfo"><value>Shipping Information</value></data>
+  <data name="Checkout.YourOrder"><value>Your Order</value></data>
+  <data name="Checkout.PlaceOrder"><value>Place Order</value></data>
+
+  <!-- Orders -->
+  <data name="Order.MyOrders"><value>My Orders</value></data>
+  <data name="Order.NoOrders"><value>No orders yet</value></data>
+  <data name="Order.ShopNow"><value>Shop Now</value></data>
+  <data name="Order.ViewDetail"><value>Details</value></data>
+  <data name="Order.PlacedSuccess"><value>Order Placed!</value></data>
+  <data name="Order.PlacedSuccessDesc"><value>We will contact you soon to confirm your order.</value></data>
+  <data name="Order.Number"><value>Order number:</value></data>
+  <data name="Order.ShippingInfo"><value>Shipping Information</value></data>
+  <data name="Order.Recipient"><value>Recipient:</value></data>
+  <data name="Order.Phone"><value>Phone:</value></data>
+  <data name="Order.Address"><value>Address:</value></data>
+  <data name="Order.Note"><value>Note:</value></data>
+  <data name="Order.ItemsOrdered"><value>Items Ordered</value></data>
+  <data name="Order.Products"><value>Products</value></data>
+  <data name="Order.ViewHistory"><value>Order History</value></data>
+  <data name="Order.PlacedDate"><value>Placed:</value></data>
+  <data name="Order.Status.Pending"><value>Pending</value></data>
+  <data name="Order.Status.Confirmed"><value>Confirmed</value></data>
+  <data name="Order.Status.Shipped"><value>Shipped</value></data>
+  <data name="Order.Status.Delivered"><value>Delivered</value></data>
+  <data name="Order.Status.Cancelled"><value>Cancelled</value></data>
+
+  <!-- Wishlist -->
+  <data name="Wishlist.Title"><value>Wishlist</value></data>
+  <data name="Wishlist.Empty"><value>Wishlist is empty</value></data>
+  <data name="Wishlist.EmptyDesc"><value>Save your favorite products to view later.</value></data>
+  <data name="Wishlist.Explore"><value>Explore Products</value></data>
+  <data name="Wishlist.Browse"><value>Browse Products</value></data>
+  <data name="Wishlist.SavedOn"><value>Saved on</value></data>
+  <data name="Wishlist.ViewDetail"><value>Detail</value></data>
+
+  <!-- JS Toast messages (injected as window.i18n in layout) -->
+  <data name="Toast.AddedToCart"><value>Added to cart</value></data>
+  <data name="Toast.CannotAdd"><value>Cannot add to cart</value></data>
 </root>

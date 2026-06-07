@@ -1,9 +1,9 @@
 @model TechSpecs.ViewModels.CheckoutViewModel
-@{ ViewData["Title"] = "Thanh toán"; }
+@{ ViewData["Title"] = L["Checkout.Title"].Value; }
 
 <div class="container-xl py-5 px-3">
     <h1 class="text-white fw-bold mb-4">
-        <i class="bi bi-bag-check me-2"></i>Thanh toán
+        <i class="bi bi-bag-check me-2"></i>@L["Checkout.Title"]
     </h1>
 
     <form asp-controller="Orders" asp-action="Checkout" method="post">
@@ -12,7 +12,7 @@
             <!-- Shipping form -->
             <div class="col-lg-7">
                 <div class="glass p-4">
-                    <h5 class="text-white fw-semibold mb-4">Thông tin giao hàng</h5>
+                    <h5 class="text-white fw-semibold mb-4">@L["Checkout.ShippingInfo"]</h5>
 
                     <div class="mb-3">
                         <label asp-for="RecipientName" class="form-label text-muted-white small"></label>
@@ -44,7 +44,7 @@
             <!-- Order summary -->
             <div class="col-lg-5">
                 <div class="glass p-4">
-                    <h5 class="text-white fw-semibold mb-4">Đơn hàng của bạn</h5>
+                    <h5 class="text-white fw-semibold mb-4">@L["Checkout.YourOrder"]</h5>
 
                     @foreach (var item in Model.Cart.Items)
                     {
@@ -62,7 +62,7 @@
                             </div>
                             <div class="flex-grow-1">
                                 <p class="text-white mb-0 lh-sm" style="font-size:.8rem">@item.ComponentName</p>
-                                <span class="text-muted-white" style="font-size:.75rem">x@item.Quantity</span>
+                                <span class="text-muted-white" style="font-size:.75rem">×@item.Quantity</span>
                             </div>
                             <span class="text-white fw-semibold" style="font-size:.85rem">
                                 @item.Subtotal.ToString("N0")đ
@@ -73,15 +73,15 @@
                     <hr class="border-white border-opacity-20">
 
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted-white">Tạm tính</span>
+                        <span class="text-muted-white">@L["Label.Subtotal"]</span>
                         <span class="text-white">@Model.Cart.Total.ToString("N0")đ</span>
                     </div>
                     <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted-white">Phí vận chuyển</span>
-                        <span class="text-success">Miễn phí</span>
+                        <span class="text-muted-white">@L["Label.Shipping"]</span>
+                        <span class="text-success">@L["Label.Free"]</span>
                     </div>
                     <div class="d-flex justify-content-between mb-4">
-                        <span class="text-white fw-semibold">Tổng cộng</span>
+                        <span class="text-white fw-semibold">@L["Label.Total"]</span>
                         <span class="text-white fw-bold fs-5">@Model.Cart.Total.ToString("N0")đ</span>
                     </div>
 
@@ -90,7 +90,7 @@
                             <i class="bi bi-arrow-left"></i>
                         </a>
                         <button type="submit" class="btn btn-gradient flex-grow-1 py-2">
-                            <i class="bi bi-check-circle me-1"></i>Xác nhận đặt hàng
+                            <i class="bi bi-check-circle me-1"></i>@L["Checkout.PlaceOrder"]
                         </button>
                     </div>
                 </div>

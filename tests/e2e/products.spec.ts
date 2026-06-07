@@ -22,7 +22,7 @@ test.describe('Products page', () => {
         await page.click('button[title="Add to Cart"]');
         await page.waitForTimeout(1500);
 
-        await expect(page.locator('#cartToast')).toContainText('Đã thêm vào giỏ hàng');
+        await expect(page.locator('#cartToast')).toContainText('Added to cart');
         expect(await getCartCount(page)).toBe(1);
     });
 

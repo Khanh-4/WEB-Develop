@@ -38,9 +38,9 @@ function addToCart(id, category, name, price, imageUrl) {
     .then(d => {
         if (!d) return;
         updateCartBadge(d.count);
-        showToast('Đã thêm vào giỏ hàng', 'success');
+        showToast((window.i18n?.addedToCart ?? 'Added to cart'), 'success');
     })
-    .catch(() => showToast('Không thể thêm vào giỏ', 'error'));
+    .catch(() => showToast((window.i18n?.cannotAdd ?? 'Cannot add to cart'), 'error'));
 }
 
 function showToast(message, type) {

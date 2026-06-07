@@ -1,14 +1,14 @@
 @model TechSpecs.ViewModels.OrderDetailViewModel
-@{ ViewData["Title"] = $"Đơn hàng #{Model.Id}"; }
+@{ ViewData["Title"] = $"#{Model.Id}"; }
 
 @{
     string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch
     {
-        TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
-        TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",
-        TechSpecs.Models.OrderStatus.Shipped   => "Đang giao",
-        TechSpecs.Models.OrderStatus.Delivered => "Đã nhận",
-        TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
+        TechSpecs.Models.OrderStatus.Pending   => L["Order.Status.Pending"].Value,
+        TechSpecs.Models.OrderStatus.Confirmed => L["Order.Status.Confirmed"].Value,
+        TechSpecs.Models.OrderStatus.Shipped   => L["Order.Status.Shipped"].Value,
+        TechSpecs.Models.OrderStatus.Delivered => L["Order.Status.Delivered"].Value,
+        TechSpecs.Models.OrderStatus.Cancelled => L["Order.Status.Cancelled"].Value,
         _ => s.ToString()
     };
 
@@ -28,13 +28,13 @@
         <a href="/Orders" class="btn glass text-white px-3 py-1">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <h1 class="text-white fw-bold mb-0">Đơn hàng #@Model.Id</h1>
+        <h1 class="text-white fw-bold mb-0">#@Model.Id</h1>
         <span class="@StatusClass(Model.Status) fw-semibold ms-auto">● @StatusLabel(Model.Status)</span>
     </div>
 
     <!-- Items -->
     <div class="glass p-4 mb-4">
-        <h6 class="text-white fw-semibold mb-3">Sản phẩm</h6>
+        <h6 class="text-white fw-semibold mb-3">@L["Order.Products"]</h6>
         @foreach (var item in Model.Items)
         {
             <div class="d-flex align-items-center gap-3 mb-3">
@@ -63,26 +63,26 @@
         }
         <hr class="border-white border-opacity-20">
         <div class="d-flex justify-content-between">
-            <span class="text-white fw-semibold">Tổng cộng</span>
+            <span class="text-white fw-semibold">@L["Label.Total"]</span>
             <span class="text-white fw-bold fs-5">@Model.TotalAmount.ToString("N0")đ</span>
         </div>
     </div>
 
     <!-- Shipping info -->
     <div class="glass p-4 mb-4">
-        <h6 class="text-white fw-semibold mb-3">Thông tin giao hàng</h6>
+        <h6 class="text-white fw-semibold mb-3">@L["Order.ShippingInfo"]</h6>
         <div class="row g-2 text-muted-white small">
-            <div class="col-5">Người nhận:</div>
+            <div class="col-5">@L["Order.Recipient"]</div>
             <div class="col-7 text-white">@Model.RecipientName</div>
-            <div class="col-5">Số điện thoại:</div>
+            <div class="col-5">@L["Order.Phone"]</div>
             <div class="col-7 text-white">@Model.Phone</div>
-            <div class="col-5">Địa chỉ:</div>
+            <div class="col-5">@L["Order.Address"]</div>
             <div class="col-7 text-white">@Model.ShippingAddress</div>
-            <div class="col-5">Ngày đặt:</div>
+            <div class="col-5">@L["Order.PlacedDate"]</div>
             <div class="col-7 text-white">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
             @if (!string.IsNullOrEmpty(Model.Note))
             {
-                <div class="col-5">Ghi chú:</div>
+                <div class="col-5">@L["Order.Note"]</div>
                 <div class="col-7 text-white">@Model.Note</div>
             }
         </div>

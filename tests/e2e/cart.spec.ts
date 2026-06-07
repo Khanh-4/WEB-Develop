@@ -8,7 +8,7 @@ test.describe('Cart & Checkout', () => {
 
     test('empty cart shows empty state message', async ({ page }) => {
         await page.goto('/Cart');
-        await expect(page.locator('text=Giỏ hàng trống')).toBeVisible();
+        await expect(page.locator('text=Your cart is empty')).toBeVisible();
         await expect(page.locator('a[href="/Products"].btn')).toBeVisible();
     });
 
@@ -47,13 +47,13 @@ test.describe('Cart & Checkout', () => {
         await page.click('button[type="submit"]');
 
         await expect(page).toHaveURL(/Orders\/Confirmation/);
-        await expect(page.locator('text=Đặt hàng thành công')).toBeVisible();
+        await expect(page.locator('text=Order Placed')).toBeVisible();
         await expect(page.locator('text=Nguyễn Văn E2E')).toBeVisible();
 
         // Navigate to orders history
         await page.click('a[href="/Orders"]');
         await expect(page).toHaveURL('/Orders');
-        await expect(page.locator('text=Chờ xác nhận')).toBeVisible();
+        await expect(page.locator('text=Pending')).toBeVisible();
     });
 
     test('cart is empty after completing checkout', async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe('Cart & Checkout', () => {
         await page.waitForURL(/Confirmation/);
 
         await page.goto('/Cart');
-        await expect(page.locator('text=Giỏ hàng trống')).toBeVisible();
+        await expect(page.locator('text=Your cart is empty')).toBeVisible();
 
         // Badge should also be hidden
         await expect(page.locator('#cartCount')).not.toBeVisible();
@@ -98,7 +98,7 @@ test.describe('Cart & Checkout', () => {
         await page.click('button[type="submit"]');
 
         await page.goto('/Orders');
-        await page.click('a:has-text("Chi tiết")');
+        await page.click('a:has-text("Details")');
 
         await expect(page.locator('text=0987654321')).toBeVisible();
         await expect(page.locator('text=456 Detail St')).toBeVisible();
