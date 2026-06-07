@@ -14,6 +14,8 @@ from processors.normalizer import (
     parse_tdp_watts, parse_length_mm, parse_wattage,
     normalize_socket, normalize_memory_type, normalize_form_factor,
     normalize_efficiency, extract_manufacturer_from_name,
+    normalize_chipset, normalize_ram_profile, normalize_psu_form_factor,
+    normalize_case_type, parse_radiator_support,
 )
 from scoring.performance import score_cpu, score_gpu
 from models.hardware import (
@@ -244,6 +246,7 @@ def scrape_memory() -> list[Memory]:
         capacity = parse_capacity_gb(_find(specs, "dung lượng", "capacity") or name)
         speed    = parse_speed_mhz(_find(specs, "tốc độ bus", "tốc độ", "speed", "bus") or name)
         modules  = _int(_find(specs, "số thanh", "kit", "x")) or 1
+        profile = normalize_ram_profile(_find(specs, "profile", "xmp", "expo") or "", name)
 
         results.append(Memory(
             Name=name,
@@ -253,6 +256,7 @@ def scrape_memory() -> list[Memory]:
             Capacity=capacity,
             Modules=modules,
             Speed=speed,
+            Profile=profile,
             ImageUrl=_image(item),
             Stock=1,
         ))
@@ -294,6 +298,7 @@ def scrape_motherboards() -> list[Motherboard]:
             MemoryCompatibility=memtype,
             MemorySlots=slots,
             MaxMemoryCapacity=128,
+            Chipset=chipset,
             ImageUrl=_image(item),
             Stock=1,
         ))
@@ -316,6 +321,7 @@ def scrape_power_supplies() -> list[PowerSupply]:
         wattage    = parse_wattage(_find(specs, "công suất tối đa", "công suất", "wattage") or name)
         efficiency = normalize_efficiency(_find(specs, "chuẩn nguồn", "hiệu suất", "efficiency") or "")
         modular    = (_find(specs, "kiểu cáp nguồn", "modular", "cable") or "Non")[:20]
+        psu_ff = normalize_psu_form_factor(_find(specs, "form factor", "kích thước nguồn") or "", name)
 
         results.append(PowerSupply(
             Name=name,
@@ -324,6 +330,7 @@ def scrape_power_supplies() -> list[PowerSupply]:
             Wattage=wattage,
             Efficiency=efficiency,
             Modular=modular,
+            PsuFormFactor=psu_ff,
             ImageUrl=_image(item),
             Stock=1,
         ))
@@ -346,6 +353,8 @@ def scrape_cases() -> list[CaseEnclosure]:
         ff_raw  = _find(specs, "mainboard", "form factor", "hỗ trợ mainboard", "kích thước")
         max_vga = parse_length_mm(_find(specs, "gpu", "vga", "card màn hình", "chiều dài"))
         color   = (_find(specs, "màu sắc", "color") or "")[:30] or None
+        case_type = normalize_case_type(_find(specs, "loại case", "kiểu case", "tower") or "", name)
+        radiator  = parse_radiator_support(specs, name)
         ff      = normalize_form_factor(ff_raw or "ATX")
 
         results.append(CaseEnclosure(
@@ -355,6 +364,8 @@ def scrape_cases() -> list[CaseEnclosure]:
             FormFactorSupport=ff,
             MaxVGALength=max_vga or 350,
             Color=color,
+            CaseType=case_type,
+            RadiatorSupport=radiator,
             ImageUrl=_image(item),
             Stock=1,
         ))

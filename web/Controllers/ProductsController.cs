@@ -100,6 +100,7 @@ public class ProductsController : Controller
             Specs = new()
             {
                 ["Socket"]        = m.SocketCompatibility,
+                ["Chipset"]       = string.IsNullOrEmpty(m.Chipset) ? "—" : m.Chipset,
                 ["Form Factor"]   = m.FormFactor,
                 ["Loại RAM"]      = m.MemoryCompatibility,
                 ["Khe RAM"]       = $"{m.MemorySlots}",
@@ -122,6 +123,7 @@ public class ProductsController : Controller
                 ["Dung lượng"] = $"{m.Capacity} GB",
                 ["Số thanh"]   = $"{m.Modules}×{m.Capacity / (m.Modules > 0 ? m.Modules : 1)} GB",
                 ["Tốc độ"]     = $"{m.Speed} MHz",
+                ["Profile"]    = string.IsNullOrEmpty(m.Profile) ? "—" : m.Profile,
             }
         };
     }
@@ -172,9 +174,10 @@ public class ProductsController : Controller
             Price = p.Price, ImageUrl = p.ImageUrl, Stock = p.Stock,
             Specs = new()
             {
-                ["Công suất"]   = $"{p.Wattage} W",
-                ["Hiệu suất"]   = p.Efficiency,
-                ["Kiểu dây"]    = p.Modular,
+                ["Công suất"]     = $"{p.Wattage} W",
+                ["Hiệu suất"]     = p.Efficiency,
+                ["Kiểu dây"]      = p.Modular,
+                ["Form Factor"]   = string.IsNullOrEmpty(p.PsuFormFactor) ? "ATX" : p.PsuFormFactor,
             }
         };
     }
@@ -189,9 +192,11 @@ public class ProductsController : Controller
             Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock,
             Specs = new()
             {
-                ["Hỗ trợ MB"]   = c.FormFactorSupport,
-                ["Max GPU"]      = $"{c.MaxVGALength} mm",
-                ["Màu sắc"]      = c.Color ?? "—",
+                ["Loại case"]        = string.IsNullOrEmpty(c.CaseType) ? "—" : c.CaseType,
+                ["Hỗ trợ MB"]        = c.FormFactorSupport,
+                ["Max GPU"]           = $"{c.MaxVGALength} mm",
+                ["Tản nhiệt nước"]   = string.IsNullOrEmpty(c.RadiatorSupport) ? "—" : c.RadiatorSupport,
+                ["Màu sắc"]          = c.Color ?? "—",
             }
         };
     }
@@ -225,11 +230,13 @@ public class ProductsController : Controller
                 sockets     = await _db.Motherboards.AsNoTracking().Select(m => m.SocketCompatibility).Where(s => s != "").Distinct().OrderBy(s => s).ToListAsync(),
                 formFactors = await _db.Motherboards.AsNoTracking().Select(m => m.FormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
                 memTypes    = await _db.Motherboards.AsNoTracking().Select(m => m.MemoryCompatibility).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
+                chipsets    = await _db.Motherboards.AsNoTracking().Select(m => m.Chipset).Where(c => c != "").Distinct().OrderBy(c => c).ToListAsync(),
             }),
             "memory" => Json(new
             {
                 types      = await _db.Memories.AsNoTracking().Select(m => m.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 capacities = await _db.Memories.AsNoTracking().Select(m => m.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
+                profiles   = await _db.Memories.AsNoTracking().Select(m => m.Profile).Where(p => p != "").Distinct().OrderBy(p => p).ToListAsync(),
             }),
             "gpu" => Json(new
             {
@@ -247,9 +254,11 @@ public class ProductsController : Controller
             {
                 efficiencies = await _db.PowerSupplies.AsNoTracking().Select(p => p.Efficiency).Where(e => e != "").Distinct().OrderBy(e => e).ToListAsync(),
                 modulars     = await _db.PowerSupplies.AsNoTracking().Select(p => p.Modular).Where(m => m != "").Distinct().OrderBy(m => m).ToListAsync(),
+                formFactors  = await _db.PowerSupplies.AsNoTracking().Select(p => p.PsuFormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
             }),
             "case" => Json(new
             {
+                caseTypes   = await _db.CaseEnclosures.AsNoTracking().Select(c => c.CaseType).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 formFactors = await _db.CaseEnclosures.AsNoTracking().Select(c => c.FormFactorSupport).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
             }),
             "cooler" => Json(new
@@ -282,7 +291,11 @@ public class ProductsController : Controller
         string? modular = null,
         int? minWattage = null,
         int? capacity = null,
-        string? coolerType = null)
+        string? coolerType = null,
+        string? chipset = null,
+        string? profile = null,
+        string? psuFormFactor = null,
+        string? caseType = null)
     {
         var items = await LoadAllAsync(category, search);
 
@@ -356,6 +369,22 @@ public class ProductsController : Controller
         if (!string.IsNullOrEmpty(coolerType))
             items = items.Where(i => i.FilterData.TryGetValue("coolerType", out var v) &&
                 string.Equals(v, coolerType, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(chipset))
+            items = items.Where(i => i.FilterData.TryGetValue("chipset", out var v) &&
+                string.Equals(v, chipset, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(profile))
+            items = items.Where(i => i.FilterData.TryGetValue("profile", out var v) &&
+                string.Equals(v, profile, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(psuFormFactor))
+            items = items.Where(i => i.FilterData.TryGetValue("psuFormFactor", out var v) &&
+                string.Equals(v, psuFormFactor, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (!string.IsNullOrEmpty(caseType))
+            items = items.Where(i => i.FilterData.TryGetValue("caseType", out var v) &&
+                string.Equals(v, caseType, StringComparison.OrdinalIgnoreCase)).ToList();
 
         items = ApplySort(items, sort);
 
@@ -472,7 +501,7 @@ public class ProductsController : Controller
                 Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl,
                 PpScore = m.Price > 0 ? Math.Round(10_000_000_000d / (double)m.Price, 2) : 0,
                 Specs = new() { ["Socket"] = m.SocketCompatibility, ["Chuẩn"] = m.FormFactor, ["RAM"] = m.MemoryCompatibility },
-                FilterData = new() { ["socket"] = m.SocketCompatibility, ["formFactor"] = m.FormFactor, ["memType"] = m.MemoryCompatibility }
+                FilterData = new() { ["socket"] = m.SocketCompatibility, ["formFactor"] = m.FormFactor, ["memType"] = m.MemoryCompatibility, ["chipset"] = m.Chipset }
             }));
         }
 
@@ -487,7 +516,7 @@ public class ProductsController : Controller
                 Manufacturer = m.Manufacturer, Price = m.Price, ImageUrl = m.ImageUrl,
                 PpScore = m.Price > 0 ? Math.Round((double)(m.Capacity * m.Speed) / (double)m.Price * 1000, 2) : 0,
                 Specs = new() { ["Loại"] = m.Type, ["Dung lượng"] = $"{m.Capacity}GB", ["Tốc độ"] = $"{m.Speed}MHz" },
-                FilterData = new() { ["memType"] = m.Type, ["capacity"] = m.Capacity.ToString() }
+                FilterData = new() { ["memType"] = m.Type, ["capacity"] = m.Capacity.ToString(), ["profile"] = m.Profile }
             }));
         }
 
@@ -532,7 +561,7 @@ public class ProductsController : Controller
                 Manufacturer = p.Manufacturer, Price = p.Price, ImageUrl = p.ImageUrl,
                 PpScore = p.Price > 0 ? Math.Round((double)p.Wattage / (double)p.Price * 100_000, 2) : 0,
                 Specs = new() { ["Công suất"] = $"{p.Wattage}W", ["Hiệu suất"] = p.Efficiency, ["Kiểu dây"] = p.Modular },
-                FilterData = new() { ["wattage"] = p.Wattage.ToString(), ["efficiency"] = p.Efficiency, ["modular"] = p.Modular }
+                FilterData = new() { ["wattage"] = p.Wattage.ToString(), ["efficiency"] = p.Efficiency, ["modular"] = p.Modular, ["psuFormFactor"] = p.PsuFormFactor }
             }));
         }
 
@@ -547,7 +576,7 @@ public class ProductsController : Controller
                 Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
                 PpScore = c.Price > 0 ? Math.Round(10_000_000_000d / (double)c.Price, 2) : 0,
                 Specs = new() { ["Hỗ trợ MB"] = c.FormFactorSupport, ["Max GPU"] = $"{c.MaxVGALength}mm", ["Màu sắc"] = c.Color ?? "—" },
-                FilterData = new() { ["formFactor"] = c.FormFactorSupport }
+                FilterData = new() { ["formFactor"] = c.FormFactorSupport, ["caseType"] = c.CaseType, ["radiatorSupport"] = c.RadiatorSupport }
             }));
         }
 

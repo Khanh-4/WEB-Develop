@@ -36,6 +36,7 @@ class Motherboard(Base):
     MemoryCompatibility = Column(String(10), nullable=False)
     MemorySlots = Column(Integer, nullable=False, default=4)
     MaxMemoryCapacity = Column(Integer, nullable=False, default=128)
+    Chipset = Column(String(20), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
 
@@ -51,6 +52,7 @@ class Memory(Base):
     Capacity = Column(Integer, nullable=False, default=0)
     Modules = Column(Integer, nullable=False, default=1)
     Speed = Column(Integer, nullable=False, default=0)
+    Profile = Column(String(30), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
 
@@ -80,6 +82,7 @@ class PowerSupply(Base):
     Wattage = Column(Integer, nullable=False, default=0)
     Efficiency = Column(String(30), nullable=False, default="")
     Modular = Column(String(20), nullable=False, default="")
+    PsuFormFactor = Column(String(10), nullable=False, default="ATX")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
 
@@ -94,6 +97,8 @@ class CaseEnclosure(Base):
     FormFactorSupport = Column(String(50), nullable=False)
     MaxVGALength = Column(Integer, nullable=False, default=0)
     Color = Column(String(30), nullable=True)
+    CaseType = Column(String(20), nullable=False, default="")
+    RadiatorSupport = Column(String(50), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
 

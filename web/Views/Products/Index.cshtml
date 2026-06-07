@@ -183,8 +183,12 @@ const i18n = {
         wattage:     '@L["Filter.Wattage"]',
         efficiency:  '@L["Filter.Efficiency"]',
         modular:     '@L["Filter.Modular"]',
-        coolerType:  '@L["Filter.CoolerType"]',
-        minW:        '@L["Filter.MinW"]',
+        coolerType:     '@L["Filter.CoolerType"]',
+        minW:           '@L["Filter.MinW"]',
+        chipset:        '@L["Filter.Chipset"]',
+        profile:        '@L["Filter.Profile"]',
+        psuFormFactor:  '@L["Filter.PsuFormFactor"]',
+        caseType:       '@L["Filter.CaseType"]',
     }
 };
 
@@ -278,11 +282,13 @@ function renderCatFilters(cat, opts) {
         html += makeSelect('filterSocket',    i18n.filters.socket,    'socket',    opts.sockets    || []);
         html += makeSelect('filterFormFactor',i18n.filters.formFactor,'formFactor',opts.formFactors|| []);
         html += makeSelect('filterMemType',   i18n.filters.ramType,   'memType',   opts.memTypes   || []);
+        html += makeSelect('filterChipset',   i18n.filters.chipset,   'chipset',   opts.chipsets   || []);
     }
     else if (cat === 'memory') {
         html += makeSelect('filterMemType',  i18n.filters.memType, 'memType',  opts.types      || []);
         html += makeSelect('filterCapacity', i18n.filters.capacity,'capacity', opts.capacities || [],
             v => `${v} GB`);
+        html += makeSelect('filterProfile',  i18n.filters.profile, 'profile',  opts.profiles   || []);
     }
     else if (cat === 'gpu') {
         html += makeSelect('filterGpuGen', i18n.filters.generation, 'gpuGen', opts.generations || []);
@@ -306,10 +312,12 @@ function renderCatFilters(cat, opts) {
                     <span class="input-group-text glass text-white border-0">W</span>
                 </div>
             </div>`;
-        html += makeSelect('filterEfficiency', i18n.filters.efficiency, 'efficiency', opts.efficiencies || []);
-        html += makeSelect('filterModular',    i18n.filters.modular,    'modular',    opts.modulars     || []);
+        html += makeSelect('filterEfficiency',    i18n.filters.efficiency,    'efficiency',    opts.efficiencies || []);
+        html += makeSelect('filterModular',       i18n.filters.modular,       'modular',       opts.modulars     || []);
+        html += makeSelect('filterPsuFormFactor', i18n.filters.psuFormFactor, 'psuFormFactor', opts.formFactors  || []);
     }
     else if (cat === 'case') {
+        html += makeSelect('filterCaseType',   i18n.filters.caseType,   'caseType',   opts.caseTypes  || []);
         html += makeSelect('filterFormFactor', i18n.filters.formFactor, 'formFactor', opts.formFactors || []);
     }
     else if (cat === 'cooler') {

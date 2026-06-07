@@ -25,6 +25,12 @@ public class CaseEnclosure
     [MaxLength(30)]
     public string? Color { get; set; }
 
+    [MaxLength(20)]
+    public string CaseType { get; set; } = string.Empty;           // Mid Tower / Full Tower / Mini Tower
+
+    [MaxLength(50)]
+    public string RadiatorSupport { get; set; } = string.Empty;    // "240mm, 360mm" etc.
+
     public string? ImageUrl { get; set; }
     public int Stock { get; set; }
 }

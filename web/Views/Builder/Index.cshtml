@@ -390,7 +390,6 @@ function selectComponent(id, name, price, ppScore, imageUrl = null) {
     buildState[key] = id;
 
     updateBuildPanel();
-    renderGrid(currentProducts);
     callFilterApi();
 }
 
@@ -403,7 +402,6 @@ function removeComponent(category, event) {
     buildState[key] = null;
 
     updateBuildPanel();
-    if (currentCategory === category) renderGrid(currentProducts);
     callFilterApi();
 }
 
@@ -443,11 +441,6 @@ function updateBuildPanel() {
     const perfPct = Math.min(100, avgPerf / 10);
     document.getElementById('perfBar').style.width  = perfPct + '%';
     document.getElementById('perfScore').textContent = Math.round(avgPerf);
-
-    document.getElementById('totalTdp').textContent = totalTdp + 'W';
-
-    const recPsu = Math.ceil(totalTdp * 1.3);
-    document.getElementById('recPsu').textContent = recPsu > 0 ? recPsu + 'W+' : '—';
 
     document.getElementById('compatOk').classList.toggle('d-none', !allDone);
 

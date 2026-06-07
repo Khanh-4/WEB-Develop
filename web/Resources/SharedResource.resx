@@ -159,4 +159,8 @@
   <data name="Filter.CoolerType"><value>Cooler Type</value></data>
   <data name="Filter.All"><value>All</value></data>
   <data name="Filter.MinW"><value>Min W</value></data>
+  <data name="Filter.Chipset"><value>Chipset</value></data>
+  <data name="Filter.Profile"><value>OC Profile</value></data>
+  <data name="Filter.PsuFormFactor"><value>PSU Size</value></data>
+  <data name="Filter.CaseType"><value>Case Size</value></data>
 </root>

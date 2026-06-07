@@ -24,6 +24,9 @@ public class Memory
     public int Modules { get; set; }                   // e.g. 2 (for 2x8GB kit)
     public int Speed { get; set; }                     // MHz
 
+    [MaxLength(30)]
+    public string Profile { get; set; } = string.Empty; // Intel XMP, AMD Expo, XMP 3.0…
+
     public string? ImageUrl { get; set; }
     public int Stock { get; set; }
 }

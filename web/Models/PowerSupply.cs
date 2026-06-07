@@ -25,6 +25,9 @@ public class PowerSupply
     [MaxLength(20)]
     public string Modular { get; set; } = string.Empty;     // Full / Semi / Non
 
+    [MaxLength(10)]
+    public string PsuFormFactor { get; set; } = "ATX";      // ATX / SFX / SFX-L / TFX
+
     public string? ImageUrl { get; set; }
     public int Stock { get; set; }
 }

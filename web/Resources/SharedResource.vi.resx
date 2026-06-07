@@ -159,4 +159,8 @@
   <data name="Filter.CoolerType"><value>Loại tản nhiệt</value></data>
   <data name="Filter.All"><value>Tất cả</value></data>
   <data name="Filter.MinW"><value>W tối thiểu</value></data>
+  <data name="Filter.Chipset"><value>Chipset</value></data>
+  <data name="Filter.Profile"><value>Hồ sơ OC</value></data>
+  <data name="Filter.PsuFormFactor"><value>Kích thước nguồn</value></data>
+  <data name="Filter.CaseType"><value>Loại thùng máy</value></data>
 </root>

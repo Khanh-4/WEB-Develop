@@ -100,6 +100,71 @@ def normalize_efficiency(raw: str) -> str:
     return "80+"
 
 
+def normalize_chipset(raw: str, name: str = "") -> str:
+    """Extract motherboard chipset from specs or product name."""
+    combined = (str(raw) + " " + str(name)).upper()
+    intel = ["Z890", "Z790", "Z690", "Z590", "Z490", "B860", "B760", "B660", "B560",
+             "H870", "H770", "H670", "H610", "H570", "H510", "W790", "W680", "X299"]
+    amd   = ["X870E", "X870", "X670E", "X670", "B850", "B650E", "B650", "A620",
+             "X570", "B550", "X470", "B450", "A520"]
+    for c in intel + amd:
+        if c in combined:
+            return c
+    return ""
+
+
+def normalize_ram_profile(raw: str, name: str = "") -> str:
+    """Detect XMP / Expo overclock profile from specs or product name."""
+    combined = (str(raw) + " " + str(name)).upper()
+    if "EXPO" in combined:
+        return "AMD Expo"
+    if "XMP 3" in combined or "XMP3" in combined:
+        return "Intel XMP 3.0"
+    if "XMP 2" in combined or "XMP2" in combined:
+        return "Intel XMP 2.0"
+    if "XMP" in combined:
+        return "Intel XMP"
+    return ""
+
+
+def normalize_psu_form_factor(raw: str, name: str = "") -> str:
+    """Detect PSU physical form factor (ATX vs SFX vs TFX)."""
+    combined = (str(raw) + " " + str(name)).upper()
+    if "SFX-L" in combined or "SFXL" in combined:
+        return "SFX-L"
+    if "SFX" in combined:
+        return "SFX"
+    if "TFX" in combined:
+        return "TFX"
+    return "ATX"
+
+
+def normalize_case_type(raw: str, name: str = "") -> str:
+    """Detect case tower type from specs or name."""
+    combined = (str(raw) + " " + str(name)).upper()
+    if "FULL" in combined:
+        return "Full Tower"
+    if "MINI" in combined or "SMALL" in combined or "MINI-ITX" in combined:
+        return "Mini Tower"
+    if "MID" in combined or "MIDI" in combined or "MICRO" in combined:
+        return "Mid Tower"
+    # Fallback: ITX-only cases are mini
+    if "ITX" in combined and "ATX" not in combined:
+        return "Mini Tower"
+    return "Mid Tower"
+
+
+def parse_radiator_support(specs: dict, name: str = "") -> str:
+    """Return comma-separated radiator sizes supported by the case."""
+    combined = (" ".join(specs.values()) + " " + name).upper()
+    found = []
+    for mm in ["420", "360", "280", "240", "120"]:
+        pattern = rf"\b{mm}\s*MM\b|{mm}MM|\b{mm}\b"
+        if re.search(pattern, combined):
+            found.append(f"{mm}mm")
+    return ", ".join(found)
+
+
 def extract_manufacturer_from_name(name: str) -> str:
     """Best-effort brand extraction from product name."""
     brands = [

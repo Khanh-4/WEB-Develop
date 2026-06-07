@@ -29,6 +29,9 @@ public class Motherboard
     public int MemorySlots { get; set; }
     public int MaxMemoryCapacity { get; set; }                       // GB
 
+    [MaxLength(20)]
+    public string Chipset { get; set; } = string.Empty;             // Z790, B650, X870…
+
     public string? ImageUrl { get; set; }
     public int Stock { get; set; }
 }
