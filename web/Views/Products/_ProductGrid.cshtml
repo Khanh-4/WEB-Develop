@@ -70,6 +70,12 @@ else
                                         title="Thêm vào PC Builder">
                                     <i class="bi bi-tools" style="font-size:.8rem"></i>
                                 </button>
+                                <button class="btn btn-sm glass text-white px-2 py-1 cmp-btn"
+                                        id="cmpBtn_@(p.Category)_@(p.Id)"
+                                        onclick="toggleCompare(@p.Id,'@p.Category',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.Name)),@p.Price,'@(p.ImageUrl ?? "")')"
+                                        title="So sánh">
+                                    <i class="bi bi-bar-chart-steps" style="font-size:.8rem"></i>
+                                </button>
                             }
                             <button class="btn btn-sm btn-gradient px-2 py-1"
                                     data-pid="@p.Id" data-pcat="@p.Category"

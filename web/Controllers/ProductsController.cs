@@ -293,6 +293,39 @@ public class ProductsController : Controller
         };
     }
 
+    // GET /Products/Compare?category=gpu&ids=1,2,3
+    [HttpGet]
+    public async Task<IActionResult> Compare(string category, string ids)
+    {
+        var idList = (ids ?? "")
+            .Split(',')
+            .Select(x => int.TryParse(x.Trim(), out var n) ? n : 0)
+            .Where(x => x > 0).Distinct().Take(3).ToList();
+
+        if (idList.Count < 2) return RedirectToAction("Index");
+
+        var products = new List<ProductDetailViewModel>();
+        foreach (var id in idList)
+        {
+            var vm = category switch
+            {
+                "cpu"         => await BuildCpuDetailAsync(id),
+                "motherboard" => await BuildMbDetailAsync(id),
+                "memory"      => await BuildMemoryDetailAsync(id),
+                "gpu"         => await BuildGpuDetailAsync(id),
+                "storage"     => await BuildStorageDetailAsync(id),
+                "psu"         => await BuildPsuDetailAsync(id),
+                "case"        => await BuildCaseDetailAsync(id),
+                "cooler"      => await BuildCoolerDetailAsync(id),
+                _             => null,
+            };
+            if (vm != null) products.Add(vm);
+        }
+
+        if (products.Count < 2) return RedirectToAction("Index");
+        return View(products);
+    }
+
     // Returns filter option values for category-specific dropdowns
     [HttpGet]
     public async Task<IActionResult> FilterOptions(string category)
