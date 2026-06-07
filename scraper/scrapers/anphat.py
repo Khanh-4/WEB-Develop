@@ -132,7 +132,7 @@ def _int(raw: str) -> int:
 def _extract_socket(raw: str) -> str:
     """Extract socket token (AM5, AM4, LGA1700, etc.) from a verbose spec string."""
     m = re.search(r"\b(AM[45]|LGA\s*\d+)\b", raw, re.I)
-    return m.group(0).replace(" ", "") if m else raw
+    return m.group(0).replace(" ", "") if m else ""
 
 
 def _ddr_type_or_name(spec_val: str, name: str) -> str:
@@ -170,6 +170,7 @@ def scrape_cpus() -> list[Cpu]:
         socket  = normalize_socket(_find(specs, "hỗ trợ socket", "socket"))
 
         if not socket: socket = _mb_socket_from_name(name) or _socket_from_name(name)
+        socket = socket[:50]
         if boost_c == 0: boost_c = _boost_clock_from_name(name)
         if base_c == 0 and boost_c > 0: base_c = round(boost_c * 0.85, 2)
         if tdp == 0: tdp = _tdp_from_name(name)
@@ -282,6 +283,7 @@ def scrape_motherboards() -> list[Motherboard]:
         ff      = normalize_form_factor(ff_raw or "")
 
         if not socket: socket = _mb_socket_from_name(name)
+        socket = socket[:50]
 
         results.append(Motherboard(
             Name=name,
