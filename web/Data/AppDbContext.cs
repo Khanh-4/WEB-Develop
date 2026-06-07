@@ -25,6 +25,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
     public DbSet<SavedBuild> SavedBuilds { get; set; }
     public DbSet<BuildUpvote> BuildUpvotes { get; set; }
     public DbSet<PriceHistory> PriceHistories { get; set; }
+    public DbSet<WishlistItem> WishlistItems { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -37,5 +38,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
 
         builder.Entity<PriceHistory>()
             .HasIndex(p => new { p.Category, p.ProductName, p.RecordedAt });
+
+        builder.Entity<WishlistItem>()
+            .HasIndex(w => new { w.UserId, w.Category, w.ComponentId })
+            .IsUnique();
     }
 }

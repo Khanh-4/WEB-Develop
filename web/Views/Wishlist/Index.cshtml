@@ -1,0 +1,97 @@
+@model List<TechSpecs.Models.WishlistItem>
+@{ ViewData["Title"] = "Wishlist"; }
+
+<div class="container-xl py-4 px-3">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="text-white fw-bold mb-0">
+            <i class="bi bi-heart me-2" style="color:#f472b6"></i>Wishlist
+        </h1>
+        <a asp-controller="Products" asp-action="Index" class="btn glass text-white px-4">
+            <i class="bi bi-search me-2"></i>Tìm sản phẩm
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass p-5 text-center">
+            <i class="bi bi-heart fs-1 d-block mb-3" style="color:rgba(244,114,182,.3)"></i>
+            <h5 class="text-white mb-2">Wishlist trống</h5>
+            <p class="text-muted-white mb-4">Lưu các sản phẩm yêu thích để xem lại sau.</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-gradient px-4">
+                <i class="bi bi-search me-2"></i>Khám phá sản phẩm
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                var catLabel = item.Category switch {
+                    "cpu" => "Processor", "motherboard" => "Motherboard", "memory" => "Memory",
+                    "gpu" => "Graphics Card", "storage" => "Storage", "psu" => "Power Supply",
+                    "case" => "Case", "cooler" => "CPU Cooler", _ => item.Category
+                };
+                <div class="col-md-6 col-xl-4" id="wish-@item.Id">
+                    <div class="glass p-4 h-100 d-flex flex-column">
+                        <div class="d-flex gap-3 mb-3">
+                            @if (item.ImageUrl != null)
+                            {
+                                <img src="@item.ImageUrl" alt="@item.ComponentName"
+                                     style="width:64px;height:64px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.04);flex-shrink:0">
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                                     style="width:64px;height:64px;background:rgba(255,255,255,.06)">
+                                    <i class="bi bi-cpu text-muted-white fs-4"></i>
+                                </div>
+                            }
+                            <div class="overflow-hidden flex-grow-1">
+                                <div class="text-muted-white small mb-1">@catLabel</div>
+                                <div class="text-white fw-semibold" style="font-size:.9rem;line-height:1.3">@item.ComponentName</div>
+                                <div class="text-white fw-bold mt-1">@item.Price.ToString("N0")đ</div>
+                            </div>
+                        </div>
+
+                        <div class="text-muted-white small mb-3">
+                            Đã lưu @item.AddedAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+
+                        <div class="d-flex gap-2 mt-auto">
+                            <a href="/Products/Detail/@item.Category/@item.ComponentId"
+                               class="btn glass text-white flex-grow-1">
+                                <i class="bi bi-eye me-1"></i>Chi tiết
+                            </a>
+                            <button class="btn btn-gradient px-3"
+                                    data-pid="@item.ComponentId" data-pcat="@item.Category"
+                                    data-pname="@item.ComponentName" data-pprice="@item.Price"
+                                    data-pimg="@item.ImageUrl"
+                                    onclick="addToCartFromData(this)" title="Add to Cart">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                            <button class="btn glass text-danger px-3" title="Remove from wishlist"
+                                    onclick="removeWish(@item.Id, this)">
+                                <i class="bi bi-heart-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+const csrfToken = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+
+async function removeWish(id, btn) {
+    const r = await fetch(`/Wishlist/Remove/${id}`, {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': csrfToken }
+    });
+    if (r.ok) document.getElementById('wish-' + id)?.remove();
+}
+</script>
+}

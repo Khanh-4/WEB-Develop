@@ -112,6 +112,17 @@
                             onclick="goBuilder('@Model.Category',@Model.Id)">
                         <i class="bi bi-tools me-2"></i>Add to Builder
                     </button>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <button class="btn glass px-3 py-2 rounded-3" id="wishBtn"
+                                onclick="toggleWishlist(this)"
+                                data-category="@Model.Category" data-id="@Model.Id"
+                                data-name="@Html.Raw(Model.Name.Replace("\"","&quot;"))"
+                                data-price="@Model.Price" data-img="@Model.ImageUrl"
+                                style="color:#f472b6" title="Add to Wishlist">
+                            <i class="bi bi-heart" id="wishIcon"></i>
+                        </button>
+                    }
                 </div>
 
                 <!-- Specs table -->
@@ -146,6 +157,46 @@
 <script>
 function goBuilder(category, id) {
     window.location.href = '/Builder?preselect=' + category + ':' + id;
+}
+
+// Wishlist heart button
+const csrfToken = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+const wishBtn  = document.getElementById('wishBtn');
+if (wishBtn) {
+    // Check initial state
+    const cat = wishBtn.dataset.category, id = wishBtn.dataset.id;
+    fetch(`/Wishlist/Check?category=${cat}&id=${id}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.inWishlist) setWishState(true); })
+        .catch(() => {});
+}
+
+function setWishState(inWishlist) {
+    const icon = document.getElementById('wishIcon');
+    if (!icon) return;
+    icon.className = inWishlist ? 'bi bi-heart-fill' : 'bi bi-heart';
+}
+
+async function toggleWishlist(btn) {
+    const body = {
+        category: btn.dataset.category,
+        componentId: parseInt(btn.dataset.id),
+        name: btn.dataset.name,
+        price: parseFloat(btn.dataset.price),
+        imageUrl: btn.dataset.img || null,
+    };
+    btn.disabled = true;
+    try {
+        const r = await fetch('/Wishlist/Toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': csrfToken },
+            body: JSON.stringify(body),
+        });
+        if (r.ok) {
+            const d = await r.json();
+            setWishState(d.inWishlist);
+        }
+    } finally { btn.disabled = false; }
 }
 
 // Price history chart
