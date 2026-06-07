@@ -44,20 +44,22 @@
 
             <ul class="navbar-nav align-items-center gap-2">
                 <!-- Global search -->
-                <li class="nav-item">
-                    <form action="/Products" method="get" class="d-flex align-items-center" id="navSearchForm" style="position:relative">
-                        <div class="glass d-flex align-items-center px-2" style="border-radius:8px;height:36px;width:0;overflow:hidden;transition:width .3s ease" id="navSearchBox">
-                            <input type="text" name="search" id="navSearchInput"
-                                   class="form-control border-0 bg-transparent text-white p-0"
-                                   placeholder="@L["Nav.SearchPlaceholder"]"
-                                   style="min-width:180px;font-size:.85rem;outline:none;box-shadow:none"
-                                   autocomplete="off">
-                        </div>
-                        <button type="button" class="btn glass text-white px-2 py-1" id="navSearchToggle"
-                                onclick="toggleNavSearch()" style="font-size:1.05rem;line-height:1" title="@L["Nav.Search"]">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </form>
+                <li class="nav-item d-flex align-items-center" id="navSearchForm">
+                    <div style="max-width:0;overflow:hidden;opacity:0;transition:max-width .3s ease,opacity .25s ease" id="navSearchBox">
+                        <form action="/Products" method="get" class="d-flex align-items-center">
+                            <div class="glass d-flex align-items-center px-2" style="border-radius:8px;height:36px">
+                                <input type="text" name="search" id="navSearchInput"
+                                       class="border-0 bg-transparent text-white p-0"
+                                       placeholder="@L["Nav.SearchPlaceholder"]"
+                                       style="width:200px;font-size:.85rem;outline:none;box-shadow:none;color:inherit"
+                                       autocomplete="off">
+                            </div>
+                        </form>
+                    </div>
+                    <button type="button" class="btn glass text-white px-2 py-1" id="navSearchToggle"
+                            onclick="toggleNavSearch()" style="font-size:1.05rem;line-height:1" title="@L["Nav.Search"]">
+                        <i class="bi bi-search"></i>
+                    </button>
                 </li>
                 <li class="nav-item">
                     <button class="btn glass text-white px-2 py-1" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:1.1rem;line-height:1">
@@ -160,19 +162,22 @@ function toggleNavSearch() {
     const box = document.getElementById('navSearchBox');
     const input = document.getElementById('navSearchInput');
     navSearchOpen = !navSearchOpen;
-    box.style.width = navSearchOpen ? '210px' : '0';
+    box.style.maxWidth = navSearchOpen ? '260px' : '0';
+    box.style.opacity  = navSearchOpen ? '1' : '0';
     if (navSearchOpen) { setTimeout(() => input.focus(), 310); }
-    else input.value = '';
+    else { input.value = ''; }
 }
 document.addEventListener('keydown', e => {
-    if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && !navSearchOpen) {
+    if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && !navSearchOpen
+            && document.activeElement.tagName !== 'INPUT'
+            && document.activeElement.tagName !== 'TEXTAREA') {
         e.preventDefault(); toggleNavSearch();
     }
     if (e.key === 'Escape' && navSearchOpen) toggleNavSearch();
 });
 document.addEventListener('click', e => {
-    const form = document.getElementById('navSearchForm');
-    if (navSearchOpen && form && !form.contains(e.target)) toggleNavSearch();
+    const wrap = document.getElementById('navSearchForm');
+    if (navSearchOpen && wrap && !wrap.contains(e.target)) toggleNavSearch();
 });
 </script>
 @await RenderSectionAsync("Scripts", required: false)
