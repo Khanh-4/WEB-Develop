@@ -38,6 +38,80 @@ public class ProductsController : Controller
         });
     }
 
+    // GET /Products/LiveSearch?q=i5+13400
+    [HttpGet]
+    public async Task<IActionResult> LiveSearch(string q)
+    {
+        if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 2)
+            return Json(Array.Empty<object>());
+
+        var term = q.Trim().ToLower();
+
+        // Sort in-memory after fetch to avoid EF sharing the LIKE param between
+        // Contains (%term%) and StartsWith (term%) which causes PostgreSQL to only
+        // match rows where name/manufacturer STARTS with the search term.
+        var cpus = (await _db.Cpus.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "cpu" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var mbs = (await _db.Motherboards.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "motherboard" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var rams = (await _db.Memories.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "memory" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var gpus = (await _db.VideoCards.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "gpu" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var storages = (await _db.Storages.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "storage" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var psus = (await _db.PowerSupplies.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "psu" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var cases = (await _db.CaseEnclosures.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "case" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var coolers = (await _db.CpuCoolers.AsNoTracking()
+            .Where(x => x.Name.ToLower().Contains(term) || x.Manufacturer.ToLower().Contains(term))
+            .OrderBy(x => x.Id).Take(6).Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, Category = "cooler" })
+            .ToListAsync())
+            .OrderBy(x => x.Name.ToLower().StartsWith(term) ? 0 : 1).Take(3).ToList();
+
+        var all = cpus.Cast<object>().Concat(mbs).Concat(rams).Concat(gpus)
+            .Concat(storages).Concat(psus).Concat(cases).Concat(coolers);
+
+        var sorted = all
+            .Select(x => (dynamic)x)
+            .OrderBy(x => ((string)x.Name).ToLower().StartsWith(term) ? 0 : 1)
+            .ThenBy(x => (string)x.Name)
+            .Take(6)
+            .Select(x => new { x.Id, x.Name, x.Price, x.ImageUrl, x.Category })
+            .ToList();
+
+        return Json(sorted);
+    }
+
     // GET /Products/PriceHistory?category=cpu&name={productName}
     [HttpGet]
     public async Task<IActionResult> PriceHistory(string category, string name)
