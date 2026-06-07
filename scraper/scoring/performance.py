@@ -10,10 +10,9 @@ def score_cpu(core_count: int, base_clock: float, boost_clock: float, tdp: int) 
     Heuristic: weighted sum of cores * boost clock, penalized slightly by TDP.
     Tuned so modern mid-range CPUs land around 50-70, flagships around 90-100.
     """
-    if core_count == 0 or boost_clock == 0:
-        return 0.0
-
     effective_clock = boost_clock if boost_clock > 0 else base_clock
+    if core_count == 0 or effective_clock == 0:
+        return 0.0
     raw = (core_count ** 0.75) * effective_clock * 10
 
     # Slight efficiency penalty — high TDP with low cores scores worse

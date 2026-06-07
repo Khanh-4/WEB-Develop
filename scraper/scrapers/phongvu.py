@@ -435,21 +435,91 @@ def _int(raw: str) -> int:
     return int(m.group()) if m else 0
 
 
+# Boost clock (GHz) by CPU model number substring (longest key first = most specific wins).
+# Keys are lowercased with dashes/spaces removed for matching.
+_CPU_BOOST_GHZ: list[tuple[str, float]] = sorted([
+    # Intel Core Ultra (Arrow Lake 200-series)
+    ("ultra9285k", 5.7), ("ultra7265k", 5.7), ("ultra5245k", 5.2),
+    # Intel 14th gen
+    ("i914900ks", 6.2), ("i914900kf", 6.0), ("i914900k", 6.0),
+    ("i714700kf", 5.6), ("i714700k",  5.6), ("i714700f", 5.4), ("i714700", 5.4),
+    ("i514600kf", 5.3), ("i514600k",  5.3), ("i514500",  5.0),
+    ("i514400f",  4.7), ("i514400",   4.7),
+    ("i314100f",  4.7), ("i314100",   4.7),
+    # Intel 13th gen
+    ("i913900ks", 6.0), ("i913900kf", 5.8), ("i913900k", 5.8),
+    ("i713700kf", 5.4), ("i713700k",  5.4), ("i713700f", 5.2), ("i713700", 5.2),
+    ("i513600kf", 5.1), ("i513600k",  5.1), ("i513500",  4.8),
+    ("i513400f",  4.6), ("i513400",   4.6),
+    ("i313100f",  4.5), ("i313100",   4.5),
+    # Intel 12th gen
+    ("i912900ks", 5.2), ("i912900kf", 5.2), ("i912900k", 5.2),
+    ("i712700kf", 5.0), ("i712700k",  5.0), ("i712700f", 4.9), ("i712700", 4.9),
+    ("i512600kf", 4.9), ("i512600k",  4.9), ("i512500",  4.6),
+    ("i512400f",  4.4), ("i512400",   4.4),
+    ("i312100f",  4.3), ("i312100",   4.3),
+    # AMD Ryzen 9000 (Zen 5 / AM5)
+    ("9950x", 5.7), ("9900x", 5.6), ("9700x", 5.5), ("9600x", 5.4),
+    # AMD Ryzen 7000 (Zen 4 / AM5)
+    ("7950x3d", 5.7), ("7950x", 5.7),
+    ("7900x3d",  5.6), ("7900x", 5.6), ("7900", 5.4),
+    ("7800x3d",  5.0),
+    ("7700x",    5.4), ("7700", 5.3),
+    ("7600x",    5.3), ("7600", 5.1), ("7500f", 5.0),
+    # AMD Ryzen 5000 (Zen 3 / AM4)
+    ("5950x",   4.9),
+    ("5900x",   4.8),
+    ("5800x3d", 4.5), ("5800x", 4.7), ("5800", 4.6),
+    ("5700x",   4.6), ("5700g", 4.6), ("5700", 4.6),
+    ("5600x",   4.6), ("5600g", 4.4), ("5600", 4.4), ("5500", 4.2),
+    # AMD Ryzen 3000 (Zen 2 / AM4)
+    ("3950x",  4.7),
+    ("3900xt", 4.7), ("3900x", 4.6),
+    ("3800xt", 4.7), ("3800x", 4.5),
+    ("3700x",  4.4),
+    ("3600xt", 4.5), ("3600x", 4.4), ("3600", 4.2),
+    ("3300x",  4.3), ("3100",  3.6),
+], key=lambda x: -len(x[0]))  # longest key first → most specific match wins
+
+
 def _boost_clock_from_name(name: str) -> float:
     """Extract boost/max clock from product name string."""
-    patterns = [
+    name_l = name.lower()
+
+    # 1. Explicit boost/turbo keyword labels
+    for pat in [
         r"boost\s+(?:tối\s+đa\s+)?([\d.]+)\s*ghz",
         r"up\s+to\s+([\d.]+)\s*ghz",
         r"tối\s+đa\s+([\d.]+)\s*ghz",
-        r"([\d.]+)\s*ghz",
-    ]
-    name_l = name.lower()
-    for pat in patterns:
+        r"turbo\s+([\d.]+)\s*ghz",
+        r"([\d.]+)\s*ghz\s+turbo",
+    ]:
         m = re.search(pat, name_l)
         if m:
             val = float(m.group(1))
             if 1.0 < val < 7.0:
                 return round(val, 2)
+
+    # 2. Range "X.X GHz - Y.Y GHz" or "X.X/Y.Y GHz" → take max (= boost)
+    m = re.search(r"([\d.]+)\s*ghz\s*[-/]\s*([\d.]+)\s*ghz", name_l)
+    if m:
+        best = max(float(m.group(1)), float(m.group(2)))
+        if 1.0 < best < 7.0:
+            return round(best, 2)
+
+    # 3. Model number lookup table (covers bare names like "Intel Core i5-12400F")
+    key = re.sub(r"[\s\-]", "", name_l)
+    for model, boost in _CPU_BOOST_GHZ:
+        if model in key:
+            return boost
+
+    # 4. Last resort: any GHz value in range
+    m = re.search(r"([\d.]+)\s*ghz", name_l)
+    if m:
+        val = float(m.group(1))
+        if 1.0 < val < 7.0:
+            return round(val, 2)
+
     return 0.0
 
 

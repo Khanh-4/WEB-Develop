@@ -7,9 +7,11 @@ using TechSpecs.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Railway sets PORT; bind on all interfaces so the container is reachable
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+// Railway sets PORT; only override URL binding when explicitly set so local
+// dev launch profiles (port 5003) are not clobbered.
+var railwayPort = Environment.GetEnvironmentVariable("PORT");
+if (railwayPort is not null)
+    builder.WebHost.UseUrls($"http://0.0.0.0:{railwayPort}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
