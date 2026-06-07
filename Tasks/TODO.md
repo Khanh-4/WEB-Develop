@@ -170,24 +170,24 @@
 
 ---
 
-## Priority 7 — Remaining (Session 8)
+## ✅ Done — Session 8 (2026-06-07) — P13–P19 complete, ALL Priority 7 done
 
-### Group B — Tài chính & Thanh toán
-- [ ] **P18 — Payment Gateway (Mock)**: UI + flow đầy đủ cho VNPAY-QR, MoMo, ZaloPay với mock responses.
-
-### Group C — Khuyến mãi
-- [ ] **P13 — Combo/Bundle discount**: Model `Bundle` (danh sách sản phẩm + mức giảm giá), auto-apply discount khi cart đủ điều kiện bundle.
-
-### Group D — CRM & Loyalty
-- [ ] **P14 — Membership Tiers**: `LoyaltyPoints` table, 4 bậc (Đồng <1tr / Bạc <5tr / Vàng <20tr / Kim Cương 20tr+), tích điểm khi mua hàng, hiển thị tier trên Profile.
-
-### Group E — Nội dung
-- [ ] **P19 — Photo upload Reviews**: Supabase Storage bucket, upload ảnh review, hiển thị thumbnail dưới comment.
+| Task | File(s) |
+|------|---------|
+| **P14 — Membership Tiers** | `Models/ApplicationUser.cs` (TotalSpend+LoyaltyPoints), `MembershipTier` static class, `Views/Account/Profile.cshtml` (tier card + progress), awarded in `AdminController.UpdateOrderStatus` |
+| **P13 — Bundle/Combo** | `Models/Bundle.cs`, `Controllers/AdminController.cs`, `Views/Admin/Bundles.cshtml`, `Views/Admin/CreateBundle.cshtml`, `/Admin/BundlesApi`, `Views/Cart/Index.cshtml` (auto-detect + discount row) |
+| **P18 — Payment Mock** | `PaymentMethod` enum +VnPay/MoMo/ZaloPay, 3 new pay cards on Checkout, QR notice, SVG mock QR on Confirmation |
+| **P19 — Photo Reviews** | `ImageUrl` on ProductReview, `POST /Reviews/UploadPhoto` (Supabase Storage), file picker + preview in form, thumbnail in review list |
 
 ---
 
-## Thứ tự làm (session 8)
-P14 → P13 → P18 → P19
+## 🎉 All Priority 7 features complete!
+
+**To enable photo reviews:** add to `appsettings.Development.json`:
+```json
+"Supabase": { "Url": "https://xxx.supabase.co", "AnonKey": "eyJ..." }
+```
+And create a Storage bucket named `reviews` in Supabase dashboard with public access.
 
 ---
 
