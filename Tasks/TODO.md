@@ -156,35 +156,38 @@
 
 ---
 
-## Priority 7 — Build PC Utilities & Advanced Features (Session 7)
+## ✅ Done — Session 7 (2026-06-07) — P9–P17 complete
 
-### Group A — Build PC Nâng cao
-- [ ] **P9 — Export Quotation PDF**: In báo giá từ Builder ra PDF. Dùng QuestPDF. Nút "Xuất PDF" trên Builder page, trả về file PDF với logo, bảng linh kiện, tổng tiền.
-- [x] ~~Share Build Link~~ — đã có từ session 3 (`/Build/Share/{token}`)
-- [x] ~~Save Build~~ — đã có từ session 3 (`/Build/MyBuilds`)
+| Task | File(s) |
+|------|---------|
+| **P9 — Export Quotation PDF** | `Controllers/BuilderController.cs`, `Views/Builder/Index.cshtml`, QuestPDF |
+| **P10 — Installment Calculator** | `Views/Shared/_Layout.cshtml` (modal + `showInstallment()`), Product Detail + Checkout button |
+| **P11 — Flash Sale** | `Models/FlashSale.cs`, `Controllers/AdminController.cs`, `Views/Admin/FlashSales.cshtml`, `Views/Admin/CreateFlashSale.cshtml`, `Controllers/ProductsController.cs` (`ActiveSales`), `Views/Products/Index.cshtml` (countdown overlay) |
+| **P12 — Coupon DB** | `Models/Coupon.cs`, `Controllers/AdminController.cs`, `Views/Admin/Coupons.cshtml`, `Views/Admin/CreateCoupon.cshtml`, `Controllers/OrdersController.cs` (`ApplyCouponAsync`) |
+| **P15 — My Warranties** | `Controllers/AccountController.cs`, `Views/Account/Warranties.cshtml`, navbar link |
+| **P16 — YouTube embed** | `VideoUrl` field on all 8 models + `ProductDetailViewModel`; 16:9 embed on `Detail.cshtml` |
+| **P17 — Live Chat** | Floating Zalo + Messenger buttons in `_Layout.cshtml` |
+
+---
+
+## Priority 7 — Remaining (Session 8)
 
 ### Group B — Tài chính & Thanh toán
-- [ ] **P10 — Installment Calculator**: Widget tính trả góp 3/6/9/12 tháng, phí chuyển đổi 0%/1.5%/2%. Hiển thị trên Product Detail và Checkout. Frontend-only, không cần API.
-- [ ] **P18 — Payment Gateway (Mock)**: UI + flow đầy đủ cho VNPAY-QR, MoMo, ZaloPay với mock responses. Điền API key vào appsettings là live ngay khi có merchant account.
+- [ ] **P18 — Payment Gateway (Mock)**: UI + flow đầy đủ cho VNPAY-QR, MoMo, ZaloPay với mock responses.
 
-### Group C — Khuyến mãi & Marketing
-- [ ] **P11 — Flash Sale**: Model `FlashSale` (product, discount%, start/end time, total_qty, sold_qty), countdown timer frontend, thanh tiến độ "Đã bán X/Y", admin CRUD.
-- [ ] **P12 — Voucher/Coupon nâng cao**: Model `Coupon` với điều kiện (brand filter, min order, freeship, category), thay thế hardcode TECHSPECS10, admin quản lý mã.
+### Group C — Khuyến mãi
 - [ ] **P13 — Combo/Bundle discount**: Model `Bundle` (danh sách sản phẩm + mức giảm giá), auto-apply discount khi cart đủ điều kiện bundle.
 
 ### Group D — CRM & Loyalty
 - [ ] **P14 — Membership Tiers**: `LoyaltyPoints` table, 4 bậc (Đồng <1tr / Bạc <5tr / Vàng <20tr / Kim Cương 20tr+), tích điểm khi mua hàng, hiển thị tier trên Profile.
-- [ ] **P15 — My Warranties (account)**: Trang `/Account/Warranties` — user login thấy danh sách bảo hành của mình theo SĐT đăng ký.
 
-### Group E — Nội dung & Tương tác
-- [ ] **P16 — YouTube embed**: Thêm field `VideoUrl` vào hardware models, nhúng video trên Product Detail nếu có.
-- [ ] **P17 — Live Chat buttons**: Floating button Zalo + Messenger trên mọi trang. Cần link Zalo OA và Facebook Page ID từ user.
+### Group E — Nội dung
 - [ ] **P19 — Photo upload Reviews**: Supabase Storage bucket, upload ảnh review, hiển thị thumbnail dưới comment.
 
 ---
 
-## Thứ tự làm (session 7)
-P9 → P10 → P11 → P12 → P15 → P16 → P17 → P13 → P14 → P18 → P19
+## Thứ tự làm (session 8)
+P14 → P13 → P18 → P19
 
 ---
 
