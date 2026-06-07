@@ -23,10 +23,15 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderDetail> OrderDetails { get; set; }
     public DbSet<SavedBuild> SavedBuilds { get; set; }
+    public DbSet<BuildUpvote> BuildUpvotes { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<BuildUpvote>()
+            .HasIndex(u => new { u.BuildId, u.UserId })
+            .IsUnique();
     }
 }

@@ -1,0 +1,155 @@
+@model TechSpecs.Controllers.CommunityViewModel
+@using System.Text.Json
+@{ ViewData["Title"] = "Build Community"; }
+
+<div class="container-xl py-4 px-3">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="text-white fw-bold mb-1">Build Community</h1>
+            <p class="text-muted-white mb-0">Khám phá và upvote các PC build từ cộng đồng</p>
+        </div>
+        <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient px-4">
+            <i class="bi bi-plus-lg me-2"></i>Tạo Build Mới
+        </a>
+    </div>
+
+    @if (!Model.Builds.Any())
+    {
+        <div class="glass p-5 text-center">
+            <i class="bi bi-people fs-1 text-muted-white d-block mb-3"></i>
+            <h5 class="text-white mb-2">Chưa có build nào được chia sẻ</h5>
+            <p class="text-muted-white mb-4">Hãy là người đầu tiên chia sẻ build của bạn với cộng đồng!</p>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-action="MyBuilds" class="btn btn-gradient px-4">
+                    <i class="bi bi-bookmark me-2"></i>My Builds
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var build in Model.Builds)
+            {
+                var components = new Dictionary<string, JsonElement>();
+                decimal totalPrice = 0;
+                int compCount = 0;
+                try {
+                    var raw = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(build.BuildJson);
+                    if (raw != null) {
+                        components = raw;
+                        compCount = raw.Count;
+                        foreach (var el in raw.Values)
+                            if (el.TryGetProperty("price", out var p)) totalPrice += (decimal)p.GetDouble();
+                    }
+                } catch { }
+
+                bool upvoted  = Model.UpvotedIds.Contains(build.Id);
+                var shareUrl  = Url.Action("Share", "Build", new { token = build.ShareToken }, Context.Request.Scheme)!;
+                var catIcons  = new Dictionary<string,string> {
+                    ["cpu"]="bi-cpu",["motherboard"]="bi-motherboard",["memory"]="bi-memory",
+                    ["videoCard"]="bi-gpu-card",["storage"]="bi-device-hdd",["powerSupply"]="bi-lightning-charge",
+                    ["case"]="bi-box",["cooler"]="bi-thermometer-half"
+                };
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="glass p-4 h-100 d-flex flex-column">
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1 overflow-hidden me-2">
+                                <h5 class="text-white fw-semibold mb-1 text-truncate">@build.Name</h5>
+                                <div class="text-muted-white small">
+                                    by <span class="text-white">@(build.User?.FullName ?? "Anonymous")</span>
+                                    &bull; @build.CreatedAt.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+                            <!-- Upvote button -->
+                            <button class="upvote-btn btn d-flex flex-column align-items-center px-2 py-1 @(upvoted ? "btn-gradient" : "glass text-white")"
+                                    data-id="@build.Id" @(User.Identity?.IsAuthenticated != true ? "title=\"Đăng nhập để upvote\" disabled" : "onclick=\"toggleUpvote(this)\"")
+                                    style="min-width:52px">
+                                <i class="bi bi-arrow-up-circle @(upvoted ? "text-white" : "") fs-5"></i>
+                                <span class="upvote-count fw-bold" style="font-size:.85rem;line-height:1">@build.UpvoteCount</span>
+                            </button>
+                        </div>
+
+                        <!-- Component badges -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @foreach (var (cat, el) in components)
+                            {
+                                var icon = catIcons.GetValueOrDefault(cat, "bi-cpu");
+                                var name = el.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "";
+                                <span class="badge glass-sm text-white" title="@name">
+                                    <i class="bi @icon me-1"></i>@(name.Length > 18 ? name[..18] + "…" : name)
+                                </span>
+                            }
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto mb-3">
+                            <div class="text-muted-white small">@compCount component@(compCount != 1 ? "s" : "")</div>
+                            <div class="text-white fw-bold">@totalPrice.ToString("N0")đ</div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="@shareUrl" class="btn glass text-white flex-grow-1">
+                                <i class="bi bi-eye me-1"></i>Xem Build
+                            </a>
+                            <button class="btn btn-gradient px-3 open-in-builder"
+                                    data-build="@Html.Raw(System.Text.Json.JsonSerializer.Serialize(build.BuildJson))"
+                                    title="Mở trong Builder">
+                                <i class="bi bi-tools"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-center gap-2 mt-5">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a asp-action="Community" asp-route-page="@i"
+                       class="btn @(i == Model.Page ? "btn-gradient" : "glass text-white") px-3">@i</a>
+                }
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+<script>
+const csrfToken = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+
+async function toggleUpvote(btn) {
+    const id = btn.dataset.id;
+    btn.disabled = true;
+    try {
+        const r = await fetch(`/Build/Upvote/${id}`, {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': csrfToken }
+        });
+        if (!r.ok) return;
+        const data = await r.json();
+        btn.querySelector('.upvote-count').textContent = data.upvoteCount;
+        if (data.upvoted) {
+            btn.classList.remove('glass', 'text-white');
+            btn.classList.add('btn-gradient');
+        } else {
+            btn.classList.remove('btn-gradient');
+            btn.classList.add('glass', 'text-white');
+        }
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+document.querySelectorAll('.open-in-builder').forEach(btn => {
+    btn.addEventListener('click', function() {
+        try { sessionStorage.setItem('loadBuild', JSON.parse(this.dataset.build)); } catch {}
+        window.location.href = '/Builder';
+    });
+});
+</script>
+}

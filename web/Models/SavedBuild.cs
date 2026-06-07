@@ -22,5 +22,9 @@ public class SavedBuild
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public bool IsPublic { get; set; } = false;
+    public int  UpvoteCount { get; set; } = 0;
+
     public ApplicationUser User { get; set; } = null!;
+    public ICollection<BuildUpvote> Upvotes { get; set; } = new List<BuildUpvote>();
 }

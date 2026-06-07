@@ -100,6 +100,11 @@
                             <button class="btn glass text-white px-3" onclick="copyLink('@shareUrl', this)" title="Copy share link">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
+                            <button class="btn px-3 publish-btn @(build.IsPublic ? "btn-gradient" : "glass text-white")"
+                                    data-id="@build.Id" title="@(build.IsPublic ? "Đang public — nhấn để ẩn" : "Chia sẻ lên Community")"
+                                    onclick="togglePublish(this)">
+                                <i class="bi @(build.IsPublic ? "bi-globe2" : "bi-globe")"></i>
+                            </button>
                             <a asp-controller="Builder" asp-action="Index"
                                onclick="sessionStorage.setItem('loadBuild', '@Html.Raw(build.BuildJson.Replace("'", "\\'")); return true;"
                                class="btn btn-gradient px-3" title="Open in Builder">
@@ -148,6 +153,28 @@ function copyLink(url, btn) {
         icon.className = 'bi bi-check-lg text-success';
         setTimeout(() => icon.className = 'bi bi-link-45deg', 2000);
     });
+}
+
+async function togglePublish(btn) {
+    const id = btn.dataset.id;
+    const r = await fetch(`/Build/Publish/${id}`, {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': csrfToken }
+    });
+    if (!r.ok) return;
+    const data = await r.json();
+    const icon = btn.querySelector('i');
+    if (data.isPublic) {
+        btn.classList.remove('glass', 'text-white');
+        btn.classList.add('btn-gradient');
+        btn.title = 'Đang public — nhấn để ẩn';
+        icon.className = 'bi bi-globe2';
+    } else {
+        btn.classList.remove('btn-gradient');
+        btn.classList.add('glass', 'text-white');
+        btn.title = 'Chia sẻ lên Community';
+        icon.className = 'bi bi-globe';
+    }
 }
 
 function onCheckChange() {
