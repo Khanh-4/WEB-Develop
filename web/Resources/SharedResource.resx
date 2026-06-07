@@ -89,6 +89,15 @@
   <data name="Order.Status.Shipped"><value>Shipped</value></data>
   <data name="Order.Status.Delivered"><value>Delivered</value></data>
   <data name="Order.Status.Cancelled"><value>Cancelled</value></data>
+  <data name="Order.Cancel"><value>Cancel Order</value></data>
+  <data name="Order.CancelConfirmTitle"><value>Confirm Cancellation</value></data>
+  <data name="Order.CancelConfirmBody"><value>Are you sure you want to cancel this order? This action cannot be undone.</value></data>
+  <data name="Order.Recipient"><value>Recipient</value></data>
+  <data name="Order.Phone"><value>Phone</value></data>
+  <data name="Order.Address"><value>Address</value></data>
+  <data name="Order.Note"><value>Note</value></data>
+  <data name="Label.No"><value>No</value></data>
+  <data name="Label.YesCancel"><value>Yes, Cancel</value></data>
 
   <!-- Wishlist -->
   <data name="Wishlist.Title"><value>Wishlist</value></data>
@@ -159,6 +168,8 @@
   <data name="Filter.CoolerType"><value>Cooler Type</value></data>
   <data name="Filter.All"><value>All</value></data>
   <data name="Filter.MinW"><value>Min W</value></data>
+  <data name="Nav.Search"><value>Search</value></data>
+  <data name="Nav.SearchPlaceholder"><value>Search products… (/ or Ctrl+K)</value></data>
   <data name="Filter.Chipset"><value>Chipset</value></data>
   <data name="Filter.Profile"><value>OC Profile</value></data>
   <data name="Filter.PsuFormFactor"><value>PSU Size</value></data>

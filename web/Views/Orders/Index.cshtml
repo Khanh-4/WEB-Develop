@@ -55,9 +55,21 @@
                     <div class="text-end me-2">
                         <span class="text-white fw-bold">@o.TotalAmount.ToString("N0")đ</span>
                     </div>
-                    <a href="/Orders/Detail/@o.Id" class="btn glass text-white px-3 py-1 flex-shrink-0">
-                        @L["Order.ViewDetail"] <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        @if (o.Status == TechSpecs.Models.OrderStatus.Pending)
+                        {
+                            <form asp-controller="Orders" asp-action="Cancel" asp-route-id="@o.Id" method="post"
+                                  onsubmit="return confirm('@L["Order.CancelConfirmBody"].Value')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger px-3 py-1">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                        }
+                        <a href="/Orders/Detail/@o.Id" class="btn glass text-white px-3 py-1">
+                            @L["Order.ViewDetail"] <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
                 </div>
             }
         </div>

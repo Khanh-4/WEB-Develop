@@ -58,6 +58,28 @@ public class OrdersController : Controller
         if (!ModelState.IsValid)
             return View(vm);
 
+        // Stock check — verify each item has enough stock before placing order
+        foreach (var item in cart.Items)
+        {
+            int stock = item.Category switch
+            {
+                "cpu"         => (await _db.Cpus.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "motherboard" => (await _db.Motherboards.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "memory"      => (await _db.Memories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "gpu"         => (await _db.VideoCards.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "storage"     => (await _db.Storages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "psu"         => (await _db.PowerSupplies.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "case"        => (await _db.CaseEnclosures.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                "cooler"      => (await _db.CpuCoolers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == item.ComponentId))?.Stock ?? 0,
+                _             => 999
+            };
+            if (stock < item.Quantity)
+                ModelState.AddModelError("", $"Sản phẩm \"{item.ComponentName}\" hiện không đủ hàng (còn {stock}).");
+        }
+
+        if (!ModelState.IsValid)
+            return View(vm);
+
         var order = new Order
         {
             UserId = userId,
@@ -137,6 +159,26 @@ public class OrdersController : Controller
         if (order == null) return NotFound();
 
         return View(BuildDetailVm(order));
+    }
+
+    // POST /Orders/Cancel/5
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var userId = _users.GetUserId(User)!;
+        var order = await _db.Orders.FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+        if (order == null) return NotFound();
+        if (order.Status != OrderStatus.Pending)
+        {
+            TempData["Error"] = "Chỉ có thể hủy đơn hàng ở trạng thái Chờ xử lý.";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        order.Status = OrderStatus.Cancelled;
+        await _db.SaveChangesAsync();
+        TempData["Success"] = "Đã hủy đơn hàng thành công.";
+        return RedirectToAction(nameof(Detail), new { id });
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

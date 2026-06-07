@@ -89,6 +89,15 @@
   <data name="Order.Status.Shipped"><value>Đang giao</value></data>
   <data name="Order.Status.Delivered"><value>Đã nhận</value></data>
   <data name="Order.Status.Cancelled"><value>Đã huỷ</value></data>
+  <data name="Order.Cancel"><value>Huỷ đơn hàng</value></data>
+  <data name="Order.CancelConfirmTitle"><value>Xác nhận huỷ đơn</value></data>
+  <data name="Order.CancelConfirmBody"><value>Bạn có chắc chắn muốn huỷ đơn hàng này không? Hành động này không thể hoàn tác.</value></data>
+  <data name="Order.Recipient"><value>Người nhận</value></data>
+  <data name="Order.Phone"><value>Điện thoại</value></data>
+  <data name="Order.Address"><value>Địa chỉ</value></data>
+  <data name="Order.Note"><value>Ghi chú</value></data>
+  <data name="Label.No"><value>Không</value></data>
+  <data name="Label.YesCancel"><value>Có, Huỷ đơn</value></data>
 
   <!-- Wishlist -->
   <data name="Wishlist.Title"><value>Yêu thích</value></data>
@@ -159,6 +168,8 @@
   <data name="Filter.CoolerType"><value>Loại tản nhiệt</value></data>
   <data name="Filter.All"><value>Tất cả</value></data>
   <data name="Filter.MinW"><value>W tối thiểu</value></data>
+  <data name="Nav.Search"><value>Tìm kiếm</value></data>
+  <data name="Nav.SearchPlaceholder"><value>Tìm sản phẩm… (/ hoặc Ctrl+K)</value></data>
   <data name="Filter.Chipset"><value>Chipset</value></data>
   <data name="Filter.Profile"><value>Hồ sơ OC</value></data>
   <data name="Filter.PsuFormFactor"><value>Kích thước nguồn</value></data>
