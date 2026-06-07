@@ -36,4 +36,5 @@ public class Cpu
 
     public string? ImageUrl { get; set; }
     public int Stock { get; set; }
+    public int? StockStatusOverride { get; set; }
 }

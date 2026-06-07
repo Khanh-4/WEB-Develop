@@ -28,4 +28,5 @@ public class CpuCooler
 
     public string? ImageUrl { get; set; }
     public int Stock { get; set; }
+    public int? StockStatusOverride { get; set; }
 }

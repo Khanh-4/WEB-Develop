@@ -289,7 +289,7 @@ public class AdminController : Controller
             "cpu" => (await _db.Cpus.FindAsync(id)) is Cpu c ? new AdminProductEditViewModel
             {
                 Category = "cpu", Id = c.Id, Name = c.Name, Manufacturer = c.Manufacturer,
-                Price = c.Price, Stock = c.Stock, ImageUrl = c.ImageUrl,
+                Price = c.Price, Stock = c.Stock, StockStatusOverride = c.StockStatusOverride, ImageUrl = c.ImageUrl,
                 Socket = c.Socket, CoreCount = c.CoreCount, ThreadCount = c.ThreadCount,
                 BaseClock = c.BaseClock, BoostClock = c.BoostClock, TDP = c.TDP,
                 CpuPerformance = c.ApproximatePerformance
@@ -297,7 +297,7 @@ public class AdminController : Controller
             "motherboard" => (await _db.Motherboards.FindAsync(id)) is Motherboard m ? new AdminProductEditViewModel
             {
                 Category = "motherboard", Id = m.Id, Name = m.Name, Manufacturer = m.Manufacturer,
-                Price = m.Price, Stock = m.Stock, ImageUrl = m.ImageUrl,
+                Price = m.Price, Stock = m.Stock, StockStatusOverride = m.StockStatusOverride, ImageUrl = m.ImageUrl,
                 SocketCompatibility = m.SocketCompatibility, FormFactor = m.FormFactor,
                 MemoryCompatibility = m.MemoryCompatibility, MemorySlots = m.MemorySlots,
                 MaxMemoryCapacity = m.MaxMemoryCapacity
@@ -305,38 +305,38 @@ public class AdminController : Controller
             "memory" => (await _db.Memories.FindAsync(id)) is Memory mem ? new AdminProductEditViewModel
             {
                 Category = "memory", Id = mem.Id, Name = mem.Name, Manufacturer = mem.Manufacturer,
-                Price = mem.Price, Stock = mem.Stock, ImageUrl = mem.ImageUrl,
+                Price = mem.Price, Stock = mem.Stock, StockStatusOverride = mem.StockStatusOverride, ImageUrl = mem.ImageUrl,
                 MemoryType = mem.Type, Capacity = mem.Capacity, Modules = mem.Modules, Speed = mem.Speed
             } : null,
             "gpu" => (await _db.VideoCards.FindAsync(id)) is VideoCard g ? new AdminProductEditViewModel
             {
                 Category = "gpu", Id = g.Id, Name = g.Name, Manufacturer = g.Manufacturer,
-                Price = g.Price, Stock = g.Stock, ImageUrl = g.ImageUrl,
+                Price = g.Price, Stock = g.Stock, StockStatusOverride = g.StockStatusOverride, ImageUrl = g.ImageUrl,
                 VRAM = g.VRAM, GpuLength = g.Length, TDP = g.TDP, GpuPerformance = g.ApproximatePerformance
             } : null,
             "psu" => (await _db.PowerSupplies.FindAsync(id)) is PowerSupply p ? new AdminProductEditViewModel
             {
                 Category = "psu", Id = p.Id, Name = p.Name, Manufacturer = p.Manufacturer,
-                Price = p.Price, Stock = p.Stock, ImageUrl = p.ImageUrl,
+                Price = p.Price, Stock = p.Stock, StockStatusOverride = p.StockStatusOverride, ImageUrl = p.ImageUrl,
                 Wattage = p.Wattage, Efficiency = p.Efficiency, Modular = p.Modular
             } : null,
             "case" => (await _db.CaseEnclosures.FindAsync(id)) is CaseEnclosure ce ? new AdminProductEditViewModel
             {
                 Category = "case", Id = ce.Id, Name = ce.Name, Manufacturer = ce.Manufacturer,
-                Price = ce.Price, Stock = ce.Stock, ImageUrl = ce.ImageUrl,
+                Price = ce.Price, Stock = ce.Stock, StockStatusOverride = ce.StockStatusOverride, ImageUrl = ce.ImageUrl,
                 FormFactorSupport = ce.FormFactorSupport, MaxVGALength = ce.MaxVGALength, Color = ce.Color
             } : null,
             "storage" => (await _db.Storages.FindAsync(id)) is Storage st ? new AdminProductEditViewModel
             {
                 Category = "storage", Id = st.Id, Name = st.Name, Manufacturer = st.Manufacturer,
-                Price = st.Price, Stock = st.Stock, ImageUrl = st.ImageUrl,
+                Price = st.Price, Stock = st.Stock, StockStatusOverride = st.StockStatusOverride, ImageUrl = st.ImageUrl,
                 StorageType = st.Type, StorageCapacity = st.Capacity, Interface = st.Interface,
                 ReadSpeed = st.ReadSpeed, WriteSpeed = st.WriteSpeed
             } : null,
             "cooler" => (await _db.CpuCoolers.FindAsync(id)) is CpuCooler cc ? new AdminProductEditViewModel
             {
                 Category = "cooler", Id = cc.Id, Name = cc.Name, Manufacturer = cc.Manufacturer,
-                Price = cc.Price, Stock = cc.Stock, ImageUrl = cc.ImageUrl,
+                Price = cc.Price, Stock = cc.Stock, StockStatusOverride = cc.StockStatusOverride, ImageUrl = cc.ImageUrl,
                 CoolerSocketCompatibility = cc.SocketCompatibility, MaxTDP = cc.MaxTDP,
                 Height = cc.Height, CoolerType = cc.Type
             } : null,
@@ -374,38 +374,46 @@ public class AdminController : Controller
         {
             case "cpu":
                 var c = await _db.Cpus.FindAsync(vm.Id); if (c == null) return;
-                c.Name = vm.Name; c.Manufacturer = vm.Manufacturer; c.Price = vm.Price; c.Stock = vm.Stock; c.ImageUrl = vm.ImageUrl;
+                c.Name = vm.Name; c.Manufacturer = vm.Manufacturer; c.Price = vm.Price; c.Stock = vm.Stock;
+                c.StockStatusOverride = vm.StockStatusOverride; c.ImageUrl = vm.ImageUrl;
                 c.Socket = vm.Socket ?? ""; c.CoreCount = vm.CoreCount ?? 0; c.ThreadCount = vm.ThreadCount ?? 0;
                 c.BaseClock = vm.BaseClock ?? 0; c.BoostClock = vm.BoostClock ?? 0; c.TDP = vm.TDP ?? 0; c.ApproximatePerformance = vm.CpuPerformance ?? 0; break;
             case "motherboard":
                 var mb = await _db.Motherboards.FindAsync(vm.Id); if (mb == null) return;
-                mb.Name = vm.Name; mb.Manufacturer = vm.Manufacturer; mb.Price = vm.Price; mb.Stock = vm.Stock; mb.ImageUrl = vm.ImageUrl;
+                mb.Name = vm.Name; mb.Manufacturer = vm.Manufacturer; mb.Price = vm.Price; mb.Stock = vm.Stock;
+                mb.StockStatusOverride = vm.StockStatusOverride; mb.ImageUrl = vm.ImageUrl;
                 mb.SocketCompatibility = vm.SocketCompatibility ?? ""; mb.FormFactor = vm.FormFactor ?? "";
                 mb.MemoryCompatibility = vm.MemoryCompatibility ?? ""; mb.MemorySlots = vm.MemorySlots ?? 0; mb.MaxMemoryCapacity = vm.MaxMemoryCapacity ?? 0; break;
             case "memory":
                 var mem = await _db.Memories.FindAsync(vm.Id); if (mem == null) return;
-                mem.Name = vm.Name; mem.Manufacturer = vm.Manufacturer; mem.Price = vm.Price; mem.Stock = vm.Stock; mem.ImageUrl = vm.ImageUrl;
+                mem.Name = vm.Name; mem.Manufacturer = vm.Manufacturer; mem.Price = vm.Price; mem.Stock = vm.Stock;
+                mem.StockStatusOverride = vm.StockStatusOverride; mem.ImageUrl = vm.ImageUrl;
                 mem.Type = vm.MemoryType ?? ""; mem.Capacity = vm.Capacity ?? 0; mem.Modules = vm.Modules ?? 1; mem.Speed = vm.Speed ?? 0; break;
             case "gpu":
                 var g = await _db.VideoCards.FindAsync(vm.Id); if (g == null) return;
-                g.Name = vm.Name; g.Manufacturer = vm.Manufacturer; g.Price = vm.Price; g.Stock = vm.Stock; g.ImageUrl = vm.ImageUrl;
+                g.Name = vm.Name; g.Manufacturer = vm.Manufacturer; g.Price = vm.Price; g.Stock = vm.Stock;
+                g.StockStatusOverride = vm.StockStatusOverride; g.ImageUrl = vm.ImageUrl;
                 g.VRAM = vm.VRAM ?? 0; g.Length = vm.GpuLength ?? 0; g.TDP = vm.TDP ?? 0; g.ApproximatePerformance = vm.GpuPerformance ?? 0; break;
             case "psu":
                 var p = await _db.PowerSupplies.FindAsync(vm.Id); if (p == null) return;
-                p.Name = vm.Name; p.Manufacturer = vm.Manufacturer; p.Price = vm.Price; p.Stock = vm.Stock; p.ImageUrl = vm.ImageUrl;
+                p.Name = vm.Name; p.Manufacturer = vm.Manufacturer; p.Price = vm.Price; p.Stock = vm.Stock;
+                p.StockStatusOverride = vm.StockStatusOverride; p.ImageUrl = vm.ImageUrl;
                 p.Wattage = vm.Wattage ?? 0; p.Efficiency = vm.Efficiency ?? ""; p.Modular = vm.Modular ?? ""; break;
             case "case":
                 var ce = await _db.CaseEnclosures.FindAsync(vm.Id); if (ce == null) return;
-                ce.Name = vm.Name; ce.Manufacturer = vm.Manufacturer; ce.Price = vm.Price; ce.Stock = vm.Stock; ce.ImageUrl = vm.ImageUrl;
+                ce.Name = vm.Name; ce.Manufacturer = vm.Manufacturer; ce.Price = vm.Price; ce.Stock = vm.Stock;
+                ce.StockStatusOverride = vm.StockStatusOverride; ce.ImageUrl = vm.ImageUrl;
                 ce.FormFactorSupport = vm.FormFactorSupport ?? ""; ce.MaxVGALength = vm.MaxVGALength ?? 0; ce.Color = vm.Color; break;
             case "storage":
                 var st = await _db.Storages.FindAsync(vm.Id); if (st == null) return;
-                st.Name = vm.Name; st.Manufacturer = vm.Manufacturer; st.Price = vm.Price; st.Stock = vm.Stock; st.ImageUrl = vm.ImageUrl;
+                st.Name = vm.Name; st.Manufacturer = vm.Manufacturer; st.Price = vm.Price; st.Stock = vm.Stock;
+                st.StockStatusOverride = vm.StockStatusOverride; st.ImageUrl = vm.ImageUrl;
                 st.Type = vm.StorageType ?? ""; st.Capacity = vm.StorageCapacity ?? 0; st.Interface = vm.Interface ?? "";
                 st.ReadSpeed = vm.ReadSpeed ?? 0; st.WriteSpeed = vm.WriteSpeed ?? 0; break;
             case "cooler":
                 var cc = await _db.CpuCoolers.FindAsync(vm.Id); if (cc == null) return;
-                cc.Name = vm.Name; cc.Manufacturer = vm.Manufacturer; cc.Price = vm.Price; cc.Stock = vm.Stock; cc.ImageUrl = vm.ImageUrl;
+                cc.Name = vm.Name; cc.Manufacturer = vm.Manufacturer; cc.Price = vm.Price; cc.Stock = vm.Stock;
+                cc.StockStatusOverride = vm.StockStatusOverride; cc.ImageUrl = vm.ImageUrl;
                 cc.SocketCompatibility = vm.CoolerSocketCompatibility ?? ""; cc.MaxTDP = vm.MaxTDP ?? 0;
                 cc.Height = vm.Height ?? 0; cc.Type = vm.CoolerType ?? ""; break;
         }

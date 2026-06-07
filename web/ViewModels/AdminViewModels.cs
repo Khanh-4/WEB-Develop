@@ -31,6 +31,7 @@ public class AdminProductEditViewModel
     public decimal Price { get; set; }
 
     public int Stock { get; set; }
+    public int? StockStatusOverride { get; set; }
     public string? ImageUrl { get; set; }
 
     // CPU / GPU / Cooler shared

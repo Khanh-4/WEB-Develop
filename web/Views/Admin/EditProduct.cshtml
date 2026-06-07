@@ -44,6 +44,17 @@
                     <label asp-for="Stock" class="form-label text-muted-white small">Tồn kho</label>
                     <input asp-for="Stock" class="form-control" type="number" min="0" />
                 </div>
+                <div class="col-md-3">
+                    <label asp-for="StockStatusOverride" class="form-label text-muted-white small">Trạng thái kho (override)</label>
+                    <select asp-for="StockStatusOverride" class="form-select">
+                        <option value="">— Tự động theo tồn kho —</option>
+                        <option value="0">Còn hàng</option>
+                        <option value="1">Còn ít</option>
+                        <option value="2">Hết hàng</option>
+                        <option value="3">Sắp về</option>
+                        <option value="4">Liên hệ</option>
+                    </select>
+                </div>
                 <div class="col-12">
                     <label asp-for="ImageUrl" class="form-label text-muted-white small">Image URL</label>
                     <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
