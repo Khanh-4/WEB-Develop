@@ -12,6 +12,7 @@ Valid categories: cpu gpu ram motherboard psu case storage cooler
 
 import sys
 import os
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
@@ -32,17 +33,55 @@ from models.hardware import Cpu, VideoCard, Memory, Motherboard, PowerSupply, Ca
 ALL_CATS    = ["cpu", "gpu", "ram", "motherboard", "psu", "case", "storage", "cooler"]
 ALL_SOURCES = ["phongvu", "ttgshop", "gearvn", "anphat"]
 
+# Map DB table name → category slug used in price_history
+_TABLE_CAT = {
+    "cpu": "cpu", "video_card": "gpu", "memory": "ram",
+    "motherboard": "motherboard", "power_supply": "psu",
+    "case_enclosure": "case", "storage": "storage", "cpu_cooler": "cooler",
+}
+
 
 def upsert(session: Session, items: list, table: str):
     if not items:
         print("  (no items to insert)")
         return
-    existing = {r[0] for r in session.execute(text(f'SELECT "Name" FROM "{table}"'))}
-    new = [x for x in items if x.Name not in existing]
-    if new:
-        session.add_all(new)
-        session.commit()
-    print(f"  ✓ {len(new)} inserted, {len(items)-len(new)} skipped (duplicate)")
+
+    category = _TABLE_CAT.get(table, table)
+    now = datetime.now(timezone.utc)
+
+    # Fetch existing name → current price
+    existing = {r[0]: r[1] for r in session.execute(text(f'SELECT "Name", "Price" FROM "{table}"'))}
+
+    new_items, price_records, price_updates = [], [], []
+    for item in items:
+        if item.Name not in existing:
+            new_items.append(item)
+            if item.Price > 0:
+                price_records.append({"category": category, "product_name": item.Name,
+                                      "price": float(item.Price), "recorded_at": now})
+        else:
+            old_price = existing[item.Name]
+            if item.Price > 0 and item.Price != old_price:
+                price_updates.append({"name": item.Name, "price": float(item.Price)})
+                price_records.append({"category": category, "product_name": item.Name,
+                                      "price": float(item.Price), "recorded_at": now})
+
+    if new_items:
+        session.add_all(new_items)
+
+    for upd in price_updates:
+        session.execute(text(f'UPDATE "{table}" SET "Price" = :price WHERE "Name" = :name'), upd)
+
+    if price_records:
+        session.execute(
+            text('INSERT INTO price_history ("Category", "ProductName", "Price", "RecordedAt") '
+                 'VALUES (:category, :product_name, :price, :recorded_at)'),
+            price_records,
+        )
+
+    session.commit()
+    print(f"  ✓ {len(new_items)} inserted, {len(price_updates)} price updated, "
+          f"{len(items)-len(new_items)-len(price_updates)} unchanged")
 
 
 def run(cats: list[str], sources: list[str]):

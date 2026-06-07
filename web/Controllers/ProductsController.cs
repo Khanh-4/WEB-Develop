@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TechSpecs.Data;
+using TechSpecs.Models;
 using TechSpecs.ViewModels;
 
 namespace TechSpecs.Controllers;
@@ -35,6 +36,19 @@ public class ProductsController : Controller
             TotalPages = (int)Math.Ceiling(total / (double)PageSize),
             TotalCount = total,
         });
+    }
+
+    // GET /Products/PriceHistory?category=cpu&name={productName}
+    [HttpGet]
+    public async Task<IActionResult> PriceHistory(string category, string name)
+    {
+        var rows = await _db.PriceHistories
+            .AsNoTracking()
+            .Where(p => p.Category == category && p.ProductName == name)
+            .OrderBy(p => p.RecordedAt)
+            .Select(p => new { date = p.RecordedAt.ToString("yyyy-MM-dd"), price = p.Price })
+            .ToListAsync();
+        return Json(rows);
     }
 
     [HttpGet("Products/Detail/{category}/{id:int}")]
