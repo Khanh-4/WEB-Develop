@@ -12,8 +12,8 @@ TechSpecs.Tests/obj/
 
 # Python
 scraper/.env
-scraper/__pycache__/
-scraper/*.pyc
+**/__pycache__/
+**/*.pyc
 scraper/venv/
 scraper/.venv/
 
