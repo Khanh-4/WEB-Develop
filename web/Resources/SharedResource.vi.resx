@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Nav -->
+  <data name="Nav.Home"><value>Trang chủ</value></data>
+  <data name="Nav.Products"><value>Sản phẩm</value></data>
+  <data name="Nav.PCBuilder"><value>Dựng PC</value></data>
+  <data name="Nav.Community"><value>Cộng đồng</value></data>
+  <data name="Nav.Login"><value>Đăng nhập</value></data>
+  <data name="Nav.SignUp"><value>Đăng ký</value></data>
+  <data name="Nav.Admin"><value>Quản trị</value></data>
+  <data name="Nav.Profile"><value>Hồ sơ</value></data>
+  <data name="Nav.Orders"><value>Đơn hàng</value></data>
+  <data name="Nav.MyBuilds"><value>Build của tôi</value></data>
+  <data name="Nav.Wishlist"><value>Yêu thích</value></data>
+  <data name="Nav.SignOut"><value>Đăng xuất</value></data>
+
+  <!-- Common buttons -->
+  <data name="Btn.AddToCart"><value>Thêm vào giỏ</value></data>
+  <data name="Btn.AddToBuilder"><value>Thêm vào Builder</value></data>
+  <data name="Btn.View"><value>Xem</value></data>
+  <data name="Btn.Delete"><value>Xoá</value></data>
+  <data name="Btn.Save"><value>Lưu</value></data>
+  <data name="Btn.Compare"><value>So sánh</value></data>
+  <data name="Btn.Share"><value>Chia sẻ</value></data>
+  <data name="Btn.NewBuild"><value>Tạo Build mới</value></data>
+  <data name="Btn.OpenInBuilder"><value>Mở trong Builder</value></data>
+  <data name="Btn.CopyLink"><value>Sao chép link</value></data>
+
+  <!-- Common labels -->
+  <data name="Label.Price"><value>Giá</value></data>
+  <data name="Label.Total"><value>Tổng cộng</value></data>
+  <data name="Label.InStock"><value>Còn hàng</value></data>
+  <data name="Label.OutOfStock"><value>Hết hàng</value></data>
+  <data name="Label.Components"><value>Linh kiện</value></data>
+  <data name="Label.Specifications"><value>Thông số kỹ thuật</value></data>
+  <data name="Label.PriceHistory"><value>Lịch sử giá</value></data>
+  <data name="Label.NoData"><value>Chưa có dữ liệu.</value></data>
+</root>

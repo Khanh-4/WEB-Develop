@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- Nav -->
+  <data name="Nav.Home"><value>Home</value></data>
+  <data name="Nav.Products"><value>Products</value></data>
+  <data name="Nav.PCBuilder"><value>PC Builder</value></data>
+  <data name="Nav.Community"><value>Community</value></data>
+  <data name="Nav.Login"><value>Login</value></data>
+  <data name="Nav.SignUp"><value>Sign Up</value></data>
+  <data name="Nav.Admin"><value>Admin</value></data>
+  <data name="Nav.Profile"><value>Profile</value></data>
+  <data name="Nav.Orders"><value>Orders</value></data>
+  <data name="Nav.MyBuilds"><value>My Builds</value></data>
+  <data name="Nav.Wishlist"><value>Wishlist</value></data>
+  <data name="Nav.SignOut"><value>Sign Out</value></data>
+
+  <!-- Common buttons -->
+  <data name="Btn.AddToCart"><value>Add to Cart</value></data>
+  <data name="Btn.AddToBuilder"><value>Add to Builder</value></data>
+  <data name="Btn.View"><value>View</value></data>
+  <data name="Btn.Delete"><value>Delete</value></data>
+  <data name="Btn.Save"><value>Save</value></data>
+  <data name="Btn.Compare"><value>Compare</value></data>
+  <data name="Btn.Share"><value>Share</value></data>
+  <data name="Btn.NewBuild"><value>New Build</value></data>
+  <data name="Btn.OpenInBuilder"><value>Open in Builder</value></data>
+  <data name="Btn.CopyLink"><value>Copy Link</value></data>
+
+  <!-- Common labels -->
+  <data name="Label.Price"><value>Price</value></data>
+  <data name="Label.Total"><value>Total</value></data>
+  <data name="Label.InStock"><value>In Stock</value></data>
+  <data name="Label.OutOfStock"><value>Out of Stock</value></data>
+  <data name="Label.Components"><value>Components</value></data>
+  <data name="Label.Specifications"><value>Specifications</value></data>
+  <data name="Label.PriceHistory"><value>Price History</value></data>
+  <data name="Label.NoData"><value>No data available.</value></data>
+</root>

@@ -1,5 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@inject IHtmlLocalizer<TechSpecs.Resources.SharedResource> L
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,17 +30,17 @@
         <div class="collapse navbar-collapse" id="navMain">
             <ul class="navbar-nav me-auto gap-1 ms-3">
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Products" asp-action="Index">Products</a>
+                    <a class="nav-link" asp-controller="Products" asp-action="Index">@L["Nav.Products"]</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="Build" asp-action="Community">Community</a>
+                    <a class="nav-link" asp-controller="Build" asp-action="Community">@L["Nav.Community"]</a>
                 </li>
                 <li class="nav-item">
                     <a class="btn btn-gradient px-3 py-1 ms-1" asp-controller="Builder" asp-action="Index">
-                        PC Builder
+                        @L["Nav.PCBuilder"]
                     </a>
                 </li>
             </ul>
@@ -64,16 +67,16 @@
                         <ul class="dropdown-menu dropdown-menu-end glass-sm border-0 p-2">
                             @if (User.IsInRole("Admin"))
                             {
-                                <li><a class="dropdown-item text-white rounded" href="/admin"><i class="bi bi-speedometer2 me-2"></i>Admin</a></li>
+                                <li><a class="dropdown-item text-white rounded" href="/admin"><i class="bi bi-speedometer2 me-2"></i>@L["Nav.Admin"]</a></li>
                                 <li><hr class="dropdown-divider divider-white my-1"></li>
                             }
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Profile"><i class="bi bi-person me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item text-white rounded" href="/orders"><i class="bi bi-bag-check me-2"></i>Orders</a></li>
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Build" asp-action="MyBuilds"><i class="bi bi-bookmark me-2"></i>My Builds</a></li>
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2" style="color:#f472b6"></i>Wishlist</a></li>
+                            <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Profile"><i class="bi bi-person me-2"></i>@L["Nav.Profile"]</a></li>
+                            <li><a class="dropdown-item text-white rounded" href="/orders"><i class="bi bi-bag-check me-2"></i>@L["Nav.Orders"]</a></li>
+                            <li><a class="dropdown-item text-white rounded" asp-controller="Build" asp-action="MyBuilds"><i class="bi bi-bookmark me-2"></i>@L["Nav.MyBuilds"]</a></li>
+                            <li><a class="dropdown-item text-white rounded" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2" style="color:#f472b6"></i>@L["Nav.Wishlist"]</a></li>
                             <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                    <button class="dropdown-item text-danger rounded"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</button>
+                                    <button class="dropdown-item text-danger rounded"><i class="bi bi-box-arrow-right me-2"></i>@L["Nav.SignOut"]</button>
                                 </form>
                             </li>
                         </ul>
@@ -82,12 +85,27 @@
                 else
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                        <a class="nav-link" asp-controller="Account" asp-action="Login">@L["Nav.Login"]</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-gradient px-3 py-1" asp-controller="Account" asp-action="Register">Sign Up</a>
+                        <a class="btn btn-gradient px-3 py-1" asp-controller="Account" asp-action="Register">@L["Nav.SignUp"]</a>
                     </li>
                 }
+
+                <!-- Language switcher -->
+                @{
+                    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+                }
+                <li class="nav-item">
+                    <form method="post" asp-controller="Language" asp-action="Set" class="d-flex">
+                        <input type="hidden" name="returnUrl" value="@currentUrl" />
+                        <button type="submit" name="culture" value="@(currentCulture == "vi" ? "en" : "vi")"
+                                class="btn glass text-white px-2 py-1" style="font-size:.8rem;font-weight:600">
+                            @(currentCulture == "vi" ? "EN" : "VI")
+                        </button>
+                    </form>
+                </li>
             </ul>
         </div>
     </div>

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using TechSpecs.Data;
 using TechSpecs.Models;
 
@@ -68,7 +70,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddLocalization(opts => opts.ResourcesPath = "Resources");
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
 
 var app = builder.Build();
 
@@ -86,6 +91,19 @@ app.UseForwardedHeaders();
 if (!app.Environment.IsProduction())
     app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("vi") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en"),
+    SupportedCultures     = supportedCultures,
+    SupportedUICultures   = supportedCultures,
+    RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider(),
+    }
+});
 
 app.UseRouting();
 
