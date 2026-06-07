@@ -23,6 +23,13 @@
     }
     else
     {
+        @if (Model.Count >= 2)
+        {
+            <div class="text-muted-white small mb-3">
+                <i class="bi bi-info-circle me-1"></i>Chọn 2 build để so sánh side-by-side
+            </div>
+        }
+
         <div class="row g-4">
             @foreach (var build in Model)
             {
@@ -48,15 +55,20 @@
                 };
 
                 <div class="col-md-6 col-xl-4">
-                    <div class="glass p-4 h-100 d-flex flex-column">
+                    <div class="glass p-4 h-100 d-flex flex-column compare-card" data-token="@build.ShareToken" data-name="@build.Name">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="flex-grow-1 me-2 overflow-hidden">
-                                <h5 class="text-white fw-semibold mb-1 text-truncate">@build.Name</h5>
-                                <span class="text-muted-white small">
-                                    @build.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                                </span>
+                            <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden">
+                                @if (Model.Count >= 2)
+                                {
+                                    <input type="checkbox" class="compare-check form-check-input mt-0 flex-shrink-0"
+                                           style="width:1.15rem;height:1.15rem;cursor:pointer" onchange="onCheckChange()">
+                                }
+                                <div class="overflow-hidden">
+                                    <h5 class="text-white fw-semibold mb-1 text-truncate">@build.Name</h5>
+                                    <span class="text-muted-white small">@build.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
                             </div>
-                            <button class="btn btn-sm text-danger border-0 p-1" title="Delete"
+                            <button class="btn btn-sm text-danger border-0 p-1 ms-2 flex-shrink-0" title="Delete"
                                     onclick="deleteBuild(@build.Id, this)">
                                 <i class="bi bi-trash3"></i>
                             </button>
@@ -98,6 +110,19 @@
                 </div>
             }
         </div>
+
+        <!-- Floating compare bar (appears when exactly 2 are checked) -->
+        <div id="compareBar" class="glass p-3 d-none" style="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+            <div class="d-flex align-items-center gap-3">
+                <div class="flex-grow-1">
+                    <div class="text-white fw-semibold small" id="compareLabel">So sánh 2 builds đã chọn</div>
+                </div>
+                <button class="btn btn-sm glass text-white px-3" onclick="clearCompare()">Bỏ chọn</button>
+                <button class="btn btn-gradient px-4" onclick="goCompare()">
+                    <i class="bi bi-bar-chart-steps me-1"></i>So sánh
+                </button>
+            </div>
+        </div>
     }
 </div>
 
@@ -111,7 +136,10 @@ async function deleteBuild(id, btn) {
         method: 'POST',
         headers: { 'RequestVerificationToken': csrfToken }
     });
-    if (r.ok) btn.closest('.col-md-6, .col-xl-4').remove();
+    if (r.ok) {
+        btn.closest('.col-md-6, .col-xl-4').remove();
+        onCheckChange();
+    }
 }
 
 function copyLink(url, btn) {
@@ -120,6 +148,47 @@ function copyLink(url, btn) {
         icon.className = 'bi bi-check-lg text-success';
         setTimeout(() => icon.className = 'bi bi-link-45deg', 2000);
     });
+}
+
+function onCheckChange() {
+    const checked = [...document.querySelectorAll('.compare-check:checked')];
+    const bar = document.getElementById('compareBar');
+    const label = document.getElementById('compareLabel');
+
+    // Uncheck extras if more than 2 selected
+    if (checked.length > 2) {
+        checked[checked.length - 1].checked = false;
+        return;
+    }
+
+    // Highlight selected cards
+    document.querySelectorAll('.compare-card').forEach(c => c.style.outline = '');
+    checked.forEach((cb, i) => {
+        cb.closest('.compare-card').style.outline = `2px solid ${i === 0 ? '#6366f1' : '#a78bfa'}`;
+    });
+
+    if (checked.length === 2) {
+        const nameA = checked[0].closest('.compare-card').dataset.name;
+        const nameB = checked[1].closest('.compare-card').dataset.name;
+        label.textContent = `"${nameA}" vs "${nameB}"`;
+        bar.classList.remove('d-none');
+    } else {
+        bar.classList.add('d-none');
+    }
+}
+
+function clearCompare() {
+    document.querySelectorAll('.compare-check').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.compare-card').forEach(c => c.style.outline = '');
+    document.getElementById('compareBar').classList.add('d-none');
+}
+
+function goCompare() {
+    const checked = [...document.querySelectorAll('.compare-check:checked')];
+    if (checked.length !== 2) return;
+    const a = checked[0].closest('.compare-card').dataset.token;
+    const b = checked[1].closest('.compare-card').dataset.token;
+    window.location.href = `/Build/Compare?a=${a}&b=${b}`;
 }
 </script>
 }

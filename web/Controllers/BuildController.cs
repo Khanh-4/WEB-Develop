@@ -67,6 +67,22 @@ public class BuildController : Controller
         return Json(new { ok = true });
     }
 
+    // GET /Build/Compare?a={token1}&b={token2}
+    [HttpGet("Build/Compare")]
+    public async Task<IActionResult> Compare(string a, string b)
+    {
+        var buildA = await _db.SavedBuilds.AsNoTracking().Include(x => x.User)
+                        .FirstOrDefaultAsync(x => x.ShareToken == a);
+        var buildB = await _db.SavedBuilds.AsNoTracking().Include(x => x.User)
+                        .FirstOrDefaultAsync(x => x.ShareToken == b);
+        if (buildA == null || buildB == null) return NotFound();
+
+        var vm = new CompareViewModel { BuildA = buildA, BuildB = buildB };
+        vm.ComponentsA = CompareViewModel.ParseComponents(buildA.BuildJson);
+        vm.ComponentsB = CompareViewModel.ParseComponents(buildB.BuildJson);
+        return View(vm);
+    }
+
     // GET /Build/Share/{token}
     [HttpGet("Build/Share/{token}")]
     public async Task<IActionResult> Share(string token)
@@ -102,6 +118,38 @@ public class BuildController : Controller
 }
 
 public record SaveBuildRequest(string Name, string BuildJson);
+
+public class CompareViewModel
+{
+    public SavedBuild BuildA { get; set; } = null!;
+    public SavedBuild BuildB { get; set; } = null!;
+    public Dictionary<string, SharedComponent> ComponentsA { get; set; } = new();
+    public Dictionary<string, SharedComponent> ComponentsB { get; set; } = new();
+    public decimal TotalA => ComponentsA.Values.Sum(c => c.Price);
+    public decimal TotalB => ComponentsB.Values.Sum(c => c.Price);
+
+    public static Dictionary<string, SharedComponent> ParseComponents(string json)
+    {
+        var result = new Dictionary<string, SharedComponent>();
+        try
+        {
+            var raw = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
+            if (raw == null) return result;
+            foreach (var (cat, el) in raw)
+            {
+                result[cat] = new SharedComponent
+                {
+                    Id       = el.TryGetProperty("id",       out var idEl)    ? idEl.GetInt32()           : 0,
+                    Name     = el.TryGetProperty("name",     out var nameEl)  ? nameEl.GetString() ?? ""  : "",
+                    Price    = el.TryGetProperty("price",    out var priceEl) ? (decimal)priceEl.GetDouble() : 0,
+                    ImageUrl = el.TryGetProperty("imageUrl", out var imgEl)   ? imgEl.GetString()         : null,
+                };
+            }
+        }
+        catch { }
+        return result;
+    }
+}
 
 public class ShareBuildViewModel
 {
