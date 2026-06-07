@@ -99,6 +99,17 @@
   <data name="Wishlist.SavedOn"><value>Đã lưu</value></data>
   <data name="Wishlist.ViewDetail"><value>Chi tiết</value></data>
 
+  <!-- Community -->
+  <data name="Community.Subtitle"><value>Khám phá và upvote các PC build từ cộng đồng</value></data>
+  <data name="Community.Empty"><value>Chưa có build nào được chia sẻ</value></data>
+  <data name="Community.EmptyHint"><value>Hãy là người đầu tiên chia sẻ build của bạn với cộng đồng!</value></data>
+  <data name="Community.LoginToUpvote"><value>Đăng nhập để upvote</value></data>
+
+  <!-- MyBuilds compare bar -->
+  <data name="MyBuilds.CompareHint2"><value>Chọn 2 build để so sánh side-by-side</value></data>
+  <data name="MyBuilds.CompareHint1"><value>Lưu thêm 1 build để mở tính năng so sánh</value></data>
+  <data name="MyBuilds.ClearCompare"><value>Bỏ chọn</value></data>
+
   <!-- JS Toast messages -->
   <data name="Toast.AddedToCart"><value>Đã thêm vào giỏ hàng</value></data>
   <data name="Toast.CannotAdd"><value>Không thể thêm vào giỏ</value></data>

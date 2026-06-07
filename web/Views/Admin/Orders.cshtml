@@ -10,14 +10,6 @@
         ("Delivered", "Đã nhận"),
         ("Cancelled", "Đã huỷ"),
     };
-    string StatusClass(TechSpecs.Models.OrderStatus s) => s switch {
-        TechSpecs.Models.OrderStatus.Pending   => "text-warning",
-        TechSpecs.Models.OrderStatus.Confirmed => "text-info",
-        TechSpecs.Models.OrderStatus.Shipped   => "text-primary",
-        TechSpecs.Models.OrderStatus.Delivered => "text-success",
-        TechSpecs.Models.OrderStatus.Cancelled => "text-danger",
-        _ => "text-white"
-    };
     string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch {
         TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
         TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",

@@ -23,10 +23,11 @@
     }
     else
     {
-        @if (Model.Count >= 2)
+        @if (Model.Any())
         {
             <div class="text-muted-white small mb-3">
-                <i class="bi bi-info-circle me-1"></i>Chọn 2 build để so sánh side-by-side
+                <i class="bi bi-bar-chart-steps me-1"></i>
+                @(Model.Count >= 2 ? L["MyBuilds.CompareHint2"].Value : L["MyBuilds.CompareHint1"].Value)
             </div>
         }
 
@@ -58,7 +59,7 @@
                     <div class="glass p-4 h-100 d-flex flex-column compare-card" data-token="@build.ShareToken" data-name="@build.Name">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden">
-                                @if (Model.Count >= 2)
+                                @if (Model.Any())
                                 {
                                     <input type="checkbox" class="compare-check form-check-input mt-0 flex-shrink-0"
                                            style="width:1.15rem;height:1.15rem;cursor:pointer" onchange="onCheckChange()">
@@ -120,11 +121,11 @@
         <div id="compareBar" class="glass p-3 d-none" style="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.4)">
             <div class="d-flex align-items-center gap-3">
                 <div class="flex-grow-1">
-                    <div class="text-white fw-semibold small" id="compareLabel">So sánh 2 builds đã chọn</div>
+                    <div class="text-white fw-semibold small" id="compareLabel">@L["MyBuilds.CompareHint2"]</div>
                 </div>
-                <button class="btn btn-sm glass text-white px-3" onclick="clearCompare()">Bỏ chọn</button>
+                <button class="btn btn-sm glass text-white px-3" onclick="clearCompare()">@L["MyBuilds.ClearCompare"]</button>
                 <button class="btn btn-gradient px-4" onclick="goCompare()">
-                    <i class="bi bi-bar-chart-steps me-1"></i>So sánh
+                    <i class="bi bi-bar-chart-steps me-1"></i>@L["Btn.Compare"]
                 </button>
             </div>
         </div>

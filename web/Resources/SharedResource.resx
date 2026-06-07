@@ -99,6 +99,17 @@
   <data name="Wishlist.SavedOn"><value>Saved on</value></data>
   <data name="Wishlist.ViewDetail"><value>Detail</value></data>
 
+  <!-- Community -->
+  <data name="Community.Subtitle"><value>Discover and upvote PC builds from the community</value></data>
+  <data name="Community.Empty"><value>No builds shared yet</value></data>
+  <data name="Community.EmptyHint"><value>Be the first to share your build with the community!</value></data>
+  <data name="Community.LoginToUpvote"><value>Login to upvote</value></data>
+
+  <!-- MyBuilds compare bar -->
+  <data name="MyBuilds.CompareHint2"><value>Select 2 builds to compare side-by-side</value></data>
+  <data name="MyBuilds.CompareHint1"><value>Save one more build to unlock comparison</value></data>
+  <data name="MyBuilds.ClearCompare"><value>Clear</value></data>
+
   <!-- JS Toast messages (injected as window.i18n in layout) -->
   <data name="Toast.AddedToCart"><value>Added to cart</value></data>
   <data name="Toast.CannotAdd"><value>Cannot add to cart</value></data>

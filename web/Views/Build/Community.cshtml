@@ -6,10 +6,10 @@
     <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div>
             <h1 class="text-white fw-bold mb-1">Build Community</h1>
-            <p class="text-muted-white mb-0">Khám phá và upvote các PC build từ cộng đồng</p>
+            <p class="text-muted-white mb-0">@L["Community.Subtitle"]</p>
         </div>
         <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient px-4">
-            <i class="bi bi-plus-lg me-2"></i>Tạo Build Mới
+            <i class="bi bi-plus-lg me-2"></i>@L["Btn.NewBuild"]
         </a>
     </div>
 
@@ -17,8 +17,8 @@
     {
         <div class="glass p-5 text-center">
             <i class="bi bi-people fs-1 text-muted-white d-block mb-3"></i>
-            <h5 class="text-white mb-2">Chưa có build nào được chia sẻ</h5>
-            <p class="text-muted-white mb-4">Hãy là người đầu tiên chia sẻ build của bạn với cộng đồng!</p>
+            <h5 class="text-white mb-2">@L["Community.Empty"]</h5>
+            <p class="text-muted-white mb-4">@L["Community.EmptyHint"]</p>
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <a asp-action="MyBuilds" class="btn btn-gradient px-4">
@@ -66,7 +66,7 @@
                             </div>
                             <!-- Upvote button -->
                             <button class="upvote-btn btn d-flex flex-column align-items-center px-2 py-1 @(upvoted ? "btn-gradient" : "glass text-white")"
-                                    data-id="@build.Id" @(User.Identity?.IsAuthenticated != true ? "title=\"Đăng nhập để upvote\" disabled" : "onclick=\"toggleUpvote(this)\"")
+                                    data-id="@build.Id" @(User.Identity?.IsAuthenticated != true ? $"title=\"{L["Community.LoginToUpvote"].Value}\" disabled" : "onclick=\"toggleUpvote(this)\"")
                                     style="min-width:52px">
                                 <i class="bi bi-arrow-up-circle @(upvoted ? "text-white" : "") fs-5"></i>
                                 <span class="upvote-count fw-bold" style="font-size:.85rem;line-height:1">@build.UpvoteCount</span>
@@ -92,11 +92,11 @@
 
                         <div class="d-flex gap-2">
                             <a href="@shareUrl" class="btn glass text-white flex-grow-1">
-                                <i class="bi bi-eye me-1"></i>Xem Build
+                                <i class="bi bi-eye me-1"></i>@L["Btn.View"]
                             </a>
                             <button class="btn btn-gradient px-3 open-in-builder"
                                     data-build="@Html.Raw(System.Text.Json.JsonSerializer.Serialize(build.BuildJson))"
-                                    title="Mở trong Builder">
+                                    title="@L["Btn.OpenInBuilder"]">
                                 <i class="bi bi-tools"></i>
                             </button>
                         </div>
