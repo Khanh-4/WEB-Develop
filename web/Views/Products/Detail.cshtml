@@ -158,6 +158,77 @@
         </h5>
         <div id="crossSellGrid" class="row g-3"></div>
     </div>
+
+    <!-- Reviews & Q&A -->
+    <div class="row g-4 mt-2">
+
+        <!-- Reviews column -->
+        <div class="col-lg-6">
+            <div class="glass p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <h5 class="text-white fw-semibold mb-0">
+                        <i class="bi bi-star-half me-2" style="color:#f59e0b"></i>Đánh giá
+                    </h5>
+                    <div id="ratingBadge" class="ms-auto" style="display:none">
+                        <span id="avgStars" class="fw-bold" style="color:#f59e0b;font-size:1.1rem"></span>
+                        <span id="reviewCount" class="text-muted-white" style="font-size:.82rem"></span>
+                    </div>
+                </div>
+
+                <!-- Star rating form (auth only) -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div id="reviewForm" class="mb-4 p-3 rounded-3" style="background:rgba(255,255,255,.04);display:none">
+                        <p class="text-white mb-2" style="font-size:.85rem;font-weight:600">Đánh giá của bạn:</p>
+                        <div class="d-flex gap-1 mb-2" id="starPicker">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi bi-star star-pick" data-val="@i"
+                                   style="font-size:1.5rem;cursor:pointer;color:rgba(255,255,255,.25);transition:color .15s"
+                                   onmouseover="hoverStars(@i)" onmouseout="resetStars()"
+                                   onclick="pickStar(@i)"></i>
+                            }
+                        </div>
+                        <textarea id="reviewComment" rows="2" class="form-control glass border-0 text-white mb-2"
+                                  placeholder="Nhận xét (tuỳ chọn)..." style="font-size:.83rem;resize:none;background:rgba(255,255,255,.06)"></textarea>
+                        <button onclick="submitReview()" class="btn btn-gradient btn-sm px-4">Gửi đánh giá</button>
+                        <p id="reviewMsg" class="mt-2 mb-0" style="font-size:.78rem;display:none"></p>
+                    </div>
+                }
+
+                <!-- Reviews list -->
+                <div id="reviewsList">
+                    <p class="text-muted-white" style="font-size:.83rem">Đang tải đánh giá…</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q&A column -->
+        <div class="col-lg-6">
+            <div class="glass p-4 h-100">
+                <h5 class="text-white fw-semibold mb-3">
+                    <i class="bi bi-chat-dots me-2" style="color:#6366f1"></i>Hỏi & Đáp
+                </h5>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="mb-3 d-flex gap-2">
+                        <input type="text" id="qInput" maxlength="500"
+                               class="form-control glass border-0 text-white"
+                               placeholder="Đặt câu hỏi về sản phẩm này…"
+                               style="font-size:.83rem;background:rgba(255,255,255,.06)">
+                        <button onclick="postQuestion()" class="btn glass text-white px-3 flex-shrink-0">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                }
+
+                <div id="qaList">
+                    <p class="text-muted-white" style="font-size:.83rem">Đang tải hỏi đáp…</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -299,5 +370,151 @@ async function toggleWishlist(btn) {
         document.getElementById('crossSellSection').style.display = '';
     } catch {}
 })();
+
+// ── Reviews & Q&A ─────────────────────────────────────────────────────────────
+const _cat = '@Model.Category', _id = @Model.Id;
+const _csrf = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+let _pickedStar = 0;
+
+function starsHtml(rating, size) {
+    let h = '';
+    for (let i = 1; i <= 5; i++) {
+        h += `<i class="bi ${i <= rating ? 'bi-star-fill' : 'bi-star'}"
+                 style="font-size:${size};color:${i <= rating ? '#f59e0b' : 'rgba(255,255,255,.2)'}"></i>`;
+    }
+    return h;
+}
+
+// Reviews
+(async () => {
+    const el = document.getElementById('reviewsList');
+    try {
+        const r = await fetch(`/Reviews/ForProduct?category=${_cat}&id=${_id}`);
+        const d = await r.json();
+        // Badge
+        if (d.count > 0) {
+            document.getElementById('ratingBadge').style.display = '';
+            document.getElementById('avgStars').innerHTML = starsHtml(Math.round(d.avg), '.9rem') + ` ${d.avg}`;
+            document.getElementById('reviewCount').textContent = ` (${d.count} đánh giá)`;
+        }
+        // Form
+        const form = document.getElementById('reviewForm');
+        if (form) form.style.display = d.hasReviewed ? 'none' : '';
+        // List
+        el.innerHTML = d.reviews.length
+            ? d.reviews.map(rv => `
+                <div class="mb-3 pb-3" style="border-bottom:1px solid rgba(255,255,255,.06)">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span style="font-size:.82rem;color:#fff;font-weight:600">${rv.userDisplayName}</span>
+                        <span class="ms-auto">${starsHtml(rv.rating, '.8rem')}</span>
+                    </div>
+                    ${rv.comment ? `<p class="mb-1 text-muted-white" style="font-size:.82rem">${rv.comment}</p>` : ''}
+                    <small class="text-muted-white" style="font-size:.72rem;opacity:.5">${rv.createdAt}</small>
+                </div>`).join('')
+            : '<p class="text-muted-white" style="font-size:.83rem">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+    } catch { el.innerHTML = ''; }
+})();
+
+function hoverStars(n) {
+    document.querySelectorAll('.star-pick').forEach((s, i) => {
+        s.className = `bi ${i < n ? 'bi-star-fill' : 'bi-star'} star-pick`;
+        s.style.color = i < n ? '#f59e0b' : 'rgba(255,255,255,.25)';
+    });
+}
+function resetStars() { hoverStars(_pickedStar); }
+function pickStar(n) { _pickedStar = n; resetStars(); }
+
+async function submitReview() {
+    if (!_pickedStar) { alert('Vui lòng chọn số sao'); return; }
+    const comment = document.getElementById('reviewComment').value;
+    const msg = document.getElementById('reviewMsg');
+    try {
+        const r = await fetch('/Reviews/Submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _csrf },
+            body: JSON.stringify({ category: _cat, componentId: _id, rating: _pickedStar, comment })
+        });
+        if (r.ok) {
+            msg.style.display = ''; msg.style.color = '#4ade80'; msg.textContent = 'Đánh giá đã được ghi nhận!';
+            document.getElementById('reviewForm').style.display = 'none';
+            setTimeout(() => location.reload(), 1200);
+        }
+    } catch {}
+}
+
+// Q&A
+(async () => {
+    const el = document.getElementById('qaList');
+    try {
+        const r = await fetch(`/Reviews/Questions?category=${_cat}&id=${_id}`);
+        const qs = await r.json();
+        el.innerHTML = qs.length
+            ? qs.map(q => `
+                <div class="mb-3">
+                    <div class="d-flex gap-2 mb-1">
+                        <i class="bi bi-question-circle" style="color:#6366f1;font-size:.85rem;margin-top:2px"></i>
+                        <div>
+                            <p class="text-white mb-1 lh-sm" style="font-size:.83rem;font-weight:600">${q.question}</p>
+                            <small class="text-muted-white" style="font-size:.72rem;opacity:.5">${q.userDisplayName} · ${q.createdAt}</small>
+                        </div>
+                    </div>
+                    ${q.answers.map(a => `
+                        <div class="d-flex gap-2 mt-2 ms-3">
+                            <i class="bi bi-arrow-return-right" style="color:#a855f7;font-size:.8rem;margin-top:3px"></i>
+                            <div>
+                                <p class="text-white mb-0 lh-sm" style="font-size:.82rem">${a.answer}</p>
+                                <small class="text-muted-white" style="font-size:.7rem;opacity:.5">${a.userDisplayName} · ${a.createdAt}</small>
+                            </div>
+                        </div>`).join('')}
+                    <div class="ms-3 mt-2" id="answerArea_${q.id}" style="display:none">
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control form-control-sm glass border-0 text-white"
+                                   id="ansInput_${q.id}" placeholder="Viết câu trả lời…"
+                                   style="font-size:.8rem;background:rgba(255,255,255,.06)">
+                            <button onclick="postAnswer(${q.id})" class="btn glass text-white btn-sm px-2 flex-shrink-0">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <text>
+                    <button onclick="document.getElementById('answerArea_'+${q.id}).style.display=''"
+                            class="btn btn-sm glass text-white px-2 py-0 mt-1 ms-3" style="font-size:.72rem">
+                        Trả lời
+                    </button>
+                        </text>
+                    }
+                </div>`).join('')
+            : '<p class="text-muted-white" style="font-size:.83rem">Chưa có câu hỏi nào.</p>';
+    } catch { el.innerHTML = ''; }
+})();
+
+async function postQuestion() {
+    const q = document.getElementById('qInput').value.trim();
+    if (!q) return;
+    try {
+        const r = await fetch('/Reviews/PostQuestion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _csrf },
+            body: JSON.stringify({ category: _cat, componentId: _id, question: q })
+        });
+        if (r.ok) { document.getElementById('qInput').value = ''; location.reload(); }
+    } catch {}
+}
+
+async function postAnswer(questionId) {
+    const inp = document.getElementById(`ansInput_${questionId}`);
+    const a = inp?.value.trim();
+    if (!a) return;
+    try {
+        const r = await fetch('/Reviews/PostAnswer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _csrf },
+            body: JSON.stringify({ questionId, answer: a })
+        });
+        if (r.ok) location.reload();
+    } catch {}
+}
 </script>
 }
