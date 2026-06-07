@@ -5,11 +5,13 @@ namespace TechSpecs.Models;
 
 public enum OrderStatus
 {
-    Pending,
-    Confirmed,
-    Shipped,
-    Delivered,
-    Cancelled
+    Pending      = 0,
+    Confirmed    = 1,
+    Shipped      = 2,
+    Delivered    = 3,
+    Cancelled    = 4,
+    Assembling   = 5,
+    InstallingOS = 6,
 }
 
 [Table("orders")]

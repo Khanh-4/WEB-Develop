@@ -3,19 +3,23 @@
 
 @{
     var statuses = new[] {
-        ((string?)null, "Tất cả"),
-        ("Pending",   "Chờ xác nhận"),
-        ("Confirmed", "Đã xác nhận"),
-        ("Shipped",   "Đang giao"),
-        ("Delivered", "Đã nhận"),
-        ("Cancelled", "Đã huỷ"),
+        ((string?)null,   "Tất cả"),
+        ("Pending",       "Chờ xác nhận"),
+        ("Confirmed",     "Đã xác nhận"),
+        ("Assembling",    "Đang lắp ráp"),
+        ("InstallingOS",  "Đang cài Win"),
+        ("Shipped",       "Đang giao"),
+        ("Delivered",     "Đã nhận"),
+        ("Cancelled",     "Đã huỷ"),
     };
     string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch {
-        TechSpecs.Models.OrderStatus.Pending   => "Chờ xác nhận",
-        TechSpecs.Models.OrderStatus.Confirmed => "Đã xác nhận",
-        TechSpecs.Models.OrderStatus.Shipped   => "Đang giao",
-        TechSpecs.Models.OrderStatus.Delivered => "Đã nhận",
-        TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
+        TechSpecs.Models.OrderStatus.Pending      => "Chờ xác nhận",
+        TechSpecs.Models.OrderStatus.Confirmed    => "Đã xác nhận",
+        TechSpecs.Models.OrderStatus.Assembling   => "Đang lắp ráp",
+        TechSpecs.Models.OrderStatus.InstallingOS => "Đang cài Win",
+        TechSpecs.Models.OrderStatus.Shipped      => "Đang giao",
+        TechSpecs.Models.OrderStatus.Delivered    => "Đã nhận",
+        TechSpecs.Models.OrderStatus.Cancelled    => "Đã huỷ",
         _ => s.ToString()
     };
 }

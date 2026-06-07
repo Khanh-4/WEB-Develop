@@ -86,8 +86,10 @@
   <data name="Order.PlacedDate"><value>Ngày đặt:</value></data>
   <data name="Order.Status.Pending"><value>Chờ xác nhận</value></data>
   <data name="Order.Status.Confirmed"><value>Đã xác nhận</value></data>
-  <data name="Order.Status.Shipped"><value>Đang giao</value></data>
-  <data name="Order.Status.Delivered"><value>Đã nhận</value></data>
+  <data name="Order.Status.Assembling"><value>Đang lắp ráp</value></data>
+  <data name="Order.Status.InstallingOS"><value>Đang cài Win</value></data>
+  <data name="Order.Status.Shipped"><value>Đang giao hàng</value></data>
+  <data name="Order.Status.Delivered"><value>Đã nhận hàng</value></data>
   <data name="Order.Status.Cancelled"><value>Đã huỷ</value></data>
   <data name="Order.Cancel"><value>Huỷ đơn hàng</value></data>
   <data name="Order.CancelConfirmTitle"><value>Xác nhận huỷ đơn</value></data>

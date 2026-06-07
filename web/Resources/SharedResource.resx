@@ -86,6 +86,8 @@
   <data name="Order.PlacedDate"><value>Placed:</value></data>
   <data name="Order.Status.Pending"><value>Pending</value></data>
   <data name="Order.Status.Confirmed"><value>Confirmed</value></data>
+  <data name="Order.Status.Assembling"><value>Assembling</value></data>
+  <data name="Order.Status.InstallingOS"><value>Installing OS</value></data>
   <data name="Order.Status.Shipped"><value>Shipped</value></data>
   <data name="Order.Status.Delivered"><value>Delivered</value></data>
   <data name="Order.Status.Cancelled"><value>Cancelled</value></data>

@@ -4,23 +4,50 @@
 @{
     string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch
     {
-        TechSpecs.Models.OrderStatus.Pending   => L["Order.Status.Pending"].Value,
-        TechSpecs.Models.OrderStatus.Confirmed => L["Order.Status.Confirmed"].Value,
-        TechSpecs.Models.OrderStatus.Shipped   => L["Order.Status.Shipped"].Value,
-        TechSpecs.Models.OrderStatus.Delivered => L["Order.Status.Delivered"].Value,
-        TechSpecs.Models.OrderStatus.Cancelled => L["Order.Status.Cancelled"].Value,
+        TechSpecs.Models.OrderStatus.Pending      => L["Order.Status.Pending"].Value,
+        TechSpecs.Models.OrderStatus.Confirmed    => L["Order.Status.Confirmed"].Value,
+        TechSpecs.Models.OrderStatus.Assembling   => L["Order.Status.Assembling"].Value,
+        TechSpecs.Models.OrderStatus.InstallingOS => L["Order.Status.InstallingOS"].Value,
+        TechSpecs.Models.OrderStatus.Shipped      => L["Order.Status.Shipped"].Value,
+        TechSpecs.Models.OrderStatus.Delivered    => L["Order.Status.Delivered"].Value,
+        TechSpecs.Models.OrderStatus.Cancelled    => L["Order.Status.Cancelled"].Value,
         _ => s.ToString()
     };
 
     string StatusClass(TechSpecs.Models.OrderStatus s) => s switch
     {
-        TechSpecs.Models.OrderStatus.Pending   => "text-warning",
-        TechSpecs.Models.OrderStatus.Confirmed => "text-info",
-        TechSpecs.Models.OrderStatus.Shipped   => "text-primary",
-        TechSpecs.Models.OrderStatus.Delivered => "text-success",
-        TechSpecs.Models.OrderStatus.Cancelled => "text-danger",
+        TechSpecs.Models.OrderStatus.Pending      => "text-warning",
+        TechSpecs.Models.OrderStatus.Confirmed    => "text-info",
+        TechSpecs.Models.OrderStatus.Assembling   => "text-info",
+        TechSpecs.Models.OrderStatus.InstallingOS => "text-info",
+        TechSpecs.Models.OrderStatus.Shipped      => "text-primary",
+        TechSpecs.Models.OrderStatus.Delivered    => "text-success",
+        TechSpecs.Models.OrderStatus.Cancelled    => "text-danger",
         _ => "text-white"
     };
+
+    // Ordered pipeline steps (Cancelled handled separately)
+    var steps = new[]
+    {
+        (TechSpecs.Models.OrderStatus.Pending,      "bi-clock",            L["Order.Status.Pending"].Value),
+        (TechSpecs.Models.OrderStatus.Confirmed,    "bi-check-circle",     L["Order.Status.Confirmed"].Value),
+        (TechSpecs.Models.OrderStatus.Assembling,   "bi-tools",            L["Order.Status.Assembling"].Value),
+        (TechSpecs.Models.OrderStatus.InstallingOS, "bi-display",          L["Order.Status.InstallingOS"].Value),
+        (TechSpecs.Models.OrderStatus.Shipped,      "bi-truck",            L["Order.Status.Shipped"].Value),
+        (TechSpecs.Models.OrderStatus.Delivered,    "bi-house-check",      L["Order.Status.Delivered"].Value),
+    };
+    int stepOrder(TechSpecs.Models.OrderStatus s) => s switch
+    {
+        TechSpecs.Models.OrderStatus.Pending      => 0,
+        TechSpecs.Models.OrderStatus.Confirmed    => 1,
+        TechSpecs.Models.OrderStatus.Assembling   => 2,
+        TechSpecs.Models.OrderStatus.InstallingOS => 3,
+        TechSpecs.Models.OrderStatus.Shipped      => 4,
+        TechSpecs.Models.OrderStatus.Delivered    => 5,
+        _ => -1
+    };
+    int currentStep = stepOrder(Model.Status);
+    bool isCancelled = Model.Status == TechSpecs.Models.OrderStatus.Cancelled;
 }
 
 <div class="container py-5 px-3" style="max-width:760px">
@@ -31,6 +58,77 @@
         <h1 class="text-white fw-bold mb-0">#@Model.Id</h1>
         <span class="@StatusClass(Model.Status) fw-semibold ms-auto">● @StatusLabel(Model.Status)</span>
     </div>
+
+    <!-- Progress stepper -->
+    @if (isCancelled)
+    {
+        <div class="glass p-4 mb-4 d-flex align-items-center gap-3"
+             style="border-left:4px solid #ef4444">
+            <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+            <div>
+                <p class="text-white fw-semibold mb-0">@L["Order.Status.Cancelled"]</p>
+                <p class="text-muted-white mb-0" style="font-size:.82rem">Đơn hàng đã bị huỷ.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="glass p-4 mb-4">
+            <div class="d-flex align-items-start" style="overflow-x:auto;gap:0">
+                @for (int i = 0; i < steps.Length; i++)
+                {
+                    var (stepStatus, icon, label) = steps[i];
+                    bool done    = currentStep > i;
+                    bool active  = currentStep == i;
+                    bool pending = currentStep < i;
+                    string dotColor  = done || active ? "#a855f7" : "rgba(255,255,255,0.15)";
+                    string iconColor = done ? "#a855f7" : active ? "#ffffff" : "rgba(255,255,255,0.3)";
+                    string textColor = done || active ? "#ffffff" : "rgba(255,255,255,0.35)";
+                    string lineColor = done ? "#a855f7" : "rgba(255,255,255,0.1)";
+                    bool isLast = i == steps.Length - 1;
+                    <div class="d-flex flex-column align-items-center flex-shrink-0" style="min-width:90px">
+                        <div class="d-flex align-items-center w-100">
+                            <!-- Left connector -->
+                            @if (i > 0)
+                            {
+                                <div style="height:2px;flex:1;background:@lineColor;margin-top:-2px"></div>
+                            }
+                            else
+                            {
+                                <div style="flex:0.5"></div>
+                            }
+                            <!-- Dot -->
+                            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                 style="width:36px;height:36px;background:@dotColor;
+                                        @(active ? "box-shadow:0 0 0 4px rgba(168,85,247,0.25)" : "")
+                                        transition:all .3s">
+                                @if (done)
+                                {
+                                    <i class="bi bi-check-lg" style="color:#fff;font-size:.9rem"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi @icon" style="color:@iconColor;font-size:.85rem"></i>
+                                }
+                            </div>
+                            <!-- Right connector -->
+                            @if (!isLast)
+                            {
+                                <div style="height:2px;flex:1;background:@(done ? "#a855f7" : "rgba(255,255,255,0.1)");margin-top:-2px"></div>
+                            }
+                            else
+                            {
+                                <div style="flex:0.5"></div>
+                            }
+                        </div>
+                        <p class="text-center mt-2 mb-0 lh-sm" style="font-size:.72rem;color:@textColor;font-weight:@(active?"600":"400")">
+                            @label
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
 
     <!-- Items -->
     <div class="glass p-4 mb-4">
