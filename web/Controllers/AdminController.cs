@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using TechSpecs.Data;
 using TechSpecs.Models;
 using TechSpecs.ViewModels;
@@ -13,11 +14,13 @@ public class AdminController : Controller
 {
     private readonly AppDbContext _db;
     private readonly UserManager<ApplicationUser> _users;
+    private readonly IMemoryCache _cache;
 
-    public AdminController(AppDbContext db, UserManager<ApplicationUser> users)
+    public AdminController(AppDbContext db, UserManager<ApplicationUser> users, IMemoryCache cache)
     {
         _db = db;
         _users = users;
+        _cache = cache;
     }
 
     // GET /Admin
@@ -96,6 +99,7 @@ public class AdminController : Controller
             await UpdateProductAsync(vm);
 
         await _db.SaveChangesAsync();
+        _cache.Remove($"home-cat-{vm.Category}-10");
         TempData["Success"] = vm.Id == 0 ? "Đã thêm sản phẩm" : "Đã cập nhật sản phẩm";
         return RedirectToAction(nameof(Products), new { category = vm.Category });
     }
@@ -105,6 +109,7 @@ public class AdminController : Controller
     {
         await DeleteProductAsync(category, id);
         await _db.SaveChangesAsync();
+        _cache.Remove($"home-cat-{category}-10");
         TempData["Success"] = "Đã xoá sản phẩm";
         return RedirectToAction(nameof(Products), new { category });
     }

@@ -181,6 +181,7 @@ body {
     border-radius: 6px;
 }
 .sk-box  { width: 100%; }
+.skeleton-card { aspect-ratio: 3/4; min-height: 240px; border-radius: .875rem; }
 
 /* ── P22: Product card hover spec overlay ────────── */
 .card-img-wrap { position: relative; overflow: hidden; }

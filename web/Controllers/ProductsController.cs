@@ -947,6 +947,30 @@ public class ProductsController : Controller
         _ => $"{gb} GB"
     };
 
+    // GET /Products/RatingSummary?category=cpu&ids=1,2,3,4
+    [HttpGet]
+    public async Task<IActionResult> RatingSummary(string category, string ids)
+    {
+        var idList = (ids ?? "").Split(',')
+            .Select(x => int.TryParse(x.Trim(), out var n) ? n : -1)
+            .Where(x => x > 0).Distinct().ToList();
+
+        if (!idList.Any() || string.IsNullOrEmpty(category))
+            return Json(new { });
+
+        var ratings = await _db.ProductReviews.AsNoTracking()
+            .Where(r => r.Category == category && idList.Contains(r.ComponentId))
+            .GroupBy(r => r.ComponentId)
+            .Select(g => new { id = g.Key, avg = g.Average(r => (double)r.Rating), count = g.Count() })
+            .ToListAsync();
+
+        var result = ratings.ToDictionary(
+            r => r.id.ToString(),
+            r => new { avg = Math.Round(r.avg * 2) / 2, count = r.count });
+
+        return Json(result);
+    }
+
     // POST /Products/RecentlyViewed — returns fresh product data for localStorage IDs
     [HttpPost]
     public async Task<IActionResult> RecentlyViewed([FromBody] List<RecentlyViewedRequest> items)

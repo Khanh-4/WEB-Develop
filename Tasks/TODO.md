@@ -249,9 +249,11 @@ And create a Storage bucket named `reviews` in Supabase dashboard with public ac
 
 ---
 
-## 🔜 Priority 8 — Social Proof & FOMO (P36–P38)
+## ✅ Done — Session 13 (2026-06-08) — P36–P43 Social Proof, Mobile UX, Performance
 
 > Mục tiêu: Kích hoạt "tâm lý đám đông" cho dân công nghệ — vốn rất lý trí nhưng nhạy cảm với cộng đồng và đánh giá.
+
+## Priority 8 — Social Proof & FOMO (P36–P38) ✅ Done
 
 ### P36 — Mini-Toast Purchase Notification
 
@@ -305,7 +307,7 @@ And create a Storage bucket named `reviews` in Supabase dashboard with public ac
 
 ---
 
-## 🔜 Priority 9 — Mobile App-like UX (P39–P41)
+## Priority 9 — Mobile App-like UX (P39–P41) ✅ Done
 
 > Mục tiêu: Mobile chiếm >50% traffic nhưng UX hiện tại vẫn "thu nhỏ desktop". Cần trải nghiệm như Shopee/Tiki.
 
@@ -393,7 +395,7 @@ And create a Storage bucket named `reviews` in Supabase dashboard with public ac
 
 ---
 
-## 🔜 Priority 10 — Performance & SEO (P42–P43)
+## Priority 10 — Performance & SEO (P42–P43) ✅ Done
 
 > Mục tiêu: Homepage load trong chớp mắt, không giật layout, Google không phạt.
 
