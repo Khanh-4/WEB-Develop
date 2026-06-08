@@ -11,146 +11,200 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-glass px-3">
-    <div class="container-xl">
-        <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
-            <span class="gradient-icon">
-                <i class="bi bi-cpu text-white" style="font-size:1.1rem"></i>
-            </span>
-            TechSpecs
-        </a>
+@{
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+    var targetCulture = currentCulture == "vi" ? "en" : "vi";
+    var langLabel = currentCulture == "vi" ? "EN" : "VI";
+}
+<header class="sticky-header" id="siteHeader">
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-            <i class="bi bi-list text-white fs-4"></i>
-        </button>
+    <!-- ── Brand Bar: Logo + Search + Hotline + Cart ───────────────── -->
+    <div class="brand-bar px-3">
+        <div class="container-xl d-flex align-items-center gap-3">
 
-        <div class="collapse navbar-collapse" id="navMain">
-            <ul class="navbar-nav me-auto gap-1 ms-3">
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
-                </li>
-                <!-- Mega Menu -->
-                <li class="nav-item dropdown" id="megaMenuLi">
-                    <a class="nav-link dropdown-toggle" href="/Products" id="megaMenuToggle"
-                       data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                       aria-expanded="false" onclick="return megaNavClick(event, this)">
-                        @L["Nav.Products"]
-                    </a>
-                    <div class="dropdown-menu p-0 border-0 mega-menu" aria-labelledby="megaMenuToggle"
-                         style="min-width:520px;background:rgba(10,6,22,0.98);border:1px solid rgba(168,85,247,0.2)!important;
-                                border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.6);backdrop-filter:blur(20px);
-                                margin-top:10px!important">
-                        @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Dropdown" })
+            <!-- Logo -->
+            <a class="d-flex align-items-center gap-2 text-decoration-none flex-shrink-0"
+               asp-controller="Home" asp-action="Index">
+                <span class="gradient-icon">
+                    <i class="bi bi-cpu text-white" style="font-size:1.1rem"></i>
+                </span>
+                <span class="text-white fw-bold fs-5 d-none d-sm-inline" style="letter-spacing:-.3px">TechSpecs</span>
+            </a>
+
+            <!-- Always-visible big search bar -->
+            <div class="flex-grow-1 position-relative" id="navSearchForm" style="max-width:540px">
+                <form action="/Products" method="get" id="navSearchFormEl" onsubmit="return navSearchSubmit(event)">
+                    <div class="search-bar-hero d-flex align-items-center gap-2 px-3">
+                        <i class="bi bi-search flex-shrink-0" style="color:rgba(255,255,255,.45);font-size:.95rem"></i>
+                        <input type="text" name="search" id="navSearchInput"
+                               class="border-0 bg-transparent text-white flex-grow-1"
+                               placeholder="Tìm CPU, GPU, RAM, Mainboard, SSD..."
+                               style="outline:none;box-shadow:none;font-size:.88rem;min-width:0"
+                               autocomplete="off">
+                        <kbd class="d-none d-md-flex flex-shrink-0"
+                             style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+                                    border-radius:4px;padding:2px 7px;font-size:.7rem;color:rgba(255,255,255,.4)">/</kbd>
                     </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Build" asp-action="Community">@L["Nav.Community"]</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Warranty" asp-action="Index">
-                        <i class="bi bi-shield-check me-1"></i>Bảo hành
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="OrderTracking" asp-action="Index">
-                        <i class="bi bi-truck me-1"></i>Đơn hàng
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="btn btn-gradient px-3 py-1 ms-1" asp-controller="Builder" asp-action="Index">
-                        @L["Nav.PCBuilder"]
-                    </a>
-                </li>
-            </ul>
+                </form>
+                <!-- Live search dropdown -->
+                <div id="liveSearchDropdown"
+                     style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:9999;
+                            background:rgba(15,10,30,0.97);border:1px solid rgba(168,85,247,0.25);border-radius:12px;
+                            box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden">
+                </div>
+            </div>
 
-            <ul class="navbar-nav align-items-center gap-2">
-                <!-- Global search -->
-                <li class="nav-item d-flex align-items-center" id="navSearchForm">
-                    <div style="max-width:0;overflow:hidden;opacity:0;transition:max-width .3s ease,opacity .25s ease;position:relative" id="navSearchBox">
-                        <form action="/Products" method="get" class="d-flex align-items-center" id="navSearchFormEl" onsubmit="return navSearchSubmit(event)">
-                            <div class="glass d-flex align-items-center px-2" style="border-radius:8px;height:36px">
-                                <input type="text" name="search" id="navSearchInput"
-                                       class="border-0 bg-transparent text-white p-0"
-                                       placeholder="@L["Nav.SearchPlaceholder"]"
-                                       style="width:220px;font-size:.85rem;outline:none;box-shadow:none;color:inherit"
-                                       autocomplete="off">
+            <!-- Flex spacer (desktop) -->
+            <div class="flex-grow-1 d-none d-xl-block"></div>
+
+            <!-- Hotline (desktop only) -->
+            <div class="d-none d-xl-flex flex-column align-items-center flex-shrink-0">
+                <span style="font-size:.6rem;color:rgba(255,255,255,.4);line-height:1.3;letter-spacing:.3px;text-transform:uppercase">Hotline 24/7</span>
+                <a href="tel:19006969" class="text-decoration-none d-flex align-items-center gap-1"
+                   style="color:#a855f7;font-weight:700;font-size:.9rem;line-height:1.5">
+                    <i class="bi bi-telephone-fill" style="font-size:.75rem"></i>1900 6969
+                </a>
+            </div>
+
+            <!-- Cart icon + mini-cart hover panel -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="mini-cart-wrapper flex-shrink-0" id="cartIconWrapper">
+                    <a class="cart-icon-link d-flex align-items-center justify-content-center position-relative text-decoration-none"
+                       href="/cart" id="cartIconLink">
+                        <i class="bi bi-cart3 text-white" style="font-size:1.4rem"></i>
+                        <span class="cart-badge" id="cartCount" style="display:none">0</span>
+                    </a>
+                    <div class="mini-cart-panel" id="miniCartDropdown">
+                        <div id="miniCartContent">
+                            <div class="p-4 text-center" style="color:rgba(255,255,255,.4)">
+                                <i class="bi bi-cart3 d-block mb-2" style="font-size:2rem;opacity:.3"></i>
+                                <span style="font-size:.83rem">Đang tải...</span>
                             </div>
-                        </form>
-                        <!-- Live search dropdown -->
-                        <div id="liveSearchDropdown" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:340px;z-index:9999;
-                             background:rgba(15,10,30,0.97);border:1px solid rgba(168,85,247,0.25);border-radius:12px;
-                             box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden">
                         </div>
                     </div>
-                    <button type="button" class="btn glass text-white px-2 py-1" id="navSearchToggle"
-                            onclick="toggleNavSearch()" style="font-size:1.05rem;line-height:1" title="@L["Nav.Search"]">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="btn glass text-white px-2 py-1" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:1.1rem;line-height:1">
-                        <i class="bi bi-sun" id="themeIcon"></i>
-                    </button>
-                </li>
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="/cart">
-                            <i class="bi bi-cart3 fs-5 text-white"></i>
-                            <span class="cart-badge" id="cartCount" style="display:none">0</span>
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle fs-5"></i>
-                            <span>@(User.FindFirst("FullName")?.Value ?? User.Identity!.Name?.Split('@')[0])</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end glass-sm border-0 p-2">
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li><a class="dropdown-item text-white rounded" href="/admin"><i class="bi bi-speedometer2 me-2"></i>@L["Nav.Admin"]</a></li>
-                                <li><hr class="dropdown-divider divider-white my-1"></li>
-                            }
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Profile"><i class="bi bi-person me-2"></i>@L["Nav.Profile"]</a></li>
-                            <li><a class="dropdown-item text-white rounded" href="/orders"><i class="bi bi-bag-check me-2"></i>@L["Nav.Orders"]</a></li>
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Build" asp-action="MyBuilds"><i class="bi bi-bookmark me-2"></i>@L["Nav.MyBuilds"]</a></li>
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2" style="color:#f472b6"></i>@L["Nav.Wishlist"]</a></li>
-                            <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Warranties"><i class="bi bi-shield-check me-2" style="color:#a855f7"></i>Bảo hành</a></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                    <button class="dropdown-item text-danger rounded"><i class="bi bi-box-arrow-right me-2"></i>@L["Nav.SignOut"]</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                }
-                else
-                {
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Account" asp-action="Login">@L["Nav.Login"]</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-gradient px-3 py-1" asp-controller="Account" asp-action="Register">@L["Nav.SignUp"]</a>
-                    </li>
-                }
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login"
+                   class="btn btn-gradient px-3 py-1 flex-shrink-0 d-none d-sm-inline-flex"
+                   style="font-size:.82rem;white-space:nowrap">Đăng nhập</a>
+            }
 
-                <!-- Language switcher -->
-                @{
-                    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-                    var currentUrl = Context.Request.Path + Context.Request.QueryString;
-                    var targetCulture = currentCulture == "vi" ? "en" : "vi";
-                    var langLabel = currentCulture == "vi" ? "EN" : "VI";
-                }
-                <li class="nav-item">
-                    <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
-                       class="btn glass text-white px-2 py-1" style="font-size:.8rem;font-weight:600;text-decoration:none">
-                        @langLabel
-                    </a>
-                </li>
-            </ul>
+            <!-- Theme toggle -->
+            <button class="btn glass text-white px-2 py-1 flex-shrink-0" id="themeToggle"
+                    onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:1rem;line-height:1">
+                <i class="bi bi-sun" id="themeIcon"></i>
+            </button>
+
+            <!-- Language switcher -->
+            <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
+               class="btn glass text-white px-2 py-1 flex-shrink-0 d-none d-sm-flex"
+               style="font-size:.75rem;font-weight:600;text-decoration:none">@langLabel</a>
         </div>
     </div>
-</nav>
+
+    <!-- ── Nav Row: Navigation Links + User Account ──────────────── -->
+    <nav class="navbar navbar-expand-lg nav-row px-3 py-0">
+        <div class="container-xl">
+            <button class="navbar-toggler border-0 py-1" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navMain">
+                <i class="bi bi-list text-white fs-4"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav me-auto align-items-lg-center gap-1">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
+                    </li>
+                    <li class="nav-item dropdown" id="megaMenuLi">
+                        <a class="nav-link dropdown-toggle" href="/Products" id="megaMenuToggle"
+                           data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                           aria-expanded="false" onclick="return megaNavClick(event, this)">
+                            @L["Nav.Products"]
+                        </a>
+                        <div class="dropdown-menu p-0 border-0 mega-menu" aria-labelledby="megaMenuToggle"
+                             style="min-width:520px;background:rgba(10,6,22,0.98);border:1px solid rgba(168,85,247,0.2)!important;
+                                    border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.6);backdrop-filter:blur(20px);
+                                    margin-top:6px!important">
+                            @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Dropdown" })
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Build" asp-action="Community">@L["Nav.Community"]</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Warranty" asp-action="Index">
+                            <i class="bi bi-shield-check me-1"></i>Bảo hành
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="OrderTracking" asp-action="Index">
+                            <i class="bi bi-truck me-1"></i>Đơn hàng
+                        </a>
+                    </li>
+                    <li class="nav-item ms-1">
+                        <a class="btn btn-gradient px-3 py-1" asp-controller="Builder" asp-action="Index">
+                            @L["Nav.PCBuilder"]
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav align-items-center gap-2">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <!-- Mobile cart (hidden on lg+, brand-bar cart handles desktop) -->
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link position-relative" href="/cart">
+                                <i class="bi bi-cart3 fs-5 text-white"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                <span>@(User.FindFirst("FullName")?.Value ?? User.Identity!.Name?.Split('@')[0])</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end glass-sm border-0 p-2">
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><a class="dropdown-item text-white rounded" href="/admin"><i class="bi bi-speedometer2 me-2"></i>@L["Nav.Admin"]</a></li>
+                                    <li><hr class="dropdown-divider divider-white my-1"></li>
+                                }
+                                <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Profile"><i class="bi bi-person me-2"></i>@L["Nav.Profile"]</a></li>
+                                <li><a class="dropdown-item text-white rounded" href="/orders"><i class="bi bi-bag-check me-2"></i>@L["Nav.Orders"]</a></li>
+                                <li><a class="dropdown-item text-white rounded" asp-controller="Build" asp-action="MyBuilds"><i class="bi bi-bookmark me-2"></i>@L["Nav.MyBuilds"]</a></li>
+                                <li><a class="dropdown-item text-white rounded" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2" style="color:#f472b6"></i>@L["Nav.Wishlist"]</a></li>
+                                <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Warranties"><i class="bi bi-shield-check me-2" style="color:#a855f7"></i>Bảo hành</a></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                        <button class="dropdown-item text-danger rounded"><i class="bi bi-box-arrow-right me-2"></i>@L["Nav.SignOut"]</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">@L["Nav.Login"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-gradient px-3 py-1" asp-controller="Account" asp-action="Register">@L["Nav.SignUp"]</a>
+                        </li>
+                    }
+                    <!-- Language (mobile only) -->
+                    <li class="nav-item d-sm-none">
+                        <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
+                           class="btn glass text-white px-2 py-1"
+                           style="font-size:.75rem;font-weight:600;text-decoration:none">@langLabel</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
 
 @if (User.Identity?.IsAuthenticated == true)
 {
@@ -269,31 +323,49 @@ function toggleTheme() {
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
     document.getElementById('themeIcon').className = isLight ? 'bi bi-moon-stars' : 'bi bi-sun';
 }
-let navSearchOpen = false;
-function toggleNavSearch() {
-    const box   = document.getElementById('navSearchBox');
-    const input = document.getElementById('navSearchInput');
-    navSearchOpen = !navSearchOpen;
-    box.style.maxWidth = navSearchOpen ? '360px' : '0';
-    box.style.opacity  = navSearchOpen ? '1' : '0';
-    if (navSearchOpen) { setTimeout(() => input.focus(), 310); }
-    else { input.value = ''; hideLiveDropdown(); }
-}
 function navSearchSubmit(e) {
     hideLiveDropdown();
     return true; // allow normal form submit
 }
+// Keyboard shortcut: / or Ctrl+K focuses the always-visible search bar
 document.addEventListener('keydown', e => {
-    if ((e.key === '/' || (e.ctrlK = e.ctrlKey && e.key === 'k')) && !navSearchOpen
-            && document.activeElement.tagName !== 'INPUT'
-            && document.activeElement.tagName !== 'TEXTAREA') {
-        e.preventDefault(); toggleNavSearch();
+    const tag = document.activeElement.tagName;
+    if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+        const input = document.getElementById('navSearchInput');
+        if (input) { input.focus(); input.select(); }
     }
-    if (e.key === 'Escape' && navSearchOpen) { toggleNavSearch(); }
+    if (e.key === 'Escape') {
+        hideLiveDropdown();
+        document.getElementById('navSearchInput')?.blur();
+    }
 });
+// Hide live dropdown on outside click
 document.addEventListener('click', e => {
     const wrap = document.getElementById('navSearchForm');
-    if (navSearchOpen && wrap && !wrap.contains(e.target)) toggleNavSearch();
+    if (wrap && !wrap.contains(e.target)) hideLiveDropdown();
+});
+
+// ── Mini-cart hover ───────────────────────────────────────────────────────────
+let miniCartLoaded = false;
+function invalidateMiniCart() { miniCartLoaded = false; }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const wrapper = document.getElementById('cartIconWrapper');
+    if (!wrapper) return;
+    wrapper.addEventListener('mouseenter', async () => {
+        if (miniCartLoaded) return;
+        const content = document.getElementById('miniCartContent');
+        if (!content) return;
+        content.innerHTML =
+            '<div class="p-3 d-flex flex-column gap-2">' +
+            '<div class="sk-box sk-line" style="height:54px;border-radius:8px"></div>'.repeat(2) +
+            '</div>';
+        try {
+            const r = await fetch('/Cart/MiniCart');
+            if (r.ok) { content.innerHTML = await r.text(); miniCartLoaded = true; }
+        } catch(ex) {}
+    });
 });
 
 // ── Live Search ──────────────────────────────────────────────────────────────

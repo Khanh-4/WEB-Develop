@@ -76,6 +76,7 @@ function addToCart(id, category, name, price, imageUrl, triggerEl) {
     .then(d => {
         if (!d) return;
         updateCartBadge(d.count);
+        if (typeof invalidateMiniCart === 'function') invalidateMiniCart();
         showToast(`<i class="bi bi-check-circle-fill me-2"></i>${window.i18n?.addedToCart ?? 'Đã thêm vào giỏ'}`, 'success');
     })
     .catch(() => showToast(`<i class="bi bi-exclamation-circle me-2"></i>${window.i18n?.cannotAdd ?? 'Không thể thêm'}`, 'error'));

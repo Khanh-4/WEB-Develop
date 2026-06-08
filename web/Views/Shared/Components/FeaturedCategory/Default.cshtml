@@ -1,0 +1,122 @@
+@model List<TechSpecs.ViewModels.ProductListItem>
+@using TechSpecs.ViewModels
+
+@if (!Model.Any()) { return; }
+
+@{
+    var category = (string)ViewBag.Category;
+    var title    = (string)ViewBag.Title;
+
+    // Icon and accent color per category
+    var (icon, color) = category switch
+    {
+        "cpu"         => ("bi-cpu",             "#a855f7"),
+        "gpu"         => ("bi-gpu-card",        "#6366f1"),
+        "memory"      => ("bi-memory",          "#22c55e"),
+        "motherboard" => ("bi-motherboard",     "#06b6d4"),
+        "storage"     => ("bi-device-hdd",      "#06b6d4"),
+        "psu"         => ("bi-lightning-charge","#ec4899"),
+        "case"        => ("bi-box-seam",        "#ef4444"),
+        "cooler"      => ("bi-thermometer-half","#8b5cf6"),
+        _             => ("bi-grid",            "#a855f7")
+    };
+}
+
+<section class="container-xl pb-5">
+    <!-- Section header -->
+    <div class="section-header">
+        <h4 class="section-title">
+            <i class="bi @icon" style="color:@color;font-size:1.1rem"></i>
+            @title
+        </h4>
+        <a href="/Products?category=@category" class="btn btn-sm glass text-white px-3" style="font-size:.8rem">
+            Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <!-- 5-column product grid -->
+    <div class="product-grid-5">
+        @foreach (var item in Model)
+        {
+            var status      = item.EffectiveStockStatus;
+            var (badgeLabel, badgeStyle) = StockStatus.Badge(status);
+            var isOutOfStock = status == StockStatus.OutOfStock;
+
+            <div class="component-card position-relative" style="overflow:hidden">
+
+                <!-- Stock badge (top-left) -->
+                @if (status != StockStatus.InStock)
+                {
+                    <span class="badge-status" style="@badgeStyle">@badgeLabel</span>
+                }
+
+                <!-- Main card link -->
+                <a href="/Products/Detail/@item.Category/@item.Id"
+                   class="text-decoration-none d-block">
+
+                    <!-- Image area -->
+                    <div class="card-img-wrap p-3 text-center" style="background:rgba(255,255,255,0.02)">
+                        <img src="@item.ImageUrl"
+                             class="img-fluid"
+                             style="height:130px;object-fit:contain;border-radius:.5rem"
+                             alt="@item.Name"
+                             loading="lazy">
+
+                        <!-- Compare checkbox -->
+                        <label class="card-cmp-check" title="So sánh"
+                               onclick="toggleCompare(@item.Id,'@item.Category',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Name)),@item.Price,'@(item.ImageUrl ?? "")'); event.preventDefault(); event.stopPropagation();">
+                            <i class="bi bi-check2-square"></i>
+                        </label>
+
+                        <!-- Quick view -->
+                        <button class="qv-eye-btn" title="Xem nhanh"
+                                onclick="event.preventDefault(); event.stopPropagation(); openQuickView('@item.Category',@item.Id)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+
+                    <!-- Card body -->
+                    <div class="px-3 pb-3 pt-2">
+                        <div class="text-white mb-2"
+                             style="font-size:.82rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.3rem">
+                            @item.Name
+                        </div>
+                        <!-- 3 spec chips -->
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            @foreach (var spec in item.Specs.Take(3))
+                            {
+                                <span class="spec-chip">@spec.Value</span>
+                            }
+                        </div>
+                        <div class="fw-bold" style="color:@color;font-size:.95rem">@item.Price.ToString("N0")đ</div>
+                    </div>
+                </a>
+
+                <!-- Action overlay (slides up on card hover) -->
+                <div class="card-action-overlay">
+                    @if (!isOutOfStock)
+                    {
+                        <button class="btn btn-gradient btn-sm flex-grow-1"
+                                data-pid="@item.Id"
+                                data-pcat="@item.Category"
+                                data-pname="@item.Name"
+                                data-pprice="@item.Price"
+                                data-pimg="@item.ImageUrl"
+                                onclick="addToCartFromData(this)"
+                                style="font-size:.75rem;padding:6px 8px;border-radius:7px">
+                            <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
+                        </button>
+                    }
+                    <button class="btn glass-sm text-white btn-sm flex-shrink-0"
+                            id="cmpBtn_@(item.Category)_@(item.Id)"
+                            onclick="toggleCompare(@item.Id,'@item.Category',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Name)),@item.Price,'@(item.ImageUrl ?? "")')"
+                            title="So sánh"
+                            style="font-size:.8rem;padding:6px 9px;border-radius:7px">
+                        <i class="bi bi-bar-chart-steps"></i>
+                    </button>
+                </div>
+
+            </div>
+        }
+    </div>
+</section>

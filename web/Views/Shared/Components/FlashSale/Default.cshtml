@@ -1,0 +1,107 @@
+@model List<TechSpecs.Models.FlashSaleItem>
+
+<section id="flashsale" class="container-xl pb-5">
+    <div class="glass p-4 rounded-4"
+         style="border:1px solid rgba(239,68,68,0.3);background:linear-gradient(135deg,rgba(239,68,68,0.08) 0%,rgba(10,6,22,0) 100%)">
+
+        <!-- Header with countdown -->
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <h3 class="fw-bold mb-0" style="color:#fca5a5">
+                    <i class="bi bi-lightning-fill me-2"></i>GIỜ VÀNG GIÁ SỐC
+                </h3>
+                <div class="d-flex gap-1 align-items-center" id="flashCountdown">
+                    <span class="bg-danger text-white rounded px-2 py-1 fw-bold fs-5" id="fcHours">05</span>
+                    <span class="text-white fw-bold fs-5">:</span>
+                    <span class="bg-danger text-white rounded px-2 py-1 fw-bold fs-5" id="fcMins">30</span>
+                    <span class="text-white fw-bold fs-5">:</span>
+                    <span class="bg-danger text-white rounded px-2 py-1 fw-bold fs-5" id="fcSecs">00</span>
+                </div>
+            </div>
+            <a href="/Products" class="btn btn-sm glass text-white px-3" style="font-size:.8rem">
+                Xem thêm <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <!-- 5-column flash sale grid -->
+        <div class="product-grid-5">
+            @foreach (var item in Model)
+            {
+                var discPct = (int)Math.Round((1 - item.SalePrice / item.OriginalPrice) * 100);
+                var soldPct = item.TotalQuantity > 0 ? (item.SoldQuantity * 100) / item.TotalQuantity : 0;
+
+                <div class="component-card position-relative" style="overflow:hidden;border-color:rgba(239,68,68,0.2)">
+
+                    <!-- Discount badge (top-right) -->
+                    <span class="badge-discount bg-danger text-white">-@discPct%</span>
+
+                    <a href="/Products/Detail/@item.Category/@item.Id" class="text-decoration-none d-block">
+                        <div class="card-img-wrap p-3 text-center" style="background:rgba(255,255,255,0.02)">
+                            <img src="@item.ImageUrl"
+                                 class="img-fluid"
+                                 style="height:130px;object-fit:contain;border-radius:.5rem"
+                                 alt="@item.Name"
+                                 loading="lazy">
+                        </div>
+                        <div class="px-3 pb-3 pt-2">
+                            <div class="text-white mb-2"
+                                 style="font-size:.82rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.3rem">
+                                @item.Name
+                            </div>
+                            <div class="text-decoration-line-through mb-1"
+                                 style="font-size:.75rem;color:rgba(255,255,255,.4)">
+                                @item.OriginalPrice.ToString("N0")đ
+                            </div>
+                            <div class="fw-bold mb-2" style="color:#fca5a5;font-size:1rem">
+                                @item.SalePrice.ToString("N0")đ
+                            </div>
+                            <!-- Stock progress bar -->
+                            <div class="progress mb-1" style="height:5px;background:rgba(255,255,255,.1);border-radius:3px">
+                                <div class="progress-bar bg-danger" style="width:@soldPct%;border-radius:3px"></div>
+                            </div>
+                            <div class="text-center" style="font-size:.68rem;color:rgba(255,255,255,.5)">
+                                Đã bán @item.SoldQuantity/@item.TotalQuantity
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Action overlay -->
+                    <div class="card-action-overlay">
+                        <button class="btn btn-sm flex-grow-1"
+                                data-pid="@item.Id"
+                                data-pcat="@item.Category"
+                                data-pname="@item.Name"
+                                data-pprice="@item.SalePrice"
+                                data-pimg="@item.ImageUrl"
+                                onclick="addToCartFromData(this)"
+                                style="font-size:.75rem;padding:6px 8px;border-radius:7px;background:rgba(239,68,68,.85);color:#fff;border:none">
+                            <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
+                        </button>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<script>
+// Live countdown for flash sale
+(function() {
+    const endTime = new Date(Date.now() + 5 * 3600000 + 30 * 60000); // 5h30m from now (mock)
+    function tick() {
+        const diff = Math.max(0, endTime - Date.now());
+        const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+        const el = document.getElementById('fcHours');
+        if (el) {
+            el.textContent = h;
+            document.getElementById('fcMins').textContent = m;
+            document.getElementById('fcSecs').textContent = s;
+        }
+        if (diff > 0) setTimeout(tick, 1000);
+    }
+    tick();
+})();
+</script>

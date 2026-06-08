@@ -101,6 +101,14 @@ public class CartController : Controller
         return Ok(new { count = 0 });
     }
 
+    // AJAX endpoint for mini-cart hover dropdown
+    [HttpGet]
+    public async Task<IActionResult> MiniCart()
+    {
+        var cart = await GetOrCreateCartAsync();
+        return PartialView("_MiniCart", BuildCartViewModel(cart));
+    }
+
     // AJAX endpoint for navbar badge
     [HttpGet]
     public async Task<IActionResult> Count()
