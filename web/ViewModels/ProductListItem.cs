@@ -50,9 +50,17 @@ public class ProductListItem
     public int? StockStatusOverride { get; set; }
     public int EffectiveStockStatus => StockStatus.Resolve(Stock, StockStatusOverride);
     public Dictionary<string, string> Specs { get; set; } = new();
+    public double AvgRating { get; set; }
+    public int ReviewCount { get; set; }
 
     [System.Text.Json.Serialization.JsonIgnore]
     public Dictionary<string, string> FilterData { get; set; } = new();
+}
+
+public class RecentlyViewedRequest
+{
+    public int Id { get; set; }
+    public string Category { get; set; } = string.Empty;
 }
 
 public class ProductsIndexViewModel

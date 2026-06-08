@@ -75,6 +75,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 builder.Services.AddMemoryCache();
+builder.Services.AddOutputCache();
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "");
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
@@ -111,6 +112,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 });
 
 app.UseRouting();
+app.UseOutputCache();
 
 app.UseAuthentication();
 app.UseAuthorization();

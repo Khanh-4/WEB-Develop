@@ -1,13 +1,16 @@
 // Shared cart utilities — available on every page
 
 function updateCartBadge(count) {
+    const label = count > 99 ? '99+' : String(count);
     const badge = document.getElementById('cartCount');
-    if (!badge) return;
-    if (count > 0) {
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.style.display = '';
-    } else {
-        badge.style.display = 'none';
+    if (badge) {
+        if (count > 0) { badge.textContent = label; badge.style.display = ''; }
+        else badge.style.display = 'none';
+    }
+    const bottomBadge = document.getElementById('bottomCartBadge');
+    if (bottomBadge) {
+        if (count > 0) { bottomBadge.textContent = label; bottomBadge.style.display = ''; }
+        else bottomBadge.style.display = 'none';
     }
 }
 

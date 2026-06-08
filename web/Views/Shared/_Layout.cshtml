@@ -649,6 +649,204 @@ function showInstallment(price, productName) {
     </a>
 </div>
 
+<!-- ── P41: Full-screen Search Overlay (mobile) ───────────────────────── -->
+<div class="search-overlay d-lg-none" id="searchOverlay" role="dialog" aria-label="Tìm kiếm">
+    <div class="search-overlay-header">
+        <input type="search" class="search-overlay-input" id="searchOverlayInput"
+               placeholder="Tìm CPU, GPU, RAM, SSD..." autocomplete="off">
+        <button class="search-overlay-cancel" id="searchOverlayCancel">Huỷ</button>
+    </div>
+    <div class="search-overlay-body">
+        <div id="soHistoryBlock">
+            <div class="search-overlay-section-title">Tìm kiếm gần đây</div>
+            <div id="soHistoryList"></div>
+        </div>
+        <div class="mt-3">
+            <div class="search-overlay-section-title">Tìm kiếm phổ biến</div>
+            @foreach (var kw in new[] { "RTX 4070", "Intel i5-14400F", "RAM DDR5 32GB", "SSD NVMe 1TB", "Mainboard B760" })
+            {
+                <div class="search-trending-item" onclick="doOverlaySearch('@kw')">
+                    <i class="bi bi-fire" style="color:#fb923c"></i> @kw
+                </div>
+            }
+        </div>
+        <div id="soResultsList" class="mt-3"></div>
+    </div>
+</div>
+<script>
+(function() {
+    var overlay  = document.getElementById('searchOverlay');
+    var ovInput  = document.getElementById('searchOverlayInput');
+    var cancel   = document.getElementById('searchOverlayCancel');
+    var histList = document.getElementById('soHistoryList');
+    var histBlock= document.getElementById('soHistoryBlock');
+    var resList  = document.getElementById('soResultsList');
+    var mainInput= document.getElementById('navSearchInput');
+    if (!overlay || !mainInput) return;
+
+    function getHistory() {
+        try { return JSON.parse(localStorage.getItem('searchHistory') || '[]'); } catch(e) { return []; }
+    }
+    function saveHistory(kw) {
+        var h = getHistory().filter(x => x !== kw);
+        h.unshift(kw);
+        if (h.length > 10) h = h.slice(0, 10);
+        localStorage.setItem('searchHistory', JSON.stringify(h));
+    }
+    function renderHistory() {
+        var h = getHistory();
+        histBlock.style.display = h.length ? '' : 'none';
+        histList.innerHTML = h.map(kw =>
+            `<div class="search-history-item">
+                <i class="bi bi-clock" style="color:rgba(255,255,255,.3)"></i>
+                <span onclick="doOverlaySearch('${kw.replace(/'/g,"\\'")}');">${kw}</span>
+                <button class="search-history-del" onclick="deleteHistory('${kw.replace(/'/g,"\\'")}')">✕</button>
+            </div>`).join('');
+    }
+    window.deleteHistory = function(kw) {
+        var h = getHistory().filter(x => x !== kw);
+        localStorage.setItem('searchHistory', JSON.stringify(h));
+        renderHistory();
+    };
+    window.doOverlaySearch = function(kw) {
+        saveHistory(kw);
+        window.location.href = '/Products?search=' + encodeURIComponent(kw);
+    };
+
+    function openOverlay() {
+        overlay.classList.add('open');
+        setTimeout(function() { ovInput.focus(); }, 100);
+        renderHistory();
+        resList.innerHTML = '';
+    }
+    function closeOverlay() {
+        overlay.classList.remove('open');
+        ovInput.value = '';
+        resList.innerHTML = '';
+    }
+
+    // Only trigger overlay on mobile (lg breakpoint = 992px)
+    mainInput.addEventListener('focus', function() {
+        if (window.innerWidth < 992) { openOverlay(); mainInput.blur(); }
+    });
+    cancel.addEventListener('click', closeOverlay);
+    overlay.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeOverlay(); });
+
+    // Live search in overlay (reuse existing /Products/LiveSearch endpoint)
+    var soTimer;
+    ovInput.addEventListener('input', function() {
+        clearTimeout(soTimer);
+        var q = ovInput.value.trim();
+        if (!q) { resList.innerHTML = ''; return; }
+        soTimer = setTimeout(function() {
+            fetch('/Products/LiveSearch?q=' + encodeURIComponent(q))
+                .then(r => r.ok ? r.json() : [])
+                .then(items => {
+                    if (!items.length) { resList.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:.85rem">Không tìm thấy kết quả</div>'; return; }
+                    resList.innerHTML = '<div class="search-overlay-section-title">Kết quả</div>' +
+                        items.slice(0,8).map(x => `
+                            <div class="search-history-item" onclick="doOverlaySearch('${x.name.replace(/'/g,"\\'")}')">
+                                <img src="${x.imageUrl||''}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.05)" alt="">
+                                <span style="flex:1">${x.name}</span>
+                                <span style="color:#c084fc;font-size:.8rem">${Number(x.price).toLocaleString('vi-VN')}đ</span>
+                            </div>`).join('');
+                }).catch(() => {});
+        }, 300);
+    });
+    ovInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { var q = ovInput.value.trim(); if (q) doOverlaySearch(q); }
+    });
+})();
+</script>
+
+<!-- ── Bottom Navigation Bar (mobile, d-lg-none) ──────────────────────── -->
+<nav class="bottom-nav d-lg-none" id="bottomNav" aria-label="Mobile navigation">
+    <a href="/" class="bottom-nav-item" id="bnHome">
+        <i class="bi bi-house-fill"></i><span>Trang chủ</span>
+    </a>
+    <a href="/Products" class="bottom-nav-item" id="bnProducts">
+        <i class="bi bi-grid-fill"></i><span>Danh mục</span>
+    </a>
+    <a href="/Cart" class="bottom-nav-item position-relative" id="bnCart">
+        <i class="bi bi-cart3"></i>
+        <span class="bottom-cart-badge" id="bottomCartBadge"></span>
+        <span>Giỏ hàng</span>
+    </a>
+    <a href="/Account/Profile" class="bottom-nav-item" id="bnAccount">
+        <i class="bi bi-person-fill"></i><span>Tài khoản</span>
+    </a>
+</nav>
+
+<script>
+// Bottom nav: set active tab by current pathname
+(function() {
+    var p = window.location.pathname;
+    var map = { '/': 'bnHome', '/Products': 'bnProducts', '/Cart': 'bnCart', '/Account': 'bnAccount' };
+    var key = Object.keys(map).reverse().find(k => p === k || (k !== '/' && p.startsWith(k)));
+    if (key) { var el = document.getElementById(map[key]); if (el) el.classList.add('active'); }
+})();
+
+// Header auto-hide on scroll down, re-appear on scroll up
+(function() {
+    var header = document.querySelector('.sticky-header');
+    if (!header) return;
+    var lastY = 0, ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(function() {
+                var y = window.scrollY;
+                if (y > lastY && y > 80) header.style.transform = 'translateY(-100%)';
+                else header.style.transform = '';
+                lastY = y;
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+})();
+</script>
+
+<!-- ── P36: Purchase Toast (Social Proof) ─────────────────────────── -->
+<div class="purchase-toast" id="purchaseToast" role="status" aria-live="polite">
+    <img class="purchase-toast-img" id="ptImg" src="" alt="">
+    <div>
+        <div class="purchase-toast-text" id="ptText"></div>
+        <div class="purchase-toast-time" id="ptTime"></div>
+    </div>
+</div>
+<script>
+(function() {
+    var data = [
+        { name:"Anh K.", city:"TP.HCM",  product:"RTX 4070 Ti SUPER",        img:"https://placehold.co/44/1e1b4b/c084fc?text=GPU",  mins:2  },
+        { name:"Chị L.", city:"Hà Nội",   product:"Intel Core i7-14700K",     img:"https://placehold.co/44/0f172a/60a5fa?text=CPU",  mins:5  },
+        { name:"Anh T.", city:"Đà Nẵng",  product:"Corsair DDR5 32GB 6000",   img:"https://placehold.co/44/0f2a1b/4ade80?text=RAM",  mins:8  },
+        { name:"Chị M.", city:"Cần Thơ",  product:"ASUS B760M Mainboard",     img:"https://placehold.co/44/0a1f2b/06b6d4?text=MB",   mins:12 },
+        { name:"Anh P.", city:"Hải Phòng",product:"Samsung 980 Pro 2TB NVMe", img:"https://placehold.co/44/1a0a2b/a855f7?text=SSD",  mins:15 },
+        { name:"Chị H.", city:"Huế",      product:"Lian Li PC-O11 Dynamic",   img:"https://placehold.co/44/2b1a0a/ef4444?text=CASE", mins:18 },
+        { name:"Anh N.", city:"Bình Dương",product:"RTX 4060 Ti 16GB",        img:"https://placehold.co/44/1e1b4b/c084fc?text=GPU",  mins:22 },
+        { name:"Chị V.", city:"Long An",  product:"Be Quiet Dark Rock Pro 5", img:"https://placehold.co/44/1a2b2b/8b5cf6?text=FAN",  mins:25 },
+    ];
+    var toast = document.getElementById('purchaseToast');
+    var ptImg = document.getElementById('ptImg');
+    var ptText = document.getElementById('ptText');
+    var ptTime = document.getElementById('ptTime');
+    var idx = 0;
+    function showToast() {
+        var d = data[idx % data.length]; idx++;
+        ptImg.src = d.img;
+        ptText.innerHTML = '<strong>' + d.name + '</strong> tại ' + d.city + ' vừa đặt mua <strong>' + d.product + '</strong>';
+        ptTime.textContent = d.mins + ' phút trước';
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 5000);
+    }
+    // First show after 15s, then every 30-45s
+    setTimeout(function() {
+        showToast();
+        setInterval(showToast, 30000 + Math.random() * 15000);
+    }, 15000);
+})();
+</script>
+
 @await Html.PartialAsync("_ChatWidget")
 @if (User.Identity?.IsAuthenticated == true)
 {

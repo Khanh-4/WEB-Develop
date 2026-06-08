@@ -947,6 +947,61 @@ public class ProductsController : Controller
         _ => $"{gb} GB"
     };
 
+    // POST /Products/RecentlyViewed — returns fresh product data for localStorage IDs
+    [HttpPost]
+    public async Task<IActionResult> RecentlyViewed([FromBody] List<RecentlyViewedRequest> items)
+    {
+        if (items == null || items.Count == 0) return Json(Array.Empty<object>());
+        items = items.Take(10).ToList();
+
+        var results = new List<ProductListItem>();
+        foreach (var req in items)
+        {
+            ProductListItem? item = req.Category switch
+            {
+                "cpu" => await _db.Cpus.AsNoTracking()
+                    .Where(c => c.Id == req.Id && c.Price > 0)
+                    .Select(c => new ProductListItem { Id = c.Id, Category = "cpu", Name = c.Name, Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock, Manufacturer = c.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "gpu" => await _db.VideoCards.AsNoTracking()
+                    .Where(g => g.Id == req.Id && g.Price > 0)
+                    .Select(g => new ProductListItem { Id = g.Id, Category = "gpu", Name = g.Name, Price = g.Price, ImageUrl = g.ImageUrl, Stock = g.Stock, Manufacturer = g.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "memory" => await _db.Memories.AsNoTracking()
+                    .Where(m => m.Id == req.Id && m.Price > 0)
+                    .Select(m => new ProductListItem { Id = m.Id, Category = "memory", Name = m.Name, Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock, Manufacturer = m.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "motherboard" => await _db.Motherboards.AsNoTracking()
+                    .Where(m => m.Id == req.Id && m.Price > 0)
+                    .Select(m => new ProductListItem { Id = m.Id, Category = "motherboard", Name = m.Name, Price = m.Price, ImageUrl = m.ImageUrl, Stock = m.Stock, Manufacturer = m.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "storage" => await _db.Storages.AsNoTracking()
+                    .Where(s => s.Id == req.Id && s.Price > 0)
+                    .Select(s => new ProductListItem { Id = s.Id, Category = "storage", Name = s.Name, Price = s.Price, ImageUrl = s.ImageUrl, Stock = s.Stock, Manufacturer = s.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "psu" => await _db.PowerSupplies.AsNoTracking()
+                    .Where(p => p.Id == req.Id && p.Price > 0)
+                    .Select(p => new ProductListItem { Id = p.Id, Category = "psu", Name = p.Name, Price = p.Price, ImageUrl = p.ImageUrl, Stock = p.Stock, Manufacturer = p.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "case" => await _db.CaseEnclosures.AsNoTracking()
+                    .Where(c => c.Id == req.Id && c.Price > 0)
+                    .Select(c => new ProductListItem { Id = c.Id, Category = "case", Name = c.Name, Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock, Manufacturer = c.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                "cooler" => await _db.CpuCoolers.AsNoTracking()
+                    .Where(c => c.Id == req.Id && c.Price > 0)
+                    .Select(c => new ProductListItem { Id = c.Id, Category = "cooler", Name = c.Name, Price = c.Price, ImageUrl = c.ImageUrl, Stock = c.Stock, Manufacturer = c.Manufacturer })
+                    .FirstOrDefaultAsync(),
+                _ => null
+            };
+            if (item != null) results.Add(item);
+        }
+
+        return Json(results.Select(x => new {
+            x.Id, x.Category, x.Name, x.Price, x.ImageUrl,
+            x.Stock, stockStatus = x.EffectiveStockStatus
+        }));
+    }
+
     // GET /Products/ActiveSales — public endpoint for flash sale overlay on product grid
     [HttpGet]
     public async Task<IActionResult> ActiveSales()

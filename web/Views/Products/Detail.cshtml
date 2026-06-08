@@ -793,5 +793,25 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
     }, { threshold: 0 });
     obs.observe(nameEl);
 })();
+
+// Save to Recently Viewed (localStorage)
+(function() {
+    try {
+        var item = {
+            id: @Model.Id,
+            category: '@Model.Category',
+            name: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Name)),
+            price: @Model.Price,
+            imageUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ImageUrl ?? "")),
+            viewedAt: Date.now()
+        };
+        var list = [];
+        try { list = JSON.parse(localStorage.getItem('recentlyViewed') || '[]'); } catch(e) {}
+        list = list.filter(x => !(x.id === item.id && x.category === item.category));
+        list.unshift(item);
+        if (list.length > 10) list = list.slice(0, 10);
+        localStorage.setItem('recentlyViewed', JSON.stringify(list));
+    } catch(e) {}
+})();
 </script>
 }
