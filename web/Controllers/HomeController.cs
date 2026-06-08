@@ -67,6 +67,7 @@ public class HomeController : Controller
         var adminEmail = _config["Notification:AdminEmail"];
         if (!string.IsNullOrWhiteSpace(adminEmail))
         {
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
             var capturedLogger = _logger;
             _ = Task.Run(async () =>
             {
@@ -79,7 +80,7 @@ public class HomeController : Controller
                           <tr><td><b>Ngân sách</b></td><td>{System.Net.WebUtility.HtmlEncode(quote.Budget ?? "—")}</td></tr>
                           <tr><td><b>Thời gian</b></td><td>{quote.CreatedAt:dd/MM/yyyy HH:mm} UTC</td></tr>
                         </table>
-                        <p><a href="https://techspecsvn.up.railway.app/Admin/QuoteRequests">Xem tất cả yêu cầu →</a></p>
+                        <p><a href="{baseUrl}/Admin/QuoteRequests">Xem tất cả yêu cầu →</a></p>
                         """;
                     await _email.SendEmailAsync(adminEmail, $"[TechSpecs] Báo giá #{quote.Id} — {quote.PhoneOrEmail}", html);
                     capturedLogger.LogInformation("Quote notification email sent to {AdminEmail} for QuoteRequest #{Id}", adminEmail, quote.Id);
