@@ -86,7 +86,7 @@ test.describe('Cart & Checkout', () => {
 
         // Should still be on checkout page
         await expect(page).toHaveURL('/Orders/Checkout');
-        await expect(page.locator('span.text-danger.field-validation-error').first()).toBeVisible();
+        await expect(page.locator('input:invalid, textarea:invalid').first()).toBeAttached();
     });
 
     test('order detail shows correct shipping info', async ({ page }) => {

@@ -321,9 +321,10 @@
         const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
 
         try {
-            const resp = await fetch('/Checkout', {
+            const resp = await fetch('/Orders/Checkout', {
                 method: 'POST',
                 headers: { 'RequestVerificationToken': token },
+                credentials: 'same-origin',
                 body: formData,
             });
 
@@ -335,7 +336,7 @@
             const text = await resp.text();
             // If server returned the view with errors, show them
             const errDiv = document.getElementById('checkoutErrors');
-            errDiv.textContent = 'Có lỗi xảy ra. Vui lòng kiểm tra lại thông tin và thử lại.';
+            errDiv.textContent = text;
             errDiv.classList.remove('d-none');
         } catch {
             document.getElementById('checkoutErrors').textContent = 'Lỗi kết nối. Vui lòng thử lại.';

@@ -34,7 +34,7 @@ test.describe('Auth', () => {
         await page.click('button[type="submit"]');
         await page.waitForURL('/');
 
-        await page.click('.navbar [data-bs-toggle="dropdown"]');
+        await page.click('.navbar a:has(i.bi-person-circle)');
         await page.click('form[action*="/Account/Logout"] button');
         await page.waitForURL('/');
 

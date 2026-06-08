@@ -129,6 +129,7 @@ function updateQty(itemId, qty) {
     if (qty < 1) { removeItem(itemId); return; }
     fetch('/Cart/UpdateQty', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
         body: JSON.stringify({ cartItemId: itemId, quantity: qty })
     })
@@ -139,6 +140,7 @@ function updateQty(itemId, qty) {
 function removeItem(itemId) {
     fetch('/Cart/Remove', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getToken() },
         body: JSON.stringify({ cartItemId: itemId })
     })
@@ -154,6 +156,7 @@ function clearCart() {
     if (!confirm(_clearConfirm)) return;
     fetch('/Cart/Clear', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'RequestVerificationToken': getToken() }
     })
     .then(() => location.reload());

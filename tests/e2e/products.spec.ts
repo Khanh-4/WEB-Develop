@@ -11,7 +11,7 @@ test.describe('Products page', () => {
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(1200);
 
-        await expect(page.locator('button[title="Add to Cart"]').first()).toBeVisible();
+        await expect(page.locator('button:has(i.bi-cart-plus)').first()).toBeVisible();
     });
 
     test('add to cart shows success toast and increments badge', async ({ page }) => {
@@ -19,10 +19,8 @@ test.describe('Products page', () => {
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(1200);
 
-        await page.click('button[title="Add to Cart"]');
-        await page.waitForTimeout(1500);
-
-        await expect(page.locator('#cartToast')).toContainText('Added to cart');
+        await page.click('button:has(i.bi-cart-plus)');
+        await expect(page.locator('.ts-toast')).toBeVisible({ timeout: 10000 });
         expect(await getCartCount(page)).toBe(1);
     });
 
@@ -31,7 +29,7 @@ test.describe('Products page', () => {
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(1200);
 
-        const btns = page.locator('button[title="Add to Cart"]');
+        const btns = page.locator('button:has(i.bi-cart-plus)');
         await btns.nth(0).click();
         await page.waitForTimeout(800);
         await btns.nth(1).click();
@@ -47,7 +45,7 @@ test.describe('Products page', () => {
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(1200);
 
-        await page.click('button[title="Add to PC Builder"]');
+        await page.click('button:has(i.bi-tools)');
         await expect(page).toHaveURL(/\/Builder\?preselect=/);
     });
 

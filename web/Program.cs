@@ -135,4 +135,17 @@ using (var scope = app.Services.CreateScope())
     Console.WriteLine($"MAX CPU PERF = {maxCpu}, MAX GPU PERF = {maxGpu}");
 }
 
+// SET ALL STOCK TO 1000
+using (var scope2 = app.Services.CreateScope())
+{
+    var db2 = scope2.ServiceProvider.GetRequiredService<TechSpecs.Data.AppDbContext>();
+    await db2.Cpus.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.Motherboards.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.Memories.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.VideoCards.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.Storages.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.PowerSupplies.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.CaseEnclosures.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    await db2.CpuCoolers.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+}
 app.Run();

@@ -520,12 +520,6 @@ function showInstallment(price, productName) {
     new bootstrap.Modal(document.getElementById('installmentModal')).show();
 }
 
-function showToast(msg, type) {
-    const t = document.createElement('div');
-    const bg = type === 'warning' ? 'rgba(234,179,8,0.15)' : 'rgba(34,197,94,0.15)';
-    const col = type === 'warning' ? '#fde047' : '#4ade80';
-    t.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-        background:${bg};border:1px solid ${col};color:${col};
         padding:8px 18px;border-radius:8px;font-size:.83rem;z-index:2000;
         backdrop-filter:blur(12px);white-space:nowrap`;
     t.textContent = msg;

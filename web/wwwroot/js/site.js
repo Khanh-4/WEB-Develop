@@ -62,7 +62,8 @@ function addToCart(id, category, name, price, imageUrl, triggerEl) {
 
     fetch('/Cart/Add', {
         method: 'POST',
-        headers: {
+        credentials: 'same-origin',
+            headers: {
             'Content-Type': 'application/json',
             'RequestVerificationToken': document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || ''
         },

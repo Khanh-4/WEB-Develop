@@ -20,7 +20,7 @@ export async function addProductToCart(page: Page, index = 0) {
     await page.goto('/Products');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1200);
-    await page.locator('button[title="Add to Cart"]').nth(index).click();
+    await page.locator('button:has(i.bi-cart-plus)').nth(index).click();
     await page.waitForTimeout(1000);
 }
 
