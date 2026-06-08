@@ -107,6 +107,9 @@
         </div>
     </div>
 
+    <!-- P24: Active filters display -->
+    <div id="activeFilters" class="d-flex flex-wrap gap-2 mb-3" style="display:none!important"></div>
+
     <!-- Product Grid -->
     <div id="productGrid" class="row g-4">
         @await Html.PartialAsync("_ProductGrid", Model.Products)
@@ -361,8 +364,27 @@ function applyFilters() {
     const sort   = document.getElementById('sortSelect').value;
     const grid   = document.getElementById('productGrid');
 
-    grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
-        <div class="spinner-border me-2"></div>${i18n.loading}</div>`;
+    // P21: skeleton loading
+    grid.innerHTML = Array(8).fill(0).map(() => `
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+            <div class="component-card p-0 h-100 overflow-hidden d-flex flex-column">
+                <div class="sk-box" style="height:160px"></div>
+                <div class="p-3 d-flex flex-column gap-2">
+                    <div class="sk-line" style="width:40%;height:14px"></div>
+                    <div class="sk-line" style="width:90%;height:13px"></div>
+                    <div class="sk-line" style="width:75%;height:13px"></div>
+                    <div class="d-flex gap-1 mt-1">
+                        <div class="sk-line" style="width:30%;height:20px;border-radius:12px"></div>
+                        <div class="sk-line" style="width:28%;height:20px;border-radius:12px"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <div class="sk-line" style="width:38%;height:18px"></div>
+                        <div class="sk-box" style="width:32px;height:28px;border-radius:8px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>`).join('');
+    renderActiveFilters();
 
     const minP = document.getElementById('minPrice')?.value;
     const maxP = document.getElementById('maxPrice')?.value;
@@ -382,6 +404,7 @@ function applyFilters() {
             renderProducts(data.products);
             renderPagination(data.totalPages, data.page);
             document.getElementById('countLabel').textContent = data.totalCount + ' ' + i18n.results;
+            renderActiveFilters();
         })
         .catch(() => {
             grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
@@ -416,9 +439,19 @@ function renderProducts(products) {
                 .map(([k,v]) => `<span class="badge glass-sm text-white" style="font-size:.72rem">${k}: ${v}</span>`)
                 .join(' ');
 
+        // P23: lazy loading image; P22: image area gets card-img-wrap for hover overlay
         const img = p.imageUrl
-            ? `<img src="${p.imageUrl}" alt="${esc(p.name)}" class="w-100 h-100 object-fit-cover">`
+            ? `<img src="${p.imageUrl}" alt="${esc(p.name)}" class="w-100 h-100 object-fit-cover" loading="lazy">`
             : `<i class="bi bi-cpu text-muted-white" style="font-size:3rem"></i>`;
+
+        // P22: hover overlay showing 3 key specs
+        const hoverSpecs = !isPrebuilt
+            ? Object.entries(p.specs || {}).slice(0,3)
+                .map(([k,v]) => `<div class="d-flex justify-content-between gap-2">
+                    <span style="color:rgba(255,255,255,.6);font-size:.73rem">${k}</span>
+                    <span style="color:#fff;font-size:.73rem;font-weight:600">${v}</span>
+                </div>`).join('')
+            : '';
 
         const detailUrl = `/Products/Detail/${p.category}/${p.id}`;
         const builderBtn = !isPrebuilt
@@ -429,10 +462,25 @@ function renderProducts(products) {
                </button>`
             : '';
 
+        // P27: compare checkbox (hidden when category=all or prebuilt)
+        const cmpCheck = !isPrebuilt
+            ? `<label class="card-cmp-check" title="Chọn để so sánh">
+                   <input type="checkbox" data-cid="${p.id}" data-cat="${p.category}"
+                          data-name="${esc(p.name)}" data-price="${p.price}"
+                          data-img="${p.imageUrl||''}"
+                          onchange="toggleCompare(this)">
+                   <i class="bi bi-check2-square"></i>
+               </label>`
+            : '';
+
         return `<div class="col-sm-6 col-lg-4 col-xl-3">
             <div class="component-card p-0 h-100 overflow-hidden d-flex flex-column">
-                <a href="${detailUrl}" class="text-decoration-none"
-                   style="height:160px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;overflow:hidden">${img}</a>
+                <a href="${detailUrl}" class="card-img-wrap text-decoration-none"
+                   style="height:160px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+                    ${img}
+                    ${hoverSpecs ? `<div class="card-specs-overlay">${hoverSpecs}</div>` : ''}
+                    ${cmpCheck}
+                </a>
                 <div class="p-3 d-flex flex-column flex-grow-1">
                     <span class="badge mb-2" style="${badgeColor};font-size:.7rem">${catLabel}</span>
                     <h6 class="mb-2 lh-sm flex-grow-1" style="font-size:.82rem">
@@ -450,7 +498,7 @@ function renderProducts(products) {
                                 <div class="d-flex gap-2">
                                     ${builderBtn}
                                     <button class="btn btn-sm btn-gradient px-2 py-1"
-                                            onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${sale.salePrice},${p.imageUrl ? `'${esc(p.imageUrl)}'` : 'null'})"
+                                            onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${sale.salePrice},${p.imageUrl?`'${esc(p.imageUrl)}'`:'null'},this)"
                                             title="Thêm vào giỏ hàng">
                                         <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
                                     </button>
@@ -463,7 +511,7 @@ function renderProducts(products) {
                             <div class="d-flex gap-2">
                                 ${builderBtn}
                                 <button class="btn btn-sm btn-gradient px-2 py-1"
-                                        onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${p.price},${p.imageUrl ? `'${esc(p.imageUrl)}'` : 'null'})"
+                                        onclick="addToCart(${p.id},'${p.category}','${esc(p.name)}',${p.price},${p.imageUrl?`'${esc(p.imageUrl)}'`:'null'},this)"
                                         title="Thêm vào giỏ hàng">
                                     <i class="bi bi-cart-plus" style="font-size:.8rem"></i>
                                 </button>
@@ -558,5 +606,146 @@ function esc(s) {
     return String(s).replace(/[&<>"']/g, c =>
         ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+/* ── P24: Active Filters Display ─────────────────── */
+function renderActiveFilters() {
+    const bar = document.getElementById('activeFilters');
+    const tags = [];
+
+    const search = document.getElementById('searchInput')?.value.trim();
+    if (search) tags.push({ label: `🔍 "${search}"`, clear: () => { document.getElementById('searchInput').value = ''; applyFilters(); } });
+
+    if (currentCat && currentCat !== 'all')
+        tags.push({ label: i18n.catLabels[currentCat] || currentCat, clear: () => setCategory('all') });
+
+    if (currentBrands.length)
+        currentBrands.forEach(b => tags.push({ label: `🏷 ${b}`, clear: () => {
+            currentBrands = currentBrands.filter(x => x !== b);
+            document.querySelectorAll(`#brandCheckboxes input[value="${CSS.escape(b)}"]`).forEach(el => el.checked = false);
+            document.getElementById('brandLabel').textContent = currentBrands.length ? `${currentBrands.length} ${i18n.selected}` : i18n.allBrands;
+            currentPage = 1; applyFilters();
+        }}));
+
+    const minP = document.getElementById('minPrice')?.value;
+    const maxP = document.getElementById('maxPrice')?.value;
+    if (minP) tags.push({ label: `≥ ${Number(minP).toLocaleString('vi')}đ`, clear: () => { document.getElementById('minPrice').value=''; applyFilters(); } });
+    if (maxP) tags.push({ label: `≤ ${Number(maxP).toLocaleString('vi')}đ`, clear: () => { document.getElementById('maxPrice').value=''; applyFilters(); } });
+
+    document.querySelectorAll('#catSpecificFilters [data-param]').forEach(el => {
+        if (!el.value) return;
+        const label = el.options ? el.options[el.selectedIndex]?.text : el.value;
+        if (label) tags.push({ label: `⚙ ${label}`, clear: () => { el.value=''; applyFilters(); } });
+    });
+
+    if (!tags.length) { bar.style.display = 'none'; return; }
+    bar.style.display = '';
+    bar.innerHTML = tags.map((t, i) =>
+        `<button class="filter-tag" data-idx="${i}">
+            ${t.label}
+            <i class="bi bi-x-circle-fill ms-1"></i>
+         </button>`
+    ).join('') +
+    `<button class="filter-tag filter-tag-clear" onclick="clearAllFilters()">
+        <i class="bi bi-x-lg me-1"></i>Xóa tất cả
+     </button>`;
+
+    bar.querySelectorAll('[data-idx]').forEach(btn => {
+        btn.addEventListener('click', () => tags[+btn.dataset.idx].clear());
+    });
+}
+
+function clearAllFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('minPrice').value    = '';
+    document.getElementById('maxPrice').value    = '';
+    currentBrands = [];
+    document.querySelectorAll('#brandCheckboxes input').forEach(i => i.checked = false);
+    document.getElementById('brandLabel').textContent = i18n.allBrands;
+    document.querySelectorAll('#catSpecificFilters [data-param]').forEach(el => { el.value = ''; });
+    setCategory('all');
+}
+
+/* ── P27: Compare Sticky Bar ────────────────────── */
+let cmpItems = [];
+
+function toggleCompare(checkbox) {
+    const { cid, cat, name, price, img } = checkbox.dataset;
+    if (checkbox.checked) {
+        if (cmpItems.length >= 3) {
+            checkbox.checked = false;
+            showToast('<i class="bi bi-exclamation-circle me-2"></i>Tối đa 3 sản phẩm để so sánh', 'info');
+            return;
+        }
+        cmpItems.push({ id: cid, cat, name, price, img });
+    } else {
+        cmpItems = cmpItems.filter(i => i.id !== cid);
+    }
+    renderCompareBar();
+}
+
+function renderCompareBar() {
+    let bar = document.getElementById('cmpBar');
+    if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'cmpBar';
+        bar.style.cssText = `
+            position:fixed; bottom:0; left:0; right:0; z-index:1050;
+            background:rgba(15,23,42,.96); backdrop-filter:blur(16px);
+            border-top:1px solid rgba(168,85,247,.35);
+            padding:12px 24px; display:flex; align-items:center; gap:16px;
+            transform:translateY(100%); transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+        `;
+        document.body.appendChild(bar);
+    }
+
+    if (!cmpItems.length) { bar.style.transform = 'translateY(100%)'; return; }
+    bar.style.transform = 'translateY(0)';
+
+    const avatars = cmpItems.map(item => `
+        <div class="d-flex align-items-center gap-2 glass-sm rounded-3 px-2 py-1" style="min-width:0">
+            ${item.img
+                ? `<img src="${item.img}" style="width:36px;height:36px;object-fit:cover;border-radius:6px" loading="lazy">`
+                : `<div style="width:36px;height:36px;border-radius:6px;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center"><i class="bi bi-cpu" style="color:#a855f7"></i></div>`}
+            <div style="min-width:0">
+                <div class="text-white" style="font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${item.name}</div>
+                <div style="color:#a855f7;font-size:.7rem">${Number(item.price).toLocaleString('vi')}đ</div>
+            </div>
+            <button class="btn btn-sm p-0" style="color:rgba(255,255,255,.4);line-height:1;flex-shrink:0"
+                    onclick="removeCmp('${item.id}')"><i class="bi bi-x"></i></button>
+        </div>`).join('');
+
+    const slots = cmpItems.length < 3
+        ? `<div class="glass-sm rounded-3 px-3 py-2" style="color:rgba(255,255,255,.3);font-size:.78rem;border-style:dashed">
+               + Thêm ${3 - cmpItems.length} sản phẩm
+           </div>`
+        : '';
+
+    const canCompare = cmpItems.length >= 2 && cmpItems.every(i => i.cat === cmpItems[0].cat);
+    const compareUrl = `/Build/Compare?a=${cmpItems[0]?.cat}_${cmpItems[0]?.id}&b=${cmpItems[1]?.cat}_${cmpItems[1]?.id}`;
+
+    bar.innerHTML = `
+        <span class="text-white fw-semibold me-2" style="white-space:nowrap;font-size:.82rem">
+            <i class="bi bi-layout-split me-1" style="color:#a855f7"></i>So sánh (${cmpItems.length}/3)
+        </span>
+        <div class="d-flex gap-2 flex-wrap flex-grow-1">${avatars}${slots}</div>
+        <div class="d-flex gap-2 ms-auto flex-shrink-0">
+            ${canCompare ? `<a href="${compareUrl}" class="btn btn-gradient btn-sm px-4 fw-semibold">So sánh chi tiết</a>` : `<button class="btn btn-gradient btn-sm px-4" disabled title="Cần ≥2 sản phẩm cùng loại">So sánh</button>`}
+            <button class="btn glass text-white btn-sm px-3" onclick="clearCompare()"><i class="bi bi-x-lg"></i></button>
+        </div>`;
+}
+
+function removeCmp(id) {
+    cmpItems = cmpItems.filter(i => i.id !== id);
+    document.querySelectorAll(`[data-cid="${id}"]`).forEach(cb => cb.checked = false);
+    renderCompareBar();
+}
+
+function clearCompare() {
+    cmpItems = [];
+    document.querySelectorAll('.card-cmp-check input').forEach(cb => cb.checked = false);
+    renderCompareBar();
+}
 </script>
+
+<!-- P27: Compare bar placeholder (created by JS when needed) -->
 }

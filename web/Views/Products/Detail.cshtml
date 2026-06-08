@@ -1,5 +1,25 @@
 @model TechSpecs.ViewModels.ProductDetailViewModel
 @{
+    // P25: tooltip map (Vietnamese)
+    var specTips = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        ["TDP"]           = "Thermal Design Power — Công suất tỏa nhiệt tối đa (W). CPU/GPU có TDP cao cần tản nhiệt mạnh hơn.",
+        ["Boost Clock"]   = "Xung nhịp tăng tốc tự động khi tải cao. CPU tự nâng lên mức này khi cần, cao hơn Base Clock.",
+        ["Base Clock"]    = "Xung nhịp hoạt động cơ bản (GHz) khi tải thấp hay bình thường.",
+        ["Socket"]        = "Chân cắm vật lý của CPU/Bo mạch. CPU và mainboard phải cùng loại socket mới lắp được.",
+        ["CAS Latency"]   = "Độ trễ CAS (chu kỳ) — con số nhỏ hơn nghĩa là RAM phản hồi nhanh hơn ở cùng tốc độ MHz.",
+        ["Tốc độ"]        = "Tốc độ bus của RAM (MHz/MT/s). Số càng cao, băng thông càng lớn.",
+        ["Loại"]          = "Thế hệ RAM: DDR4 thông dụng; DDR5 nhanh hơn nhưng cần bo mạch hỗ trợ.",
+        ["Form Factor"]   = "Kích thước vật lý. ATX là chuẩn phổ biến; mATX/ITX nhỏ gọn hơn nhưng ít slot mở rộng hơn.",
+        ["Chipset"]       = "Chip điều phối trên mainboard. Chipset cao cấp (Z/X) cho phép ép xung CPU.",
+        ["VRAM"]          = "Bộ nhớ riêng của GPU. Render độ phân giải cao và texture chi tiết cần nhiều VRAM (≥8GB cho 1440p).",
+        ["MaxTDP"]        = "Công suất CPU tối đa mà tản nhiệt này chịu được. Chọn tản có MaxTDP ≥ TDP của CPU.",
+        ["Wattage"]       = "Công suất nguồn điện (W). Nên chọn PSU lớn hơn 20–30% so với tổng tiêu thụ CPU+GPU.",
+        ["Efficiency"]    = "Chứng nhận hiệu suất điện. 80 Plus Gold/Platinum = ít hao phí nhiệt, tiết kiệm điện hơn.",
+        ["Dung lượng"]    = "Dung lượng lưu trữ (GB/TB). SSD NVMe nhanh hơn SATA ~5 lần về đọc/ghi tuần tự.",
+        ["Nhân/Luồng"]    = "Số nhân vật lý / luồng xử lý ảo (Hyper-Threading). Nhiều nhân hơn = đa nhiệm và render tốt hơn.",
+        ["MaxVGALength"]  = "Chiều dài GPU tối đa vỏ case chứa được (mm). Kiểm tra trước khi chọn card cao cấp.",
+    };
+
     var catLabel = Model.Category switch {
         "cpu"         => "Processor",
         "motherboard" => "Motherboard",
@@ -137,11 +157,19 @@
                     <div class="rounded-3 overflow-hidden" style="border:1px solid rgba(255,255,255,0.08)">
                         @foreach (var (key, val) in Model.Specs)
                         {
+                            var tip = specTips.TryGetValue(key, out var t) ? t : null;
                             <div class="d-flex" style="border-bottom:1px solid rgba(255,255,255,0.06)">
-                                <div class="px-3 py-2 flex-shrink-0"
+                                <div class="px-3 py-2 flex-shrink-0 d-flex align-items-center gap-1"
                                      style="width:170px;background:rgba(255,255,255,0.04);
                                             color:rgba(255,255,255,0.55);font-size:.82rem">
                                     @key
+                                    @if (tip != null)
+                                    {
+                                        <span class="spec-tip-icon" data-bs-toggle="tooltip"
+                                              data-bs-placement="right" title="@tip">
+                                            <i class="bi bi-question-circle" style="font-size:.75rem;opacity:.6;cursor:help"></i>
+                                        </span>
+                                    }
                                 </div>
                                 <div class="px-3 py-2 text-white flex-grow-1" style="font-size:.85rem;word-break:break-word">
                                     @val
@@ -581,5 +609,61 @@ async function postAnswer(questionId) {
         if (r.ok) location.reload();
     } catch {}
 }
+
+// P25: Bootstrap tooltips
+document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
+    new bootstrap.Tooltip(el, { trigger: 'hover focus' }));
+
+// P26: Sticky Add-to-Cart bar
+(function() {
+    const nameEl  = document.querySelector('h1.text-white');
+    const priceEl = document.querySelector('[style*="2rem"]');
+    if (!nameEl || !priceEl) return;
+
+    const productName  = @Json.Serialize(Model.Name);
+    const productPrice = @Model.Price;
+    const productCat   = '@Model.Category';
+    const productId    = @Model.Id;
+    const productImg   = @Json.Serialize(Model.ImageUrl ?? "");
+    const outOfStock   = @(Model.Stock == 0 ? "true" : "false");
+
+    // Build the bar
+    const bar = document.createElement('div');
+    bar.id = 'stickyCartBar';
+    bar.innerHTML = `
+        <div class="container-xl d-flex align-items-center gap-3 px-3">
+            <div style="flex:1;min-width:0">
+                <div class="text-white fw-semibold" style="font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                    ${productName}
+                </div>
+                <div style="font-size:.9rem;font-weight:700;background:linear-gradient(135deg,#a855f7,#6366f1);
+                            -webkit-background-clip:text;-webkit-text-fill-color:transparent">
+                    ${new Intl.NumberFormat('vi-VN').format(productPrice)}đ
+                </div>
+            </div>
+            <button class="btn btn-gradient px-4 py-2 rounded-3 fw-semibold flex-shrink-0"
+                    ${outOfStock ? 'disabled' : ''}
+                    data-pid="${productId}" data-pcat="${productCat}"
+                    data-pname="${productName.replace(/"/g,'&quot;')}"
+                    data-pprice="${productPrice}" data-pimg="${productImg}"
+                    onclick="addToCartFromData(this)">
+                <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
+            </button>
+        </div>`;
+    bar.style.cssText = `
+        position:fixed; top:0; left:0; right:0; z-index:1040;
+        background:rgba(15,23,42,.95); backdrop-filter:blur(16px);
+        border-bottom:1px solid rgba(168,85,247,.25);
+        padding:10px 0;
+        transform:translateY(-110%);
+        transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+    `;
+    document.body.appendChild(bar);
+
+    const obs = new IntersectionObserver(([entry]) => {
+        bar.style.transform = entry.isIntersecting ? 'translateY(-110%)' : 'translateY(0)';
+    }, { threshold: 0 });
+    obs.observe(nameEl);
+})();
 </script>
 }

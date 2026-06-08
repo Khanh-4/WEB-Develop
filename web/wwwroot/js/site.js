@@ -1,4 +1,4 @@
-﻿// Shared cart utilities — available on every page
+// Shared cart utilities — available on every page
 
 function updateCartBadge(count) {
     const badge = document.getElementById('cartCount');
@@ -18,11 +18,48 @@ function addToCartFromData(btn) {
         btn.dataset.pcat,
         btn.dataset.pname,
         parseFloat(btn.dataset.pprice),
-        btn.dataset.pimg || null
+        btn.dataset.pimg || null,
+        btn
     );
 }
 
-function addToCart(id, category, name, price, imageUrl) {
+// P20: fly a dot from the clicked button to the cart icon
+function flyToCart(triggerEl) {
+    const cartIcon = document.getElementById('cartCount')?.closest('a') ||
+                     document.querySelector('a[href="/cart"]');
+    if (!cartIcon || !triggerEl) return;
+
+    const src  = triggerEl.getBoundingClientRect();
+    const dst  = cartIcon.getBoundingClientRect();
+
+    const dot = document.createElement('div');
+    dot.style.cssText = `
+        position:fixed;
+        width:12px; height:12px; border-radius:50%;
+        background:linear-gradient(135deg,#a855f7,#3b82f6);
+        box-shadow:0 0 8px rgba(168,85,247,.7);
+        pointer-events:none; z-index:99999;
+        left:${src.left + src.width/2 - 6}px;
+        top:${src.top  + src.height/2 - 6}px;
+        transition:left .55s cubic-bezier(.4,0,.2,1),
+                   top  .55s cubic-bezier(.4,0,.2,1),
+                   opacity .2s .4s, transform .55s;
+    `;
+    document.body.appendChild(dot);
+
+    // force reflow then animate
+    dot.getBoundingClientRect();
+    dot.style.left    = `${dst.left + dst.width/2  - 6}px`;
+    dot.style.top     = `${dst.top  + dst.height/2 - 6}px`;
+    dot.style.opacity = '0';
+    dot.style.transform = 'scale(.4)';
+
+    setTimeout(() => dot.remove(), 700);
+}
+
+function addToCart(id, category, name, price, imageUrl, triggerEl) {
+    if (triggerEl) flyToCart(triggerEl);
+
     fetch('/Cart/Add', {
         method: 'POST',
         headers: {
@@ -38,34 +75,58 @@ function addToCart(id, category, name, price, imageUrl) {
     .then(d => {
         if (!d) return;
         updateCartBadge(d.count);
-        showToast((window.i18n?.addedToCart ?? 'Added to cart'), 'success');
+        showToast(`<i class="bi bi-check-circle-fill me-2"></i>${window.i18n?.addedToCart ?? 'Đã thêm vào giỏ'}`, 'success');
     })
-    .catch(() => showToast((window.i18n?.cannotAdd ?? 'Cannot add to cart'), 'error'));
+    .catch(() => showToast(`<i class="bi bi-exclamation-circle me-2"></i>${window.i18n?.cannotAdd ?? 'Không thể thêm'}`, 'error'));
 }
 
-function showToast(message, type) {
-    const existing = document.getElementById('cartToast');
+// Enhanced toast — supports HTML, 3 types
+function showToast(html, type = 'success', duration = 2800) {
+    const existing = document.querySelector('.ts-toast');
     if (existing) existing.remove();
 
-    const toast = document.createElement('div');
-    toast.id = 'cartToast';
-    toast.style.cssText = `
-        position:fixed; bottom:24px; right:24px; z-index:9999;
-        padding:12px 20px; border-radius:10px; font-size:.875rem;
-        color:#fff; font-weight:500; pointer-events:none;
-        background:${type === 'success' ? 'rgba(34,197,94,.85)' : 'rgba(239,68,68,.85)'};
-        backdrop-filter:blur(8px); box-shadow:0 4px 20px rgba(0,0,0,.3);
-        animation:fadeInUp .25s ease;
-    `;
-    toast.textContent = message;
+    const colors = {
+        success: 'rgba(22,163,74,.9)',
+        error:   'rgba(220,38,38,.9)',
+        info:    'rgba(99,102,241,.9)',
+    };
 
-    if (!document.getElementById('toastStyle')) {
+    const toast = document.createElement('div');
+    toast.className = 'ts-toast';
+    toast.style.cssText = `
+        position:fixed; bottom:28px; right:28px; z-index:99990;
+        padding:12px 20px; border-radius:12px; font-size:.875rem;
+        color:#fff; font-weight:500;
+        background:${colors[type] ?? colors.success};
+        backdrop-filter:blur(12px);
+        box-shadow:0 6px 28px rgba(0,0,0,.35);
+        display:flex; align-items:center; gap:6px;
+        animation:tsToastIn .28s cubic-bezier(.34,1.56,.64,1) both;
+        max-width:320px; pointer-events:none;
+    `;
+    toast.innerHTML = html;
+
+    if (!document.getElementById('tsToastCss')) {
         const s = document.createElement('style');
-        s.id = 'toastStyle';
-        s.textContent = '@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}';
+        s.id = 'tsToastCss';
+        s.textContent = `
+            @keyframes tsToastIn {
+                from { opacity:0; transform:translateY(16px) scale(.94); }
+                to   { opacity:1; transform:translateY(0)    scale(1); }
+            }
+            @keyframes fadeInUp {
+                from { opacity:0; transform:translateY(12px); }
+                to   { opacity:1; transform:translateY(0); }
+            }
+        `;
         document.head.appendChild(s);
     }
 
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2500);
+    setTimeout(() => {
+        toast.style.transition = 'opacity .25s, transform .25s';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        setTimeout(() => toast.remove(), 280);
+    }, duration);
 }
