@@ -28,30 +28,30 @@ public static class DbContextFactory
             new Cpu { Id = 1, Name = "Intel Core i5-13600K", Manufacturer = "Intel",
                 Socket = "LGA1700", CoreCount = 14, ThreadCount = 20,
                 BaseClock = 3.5m, BoostClock = 5.1m, TDP = 125,
-                ApproximatePerformance = 80, Price = 5_000_000 },
+                ApproximatePerformance = 80, Price = 5_000_000, Stock = 100 },
             new Cpu { Id = 2, Name = "AMD Ryzen 5 7600X", Manufacturer = "AMD",
                 Socket = "AM5", CoreCount = 6, ThreadCount = 12,
                 BaseClock = 4.7m, BoostClock = 5.3m, TDP = 105,
-                ApproximatePerformance = 75, Price = 4_500_000 },
+                ApproximatePerformance = 75, Price = 4_500_000, Stock = 100 },
             new Cpu { Id = 3, Name = "Intel Core i3-12100", Manufacturer = "Intel",
                 Socket = "LGA1700", CoreCount = 4, ThreadCount = 8,
                 BaseClock = 3.3m, BoostClock = 4.3m, TDP = 60,
-                ApproximatePerformance = 40, Price = 2_500_000 }
+                ApproximatePerformance = 40, Price = 2_500_000, Stock = 100 }
         );
 
         db.Motherboards.AddRange(
             new Motherboard { Id = 10, Name = "ASUS Z790 Pro", Manufacturer = "ASUS",
                 SocketCompatibility = "LGA1700", FormFactor = "ATX",
                 MemoryCompatibility = "DDR5", MemorySlots = 4,
-                Price = 6_000_000 },
+                Price = 6_000_000, Stock = 100 },
             new Motherboard { Id = 11, Name = "MSI B650 Tomahawk", Manufacturer = "MSI",
                 SocketCompatibility = "AM5", FormFactor = "ATX",
                 MemoryCompatibility = "DDR5", MemorySlots = 4,
-                Price = 4_800_000 },
+                Price = 4_800_000, Stock = 100 },
             new Motherboard { Id = 12, Name = "Gigabyte B760M DS3H", Manufacturer = "Gigabyte",
                 SocketCompatibility = "LGA1700", FormFactor = "mATX",
                 MemoryCompatibility = "DDR4", MemorySlots = 2,
-                Price = 2_800_000 }
+                Price = 2_800_000, Stock = 100 }
         );
 
         db.Memories.AddRange(
@@ -66,13 +66,13 @@ public static class DbContextFactory
         db.VideoCards.AddRange(
             new VideoCard { Id = 30, Name = "RTX 4070", Manufacturer = "NVIDIA",
                 VRAM = 12, Length = 310, TDP = 200,
-                ApproximatePerformance = 450, Price = 14_000_000 },
+                ApproximatePerformance = 450, Price = 14_000_000, Stock = 100 },
             new VideoCard { Id = 31, Name = "RX 6600", Manufacturer = "AMD",
                 VRAM = 8, Length = 240, TDP = 132,
-                ApproximatePerformance = 250, Price = 6_000_000 },
+                ApproximatePerformance = 250, Price = 6_000_000, Stock = 100 },
             new VideoCard { Id = 32, Name = "RTX 4090", Manufacturer = "NVIDIA",
                 VRAM = 24, Length = 340, TDP = 450,
-                ApproximatePerformance = 999, Price = 50_000_000 }
+                ApproximatePerformance = 999, Price = 50_000_000, Stock = 100 }
         );
 
         db.PowerSupplies.AddRange(

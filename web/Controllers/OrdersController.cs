@@ -56,7 +56,7 @@ public class OrdersController : Controller
         vm.Cart = BuildCartVm(cart);
 
         if (!ModelState.IsValid)
-            return BadRequest(string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+            return View(vm);
 
         // Stock check — verify each item has enough stock before placing order
         foreach (var item in cart.Items)
@@ -78,7 +78,7 @@ public class OrdersController : Controller
         }
 
         if (!ModelState.IsValid)
-            return BadRequest(string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
+            return View(vm);
 
         var subtotal = cart.Items.Sum(i => i.Price * i.Quantity);
         var (discount, _) = await ApplyCouponAsync(vm.CouponCode, subtotal);

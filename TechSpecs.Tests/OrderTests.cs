@@ -21,6 +21,22 @@ public class OrderTests : IDisposable
     public OrderTests()
     {
         _db = DbContextFactory.Create($"order_{Guid.NewGuid()}");
+
+        // Seed product records so Checkout's stock validation can resolve items
+        _db.Cpus.Add(new Cpu
+        {
+            Id = 1, Name = "Test CPU", Manufacturer = "Test", Socket = "LGA1700",
+            CoreCount = 6, ThreadCount = 12, BaseClock = 3.0m, BoostClock = 5.0m,
+            TDP = 65, ApproximatePerformance = 50, Price = 5_000_000, Stock = 100
+        });
+        _db.VideoCards.Add(new VideoCard
+        {
+            Id = 2, Name = "Test GPU", Manufacturer = "Test",
+            VRAM = 8, Length = 250, TDP = 150,
+            ApproximatePerformance = 200, Price = 14_000_000, Stock = 100
+        });
+        _db.SaveChanges();
+
         var userManager = MockUserManager(TestUserId);
 
         _cart = new CartController(_db, userManager)
