@@ -121,34 +121,21 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Seed roles on startup
-using (var scope = app.Services.CreateScope())
+// Seed roles on startup — wrapped in try/catch so a transient DB outage doesn't crash the app
+try
 {
+    using var scope = app.Services.CreateScope();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     foreach (var role in new[] { "Admin", "Customer" })
     {
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
     }
-    
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var maxCpu = await db.Cpus.MaxAsync(c => c.ApproximatePerformance);
-    var maxGpu = await db.VideoCards.MaxAsync(c => c.ApproximatePerformance);
-    Console.WriteLine($"MAX CPU PERF = {maxCpu}, MAX GPU PERF = {maxGpu}");
 }
-
-// SET ALL STOCK TO 1000
-using (var scope2 = app.Services.CreateScope())
+catch (Exception ex)
 {
-    var db2 = scope2.ServiceProvider.GetRequiredService<TechSpecs.Data.AppDbContext>();
-    
-    await db2.Cpus.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.Motherboards.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.Memories.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.VideoCards.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.Storages.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.PowerSupplies.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.CaseEnclosures.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
-    await db2.CpuCoolers.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
+    // Log but don't crash — roles were already seeded on first deploy.
+    // App will retry seeding on next restart when DB is available.
+    app.Logger.LogWarning(ex, "Role seeding skipped: DB unreachable at startup.");
 }
 app.Run();
