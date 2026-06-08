@@ -129,6 +129,15 @@
                 </button>
             </div>
 
+            <!-- Compare Snapshot button (visible when ≥3 components selected) -->
+            <div id="snapshotBar" class="d-none mb-3">
+                <button class="btn w-100" id="snapshotBtn"
+                        style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);color:#c084fc;font-size:.82rem"
+                        onclick="snapshotBuild()">
+                    <i class="bi bi-pin-angle me-1"></i>Snapshot Build A để so sánh
+                </button>
+            </div>
+
             <!-- Budget filter -->
             <div class="glass p-3">
                 <label class="text-muted-white small mb-2 d-block">Budget Filter</label>
@@ -194,6 +203,81 @@
     </div>
 </div>
 
+<!-- Compare Panel (slide-in from right) -->
+<div id="comparePanel" style="display:none;position:fixed;right:0;top:0;bottom:0;width:440px;z-index:1055;background:rgba(10,8,24,.97);border-left:1px solid rgba(168,85,247,.35);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.5)">
+    <div class="d-flex align-items-center justify-content-between p-3 border-bottom" style="border-color:rgba(168,85,247,.25)!important">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-bar-chart-line" style="color:#a855f7;font-size:1.1rem"></i>
+            <span class="text-white fw-semibold">So sánh Build</span>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:.75rem"
+                    onclick="clearSnapshot()"><i class="bi bi-x-lg me-1"></i>Xóa snapshot</button>
+            <button class="btn btn-sm glass text-muted-white" onclick="document.getElementById('comparePanel').style.display='none'">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Build labels -->
+    <div class="d-flex gap-2 px-3 pt-3 pb-2">
+        <div class="flex-1 text-center px-2 py-1 rounded-2 flex-grow-1" style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.3);font-size:.75rem;color:#93c5fd">
+            <i class="bi bi-pin-angle me-1"></i><strong>Build A</strong> (Snapshot)
+        </div>
+        <div class="flex-1 text-center px-2 py-1 rounded-2 flex-grow-1" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);font-size:.75rem;color:#c084fc">
+            <i class="bi bi-lightning-charge me-1"></i><strong>Build B</strong> (Hiện tại)
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs px-3" style="border-color:rgba(168,85,247,.2)">
+        <li class="nav-item">
+            <button class="nav-link active compare-tab" data-tab="radar" onclick="switchCompareTab('radar')"
+                    style="background:transparent;border:none;color:#c084fc;font-size:.82rem">
+                <i class="bi bi-pentagon me-1"></i>Tổng quan
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link compare-tab" data-tab="detail" onclick="switchCompareTab('detail')"
+                    style="background:transparent;border:none;color:rgba(255,255,255,.5);font-size:.82rem">
+                <i class="bi bi-list-ul me-1"></i>Chi tiết
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab: Radar -->
+    <div id="compareTabRadar" class="p-3">
+        <div id="compareLoading" class="text-center py-4 text-muted-white">
+            <div class="spinner-border spinner-border-sm me-2"></div>Đang phân tích...
+        </div>
+        <!-- Price summary -->
+        <div id="comparePrices" class="d-none mb-3">
+            <div class="d-flex justify-content-around text-center">
+                <div>
+                    <div style="font-size:.7rem;color:rgba(255,255,255,.5)">Build A</div>
+                    <div class="text-white fw-bold" id="cmpPriceA">—</div>
+                </div>
+                <div style="color:rgba(255,255,255,.3);padding-top:12px">vs</div>
+                <div>
+                    <div style="font-size:.7rem;color:rgba(255,255,255,.5)">Build B</div>
+                    <div class="text-white fw-bold" id="cmpPriceB">—</div>
+                </div>
+            </div>
+        </div>
+        <!-- Radar chart -->
+        <div id="compareChartWrap" class="d-none" style="position:relative;height:260px">
+            <canvas id="compareRadar"></canvas>
+        </div>
+        <!-- Benchmark data -->
+        <div id="compareBenchmarks" class="d-none mt-3"></div>
+    </div>
+
+    <!-- Tab: Detail -->
+    <div id="compareTabDetail" class="p-3 d-none">
+        <div id="compareDetailContent"></div>
+    </div>
+</div>
+
 <!-- Save Build Modal -->
 <div class="modal fade" id="saveBuildModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -217,6 +301,7 @@
 </div>
 
 @section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 // ── State ────────────────────────────────────────────────────
 const buildState = {
@@ -470,6 +555,7 @@ function selectComponent(id, name, price, ppScore, imageUrl = null) {
     updateBuildPanel();
     saveToLocalStorage();
     callFilterApi();
+    if (snapshotState) updateComparePanel();
 }
 
 function removeComponent(category, event) {
@@ -483,6 +569,7 @@ function removeComponent(category, event) {
     updateBuildPanel();
     saveToLocalStorage();
     callFilterApi();
+    if (snapshotState) updateComparePanel();
 }
 
 // ── Update left panel ─────────────────────────────────────────
@@ -527,6 +614,10 @@ function updateBuildPanel() {
     const hasAny = Object.keys(selectedComponents).length > 0;
     const partialBar = document.getElementById('partialSaveBar');
     partialBar.classList.toggle('d-none', !hasAny || allDone);
+
+    // Show snapshot bar when ≥3 components selected
+    const compCount = Object.keys(selectedComponents).length;
+    document.getElementById('snapshotBar').classList.toggle('d-none', compCount < 3);
 }
 
 function updateStats(data) {
@@ -681,6 +772,217 @@ function copyShareLink(btn) {
         btn.innerHTML = '<i class="bi bi-check-lg text-success"></i>';
         setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard"></i>', 2000);
     });
+}
+
+// ── Compare / Snapshot ───────────────────────────────────────
+let snapshotState       = null;
+let snapshotComponents  = null;
+let compareChart        = null;
+let compareUpdateTimer  = null;
+
+function snapshotBuild() {
+    snapshotState      = JSON.parse(JSON.stringify(buildState));
+    snapshotComponents = JSON.parse(JSON.stringify(selectedComponents));
+    document.getElementById('comparePanel').style.display = '';
+    updateComparePanel();
+    document.getElementById('snapshotBtn').innerHTML = '<i class="bi bi-pin-angle-fill me-1"></i>Snapshot đã lưu — đang so sánh';
+}
+
+function clearSnapshot() {
+    snapshotState = null;
+    snapshotComponents = null;
+    document.getElementById('comparePanel').style.display = 'none';
+    document.getElementById('snapshotBtn').innerHTML = '<i class="bi bi-pin-angle me-1"></i>Snapshot Build A để so sánh';
+    if (compareChart) { compareChart.destroy(); compareChart = null; }
+}
+
+function switchCompareTab(tab) {
+    document.querySelectorAll('.compare-tab').forEach(b => {
+        const active = b.dataset.tab === tab;
+        b.classList.toggle('active', active);
+        b.style.color = active ? '#c084fc' : 'rgba(255,255,255,.5)';
+    });
+    document.getElementById('compareTabRadar').classList.toggle('d-none', tab !== 'radar');
+    document.getElementById('compareTabDetail').classList.toggle('d-none', tab !== 'detail');
+}
+
+async function updateComparePanel() {
+    if (!snapshotState) return;
+    clearTimeout(compareUpdateTimer);
+    compareUpdateTimer = setTimeout(async () => {
+        document.getElementById('compareLoading').style.display = '';
+        document.getElementById('comparePrices').classList.add('d-none');
+        document.getElementById('compareChartWrap').classList.add('d-none');
+        document.getElementById('compareBenchmarks').classList.add('d-none');
+
+        try {
+            const r = await fetch('/Builder/CompareBuilds', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ buildA: snapshotState, buildB: buildState })
+            });
+            if (!r.ok) return;
+            const data = await r.json();
+            renderCompareResult(data);
+        } catch { /* silently ignore */ }
+    }, 500);
+}
+
+function renderCompareResult(data) {
+    document.getElementById('compareLoading').style.display = 'none';
+
+    // Prices
+    document.getElementById('cmpPriceA').textContent = fmtPrice(data.a?.totalPrice || 0);
+    document.getElementById('cmpPriceB').textContent = fmtPrice(data.b?.totalPrice || 0);
+    document.getElementById('comparePrices').classList.remove('d-none');
+
+    // Radar chart
+    const ra = data.a?.radar, rb = data.b?.radar;
+    if (ra && rb) {
+        document.getElementById('compareChartWrap').classList.remove('d-none');
+        const labels = ['Gaming', 'Đa nhiệm', 'Lưu trữ', 'Tản nhiệt', 'Nâng cấp'];
+        const scoresA = [ra.gaming, ra.multitasking, ra.storage, ra.thermal, ra.upgrade];
+        const scoresB = [rb.gaming, rb.multitasking, rb.storage, rb.thermal, rb.upgrade];
+
+        if (compareChart) compareChart.destroy();
+        const ctx = document.getElementById('compareRadar').getContext('2d');
+        compareChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Build A',
+                        data: scoresA,
+                        borderColor: 'rgba(96,165,250,.9)',
+                        backgroundColor: 'rgba(96,165,250,.12)',
+                        pointBackgroundColor: '#60a5fa',
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Build B',
+                        data: scoresB,
+                        borderColor: 'rgba(168,85,247,.9)',
+                        backgroundColor: 'rgba(168,85,247,.12)',
+                        pointBackgroundColor: '#a855f7',
+                        borderWidth: 2,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { r: {
+                    min: 0, max: 100,
+                    ticks: { display: false, stepSize: 25 },
+                    grid: { color: 'rgba(255,255,255,.1)' },
+                    pointLabels: { color: 'rgba(255,255,255,.75)', font: { size: 11 } },
+                    angleLines: { color: 'rgba(255,255,255,.1)' },
+                }},
+                plugins: { legend: { labels: { color: 'rgba(255,255,255,.75)', font: { size: 11 } } } }
+            }
+        });
+    }
+
+    // Benchmark summary
+    const bncEl = document.getElementById('compareBenchmarks');
+    const ba = data.a?.benchmark, bb = data.b?.benchmark;
+    if (ba || bb) {
+        bncEl.classList.remove('d-none');
+        let html = '<div class="mt-2" style="font-size:.78rem">';
+        html += '<div class="text-muted-white mb-1 fw-semibold" style="font-size:.72rem;letter-spacing:.05em">BENCHMARK</div>';
+        if (ba?.cinebenchMulti || bb?.cinebenchMulti) {
+            html += buildBenchRow('CB R23 Multi', ba?.cinebenchMulti, bb?.cinebenchMulti, v => v?.toLocaleString());
+        }
+        if (ba?.fpsCs2_1080p || bb?.fpsCs2_1080p) {
+            html += buildBenchRow('CS2 1080p', ba?.fpsCs2_1080p, bb?.fpsCs2_1080p, v => v ? v + ' fps' : null);
+        }
+        if (ba?.fpsCyberpunk_1080p || bb?.fpsCyberpunk_1080p) {
+            html += buildBenchRow('Cyberpunk 1080p', ba?.fpsCyberpunk_1080p, bb?.fpsCyberpunk_1080p, v => v ? v + ' fps' : null);
+        }
+        if (ba?.estimatedGamingScore || bb?.estimatedGamingScore) {
+            html += buildBenchRow('Est. Gaming Score', ba?.estimatedGamingScore, bb?.estimatedGamingScore, v => v?.toString());
+        }
+        html += '</div>';
+        bncEl.innerHTML = html;
+    } else {
+        bncEl.classList.add('d-none');
+    }
+
+    // Detail tab
+    renderDetailTab(data);
+}
+
+function buildBenchRow(label, va, vb, fmt) {
+    const fa = fmt(va), fb = fmt(vb);
+    const na = parseFloat(va), nb = parseFloat(vb);
+    const aWins = !isNaN(na) && !isNaN(nb) && na > nb;
+    const bWins = !isNaN(na) && !isNaN(nb) && nb > na;
+    return `<div class="d-flex justify-content-between align-items-center mb-1 py-1" style="border-bottom:1px solid rgba(255,255,255,.06)">
+        <span style="color:rgba(255,255,255,.55)">${label}</span>
+        <div class="d-flex gap-3">
+            <span style="color:${aWins ? '#4ade80' : bWins ? '#f87171' : 'rgba(255,255,255,.7)'}">${fa ?? '—'}</span>
+            <span style="color:${bWins ? '#4ade80' : aWins ? '#f87171' : 'rgba(255,255,255,.7)'}">${fb ?? '—'}</span>
+        </div>
+    </div>`;
+}
+
+function renderDetailTab(data) {
+    const sa = data.a?.specs, sb = data.b?.specs;
+    if (!sa || !sb) return;
+
+    const groups = [
+        {
+            title: '🎮 Performance',
+            rows: [
+                ['CPU', sa.cpu?.name, sb.cpu?.name],
+                ['GPU', sa.gpu?.name, sb.gpu?.name],
+                ['RAM', sa.memory?.name, sb.memory?.name],
+            ]
+        },
+        {
+            title: '🔩 Core Specs',
+            rows: [
+                ['Storage', sa.storage?.name, sb.storage?.name],
+                ['PSU', sa.psu?.name, sb.psu?.name],
+                ['PSU Headroom', sa.psuHeadroomW ? sa.psuHeadroomW + 'W' : null, sb.psuHeadroomW ? sb.psuHeadroomW + 'W' : null],
+            ]
+        },
+        {
+            title: '🛡️ Ổn định & Nâng cấp',
+            rows: [
+                ['Motherboard', sa.motherboard?.name, sb.motherboard?.name],
+                ['RAM slots còn', sa.ramFreeSlots + ' slots', sb.ramFreeSlots + ' slots'],
+                ['Cooler', sa.coolerType, sb.coolerType],
+            ]
+        },
+        {
+            title: '📦 Form Factor',
+            rows: [
+                ['Case', sa.case?.name, sb.case?.name],
+                ['Form factor', sa.caseFormFactor, sb.caseFormFactor],
+                ['TDP tổng', data.a?.totalTDP + 'W', data.b?.totalTDP + 'W'],
+            ]
+        }
+    ];
+
+    let html = '';
+    for (const g of groups) {
+        html += `<div class="mb-3">
+            <div class="fw-semibold mb-2" style="font-size:.78rem;color:rgba(255,255,255,.6)">${g.title}</div>`;
+        for (const [label, va, vb] of g.rows) {
+            const diff = va && vb && va !== vb;
+            const aStyle = diff ? 'color:#93c5fd' : 'color:rgba(255,255,255,.75)';
+            const bStyle = diff ? 'color:#c084fc' : 'color:rgba(255,255,255,.75)';
+            html += `<div class="d-flex mb-1" style="font-size:.75rem;gap:8px">
+                <div style="width:70px;color:rgba(255,255,255,.4);flex-shrink:0">${label}</div>
+                <div style="${aStyle};flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${va ?? '—'}">${va ?? '—'}</div>
+                <div style="${bStyle};flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:right" title="${vb ?? '—'}">${vb ?? '—'}</div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+    document.getElementById('compareDetailContent').innerHTML = html;
 }
 
 async function exportPdf() {

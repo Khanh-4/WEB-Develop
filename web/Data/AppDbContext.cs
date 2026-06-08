@@ -34,6 +34,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
     public DbSet<Coupon> Coupons { get; set; }
     public DbSet<Bundle> Bundles { get; set; }
     public DbSet<BundleItem> BundleItems { get; set; }
+    public DbSet<ComponentBenchmark> ComponentBenchmarks { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -49,10 +50,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
 
         builder.Entity<WishlistItem>()
             .HasIndex(w => new { w.UserId, w.Category, w.ComponentId })
-            .IsUnique();
-
-        builder.Entity<ProductReview>()
-            .HasIndex(r => new { r.UserId, r.Category, r.ComponentId })
             .IsUnique();
 
         builder.Entity<ProductReview>()

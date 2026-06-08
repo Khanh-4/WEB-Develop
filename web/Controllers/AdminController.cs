@@ -377,6 +377,77 @@ public class AdminController : Controller
         return Json(bundles);
     }
 
+    // ── Benchmarks ───────────────────────────────────────────────
+
+    public async Task<IActionResult> Benchmarks()
+    {
+        var list = await _db.ComponentBenchmarks
+            .OrderBy(b => b.Category).ThenBy(b => b.ComponentName)
+            .ToListAsync();
+        return View(list);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateBenchmark(
+        string category, string componentName,
+        int? cinebenchR23Multi, int? cinebenchR23Single,
+        int? fpsCs2_1080p, int? fpsCs2_1440p,
+        int? fpsCyberpunk_1080p, int? fpsCyberpunk_1440p,
+        int? fpsValorant_1080p, int? fpsValorant_1440p)
+    {
+        if (string.IsNullOrWhiteSpace(componentName))
+            return RedirectToAction(nameof(Benchmarks));
+
+        _db.ComponentBenchmarks.Add(new ComponentBenchmark
+        {
+            Category        = category.Trim().ToLower(),
+            ComponentName   = componentName.Trim(),
+            CinebenchR23Multi   = cinebenchR23Multi,
+            CinebenchR23Single  = cinebenchR23Single,
+            FpsCs2_1080p        = fpsCs2_1080p,
+            FpsCs2_1440p        = fpsCs2_1440p,
+            FpsCyberpunk_1080p  = fpsCyberpunk_1080p,
+            FpsCyberpunk_1440p  = fpsCyberpunk_1440p,
+            FpsValorant_1080p   = fpsValorant_1080p,
+            FpsValorant_1440p   = fpsValorant_1440p,
+        });
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(Benchmarks));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditBenchmark(
+        int id, string componentName,
+        int? cinebenchR23Multi, int? cinebenchR23Single,
+        int? fpsCs2_1080p, int? fpsCs2_1440p,
+        int? fpsCyberpunk_1080p, int? fpsCyberpunk_1440p,
+        int? fpsValorant_1080p, int? fpsValorant_1440p)
+    {
+        var b = await _db.ComponentBenchmarks.FindAsync(id);
+        if (b == null) return RedirectToAction(nameof(Benchmarks));
+
+        b.ComponentName        = componentName.Trim();
+        b.CinebenchR23Multi    = cinebenchR23Multi;
+        b.CinebenchR23Single   = cinebenchR23Single;
+        b.FpsCs2_1080p         = fpsCs2_1080p;
+        b.FpsCs2_1440p         = fpsCs2_1440p;
+        b.FpsCyberpunk_1080p   = fpsCyberpunk_1080p;
+        b.FpsCyberpunk_1440p   = fpsCyberpunk_1440p;
+        b.FpsValorant_1080p    = fpsValorant_1080p;
+        b.FpsValorant_1440p    = fpsValorant_1440p;
+        b.UpdatedAt            = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        return RedirectToAction(nameof(Benchmarks));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteBenchmark(int id)
+    {
+        var b = await _db.ComponentBenchmarks.FindAsync(id);
+        if (b != null) { _db.ComponentBenchmarks.Remove(b); await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(Benchmarks));
+    }
+
     // ── Users ────────────────────────────────────────────────────
 
     public async Task<IActionResult> Users(string? search = null, int page = 1)

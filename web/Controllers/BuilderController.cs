@@ -4,7 +4,9 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using TechSpecs.Data;
+using TechSpecs.Models;
 using TechSpecs.Services;
+using TechSpecs.ViewModels;
 using TechSpecs.ViewModels.Builder;
 
 namespace TechSpecs.Controllers;
@@ -37,6 +39,249 @@ public class BuilderController : Controller
 
         var result = await _engine.FilterAsync(state);
         return Json(result);
+    }
+
+    // POST /Builder/CompareBuilds — real-time build comparison with radar scores + benchmarks
+    [HttpPost]
+    public async Task<IActionResult> CompareBuilds([FromBody] CompareRequest req)
+    {
+        if (req is null) return BadRequest();
+        var result = new BuildComparisonResult
+        {
+            A = await BuildSnapshotAsync(req.BuildA),
+            B = await BuildSnapshotAsync(req.BuildB),
+        };
+        return Json(result);
+    }
+
+    private async Task<BuildSnapshot> BuildSnapshotAsync(BuildState state)
+    {
+        var cpu  = state.SelectedCpuId.HasValue       ? await _db.Cpus.FindAsync(state.SelectedCpuId.Value)            : null;
+        var mb   = state.SelectedMotherboardId.HasValue ? await _db.Motherboards.FindAsync(state.SelectedMotherboardId.Value) : null;
+        var mem  = state.SelectedMemoryId.HasValue     ? await _db.Memories.FindAsync(state.SelectedMemoryId.Value)     : null;
+        var gpu  = state.SelectedVideoCardId.HasValue  ? await _db.VideoCards.FindAsync(state.SelectedVideoCardId.Value) : null;
+        var stor = state.SelectedStorageId.HasValue    ? await _db.Storages.FindAsync(state.SelectedStorageId.Value)    : null;
+        var psu  = state.SelectedPowerSupplyId.HasValue? await _db.PowerSupplies.FindAsync(state.SelectedPowerSupplyId.Value) : null;
+        var cas  = state.SelectedCaseId.HasValue       ? await _db.CaseEnclosures.FindAsync(state.SelectedCaseId.Value) : null;
+        var cool = state.SelectedCoolerId.HasValue     ? await _db.CpuCoolers.FindAsync(state.SelectedCoolerId.Value)   : null;
+
+        decimal totalPrice = (cpu?.Price ?? 0) + (mb?.Price ?? 0) + (mem?.Price ?? 0)
+                           + (gpu?.Price ?? 0) + (stor?.Price ?? 0) + (psu?.Price ?? 0)
+                           + (cas?.Price ?? 0) + (cool?.Price ?? 0);
+        int cpuTdp = cpu?.TDP ?? 0;
+        int gpuTdp = gpu?.TDP ?? 0;
+        int totalTdp = cpuTdp + gpuTdp;
+
+        // ── Radar Scores ─────────────────────────────────────────────
+        int gaming = gpu != null ? (int)Math.Min(100, (double)gpu.ApproximatePerformance / 9.0) : 0;
+
+        int multitasking = cpu != null
+            ? (int)Math.Min(100, cpu.CoreCount * 3.0 + (double)cpu.BoostClock * 7.0)
+            : 0;
+
+        int storage = stor != null
+            ? stor.ReadSpeed > 5000 ? 95
+            : stor.ReadSpeed > 3000 ? 80
+            : stor.ReadSpeed > 500  ? 60
+            : stor.ReadSpeed > 0    ? 40
+            : 30
+            : 0;
+
+        int thermal = 50; // default: assume stock cooling
+        if (cool != null && totalTdp > 0)
+            thermal = (int)Math.Min(100, cool.MaxTDP * 100.0 / totalTdp);
+        else if (cool != null)
+            thermal = Math.Min(100, cool.MaxTDP / 2);
+
+        int psuHeadroomW   = psu != null ? Math.Max(0, psu.Wattage - totalTdp - 50) : 0;
+        int psuHeadroomPct = psu != null && psu.Wattage > 0 ? (int)(psuHeadroomW * 100.0 / psu.Wattage) : 0;
+        int ramFreeSlots   = mb != null ? Math.Max(0, mb.MemorySlots - 2) : 0;
+        bool isDdr5        = mb?.MemoryCompatibility?.Contains("DDR5", StringComparison.OrdinalIgnoreCase) == true;
+        int upgrade = (int)Math.Min(100,
+            psuHeadroomPct * 0.5 + ramFreeSlots * 15 + (isDdr5 ? 20 : 10));
+
+        // ── Benchmark: try DB first, fallback ApproxPerf ─────────────
+        BenchmarkData? benchmark = null;
+        bool isReal = false;
+
+        // GPU benchmarks
+        if (gpu != null)
+        {
+            var gpuBench = await _db.ComponentBenchmarks
+                .Where(b => b.Category == "gpu" &&
+                            EF.Functions.ILike(gpu.Name, $"%{b.ComponentName}%"))
+                .OrderByDescending(b => b.Id).FirstOrDefaultAsync();
+
+            if (gpuBench != null && (gpuBench.FpsCs2_1080p.HasValue || gpuBench.FpsCyberpunk_1080p.HasValue))
+            {
+                benchmark = new BenchmarkData
+                {
+                    FpsCs2_1080p       = gpuBench.FpsCs2_1080p,
+                    FpsCs2_1440p       = gpuBench.FpsCs2_1440p,
+                    FpsCyberpunk_1080p = gpuBench.FpsCyberpunk_1080p,
+                    FpsCyberpunk_1440p = gpuBench.FpsCyberpunk_1440p,
+                    FpsValorant_1080p  = gpuBench.FpsValorant_1080p,
+                    FpsValorant_1440p  = gpuBench.FpsValorant_1440p,
+                };
+                isReal = true;
+            }
+            else
+            {
+                // Fallback: estimate from ApproxPerf tier
+                benchmark = EstimateGpuBenchmark(gpu.ApproximatePerformance);
+            }
+        }
+
+        // CPU benchmarks (merge with existing benchmark)
+        if (cpu != null)
+        {
+            var cpuBench = await _db.ComponentBenchmarks
+                .Where(b => b.Category == "cpu" &&
+                            EF.Functions.ILike(cpu.Name, $"%{b.ComponentName}%"))
+                .OrderByDescending(b => b.Id).FirstOrDefaultAsync();
+
+            if (cpuBench != null && cpuBench.CinebenchR23Multi.HasValue)
+            {
+                benchmark ??= new BenchmarkData();
+                benchmark.CinebenchMulti  = cpuBench.CinebenchR23Multi;
+                benchmark.CinebenchSingle = cpuBench.CinebenchR23Single;
+                isReal = true;
+            }
+            else
+            {
+                benchmark ??= new BenchmarkData();
+                benchmark.CinebenchMulti  = EstimateCinebench(cpu);
+                benchmark.CinebenchSingle = (int)(cpu.BoostClock * 280);
+            }
+        }
+
+        // ── Specs Detail ─────────────────────────────────────────────
+        var specs = new BuildSpecsDetail
+        {
+            Cpu = cpu == null ? null : new ComponentSnap
+            {
+                Name = cpu.Name, Price = cpu.Price,
+                KeyStats = new() {
+                    ["Nhân/Luồng"] = $"{cpu.CoreCount}C / {cpu.ThreadCount}T",
+                    ["Xung tăng"]  = $"{cpu.BoostClock} GHz",
+                    ["TDP"]        = $"{cpu.TDP} W",
+                    ["Socket"]     = cpu.Socket,
+                }
+            },
+            Gpu = gpu == null ? null : new ComponentSnap
+            {
+                Name = gpu.Name, Price = gpu.Price,
+                KeyStats = new() {
+                    ["VRAM"] = $"{gpu.VRAM} GB",
+                    ["TDP"]  = $"{gpu.TDP} W",
+                }
+            },
+            Memory = mem == null ? null : new ComponentSnap
+            {
+                Name = mem.Name, Price = mem.Price,
+                KeyStats = new() {
+                    ["Loại"]       = mem.Type,
+                    ["Dung lượng"] = $"{mem.Capacity} GB",
+                    ["Tốc độ"]     = $"{mem.Speed} MHz",
+                }
+            },
+            Storage = stor == null ? null : new ComponentSnap
+            {
+                Name = stor.Name, Price = stor.Price,
+                KeyStats = new() {
+                    ["Loại"]      = stor.Type,
+                    ["Dung lượng"]= $"{stor.Capacity} GB",
+                    ["Đọc"]       = stor.ReadSpeed > 0 ? $"{stor.ReadSpeed} MB/s" : "—",
+                    ["Ghi"]       = stor.WriteSpeed > 0 ? $"{stor.WriteSpeed} MB/s" : "—",
+                }
+            },
+            Psu = psu == null ? null : new ComponentSnap
+            {
+                Name = psu.Name, Price = psu.Price,
+                KeyStats = new() {
+                    ["Công suất"] = $"{psu.Wattage} W",
+                    ["Hiệu suất"] = psu.Efficiency,
+                    ["Kiểu dây"]  = psu.Modular,
+                }
+            },
+            Motherboard = mb == null ? null : new ComponentSnap
+            {
+                Name = mb.Name, Price = mb.Price,
+                KeyStats = new() {
+                    ["Socket"]     = mb.SocketCompatibility,
+                    ["Chipset"]    = mb.Chipset,
+                    ["Form Factor"]= mb.FormFactor,
+                    ["RAM"]        = mb.MemoryCompatibility,
+                    ["Khe RAM"]    = mb.MemorySlots.ToString(),
+                }
+            },
+            Cooler = cool == null ? null : new ComponentSnap
+            {
+                Name = cool.Name, Price = cool.Price,
+                KeyStats = new() {
+                    ["Loại"]    = cool.Type,
+                    ["Max TDP"] = $"{cool.MaxTDP} W",
+                }
+            },
+            Case = cas == null ? null : new ComponentSnap
+            {
+                Name = cas.Name, Price = cas.Price,
+                KeyStats = new() {
+                    ["Loại"]   = cas.CaseType ?? "—",
+                    ["Hỗ trợ"] = cas.FormFactorSupport,
+                    ["Màu"]    = cas.Color ?? "—",
+                }
+            },
+            PsuHeadroomW   = psuHeadroomW,
+            PsuHeadroomPct = psuHeadroomPct,
+            RamFreeSlots   = ramFreeSlots,
+            CoolerType     = cool?.Type ?? "—",
+            CaseFormFactor = cas?.FormFactorSupport ?? "—",
+        };
+
+        return new BuildSnapshot
+        {
+            TotalPrice      = totalPrice,
+            TotalTDP        = totalTdp,
+            Radar           = new RadarScores { Gaming = gaming, Multitasking = multitasking, Storage = storage, Thermal = thermal, Upgrade = upgrade },
+            Specs           = specs,
+            Benchmark       = benchmark,
+            BenchmarkIsReal = isReal,
+        };
+    }
+
+    private static BenchmarkData EstimateGpuBenchmark(decimal approxPerf)
+    {
+        // Tier lookup from P32 FPS Estimator tables
+        (decimal minPerf, int cs2_1080, int cs2_1440, int cp_1080, int cp_1440, int val_1080, int val_1440)[] tiers =
+        [
+            (900, 350, 280, 100, 70, 450, 350),
+            (700, 270, 210, 80, 57, 375, 285),
+            (500, 210, 155, 57, 42, 315, 235),
+            (350, 160, 112, 44, 32, 240, 180),
+            (200, 125, 86,  33, 23, 185, 135),
+            (100, 95,  62,  23, 14, 140, 95),
+            (0,   67,  42,  14, 7,  100, 65),
+        ];
+        foreach (var t in tiers)
+            if (approxPerf >= t.minPerf)
+                return new BenchmarkData
+                {
+                    FpsCs2_1080p       = t.cs2_1080,
+                    FpsCs2_1440p       = t.cs2_1440,
+                    FpsCyberpunk_1080p = t.cp_1080,
+                    FpsCyberpunk_1440p = t.cp_1440,
+                    FpsValorant_1080p  = t.val_1080,
+                    FpsValorant_1440p  = t.val_1440,
+                    EstimatedGamingScore = (int)Math.Min(100, (double)approxPerf / 9.0),
+                };
+        return new BenchmarkData { EstimatedGamingScore = 0 };
+    }
+
+    private static int EstimateCinebench(Cpu cpu)
+    {
+        // Rough Cinebench R23 multi-core estimate: cores × boostClock × ~280
+        return (int)(cpu.CoreCount * (double)cpu.BoostClock * 280);
     }
 
     // POST /Builder/ExportPdf — generate quotation PDF from selected components

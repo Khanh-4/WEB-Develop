@@ -1,0 +1,271 @@
+@model List<TechSpecs.Models.ComponentBenchmark>
+@{
+    ViewData["Title"] = "Quản lý Benchmark";
+    Layout = "_Layout";
+    var cpus = Model.Where(b => b.Category == "cpu").ToList();
+    var gpus = Model.Where(b => b.Category == "gpu").ToList();
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <h3 class="text-white fw-bold mb-0"><i class="bi bi-bar-chart-fill me-2" style="color:#a855f7"></i>Benchmark linh kiện</h3>
+        <button class="btn btn-gradient ms-auto" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="bi bi-plus-lg me-2"></i>Thêm benchmark
+        </button>
+    </div>
+    <p class="text-muted small mb-4">Dữ liệu benchmark thực tế để so sánh build. Tên linh kiện dùng để khớp ILIKE — gõ ngắn gọn (VD: "RTX 4070", "i5-12400F").</p>
+
+    @if (!Model.Any())
+    {
+        <div class="glass p-4 text-center text-muted">Chưa có dữ liệu benchmark nào.</div>
+    }
+
+    @if (cpus.Any())
+    {
+        <h5 class="text-white mb-2"><i class="bi bi-cpu me-2" style="color:#60a5fa"></i>CPU</h5>
+        <div class="glass mb-4" style="overflow-x:auto">
+            <table class="table table-dark table-hover mb-0" style="font-size:.85rem">
+                <thead>
+                    <tr>
+                        <th>Tên linh kiện</th>
+                        <th>CB R23 Multi</th>
+                        <th>CB R23 Single</th>
+                        <th style="font-size:.75rem;color:rgba(255,255,255,.5)">Cập nhật</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var b in cpus)
+                {
+                    <tr>
+                        <td class="fw-semibold text-white">@b.ComponentName</td>
+                        <td>@(b.CinebenchR23Multi?.ToString("N0") ?? "—")</td>
+                        <td>@(b.CinebenchR23Single?.ToString("N0") ?? "—")</td>
+                        <td style="color:rgba(255,255,255,.4);font-size:.75rem">@(b.UpdatedAt?.ToString("dd/MM/yy") ?? b.CreatedAt.ToString("dd/MM/yy"))</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary me-1 edit-btn"
+                                data-id="@b.Id"
+                                data-category="@b.Category"
+                                data-name="@b.ComponentName"
+                                data-cbm="@b.CinebenchR23Multi"
+                                data-cbs="@b.CinebenchR23Single">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="/Admin/DeleteBenchmark" class="d-inline"
+                                  onsubmit="return confirm('Xóa benchmark này?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@b.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (gpus.Any())
+    {
+        <h5 class="text-white mb-2"><i class="bi bi-gpu-card me-2" style="color:#4ade80"></i>GPU</h5>
+        <div class="glass mb-4" style="overflow-x:auto">
+            <table class="table table-dark table-hover mb-0" style="font-size:.85rem">
+                <thead>
+                    <tr>
+                        <th>Tên linh kiện</th>
+                        <th>CS2 1080p</th>
+                        <th>CS2 1440p</th>
+                        <th>Cyberpunk 1080p</th>
+                        <th>Cyberpunk 1440p</th>
+                        <th>Valorant 1080p</th>
+                        <th>Valorant 1440p</th>
+                        <th style="font-size:.75rem;color:rgba(255,255,255,.5)">Cập nhật</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var b in gpus)
+                {
+                    <tr>
+                        <td class="fw-semibold text-white">@b.ComponentName</td>
+                        <td>@(b.FpsCs2_1080p?.ToString() ?? "—")</td>
+                        <td>@(b.FpsCs2_1440p?.ToString() ?? "—")</td>
+                        <td>@(b.FpsCyberpunk_1080p?.ToString() ?? "—")</td>
+                        <td>@(b.FpsCyberpunk_1440p?.ToString() ?? "—")</td>
+                        <td>@(b.FpsValorant_1080p?.ToString() ?? "—")</td>
+                        <td>@(b.FpsValorant_1440p?.ToString() ?? "—")</td>
+                        <td style="color:rgba(255,255,255,.4);font-size:.75rem">@(b.UpdatedAt?.ToString("dd/MM/yy") ?? b.CreatedAt.ToString("dd/MM/yy"))</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-secondary me-1 edit-btn"
+                                data-id="@b.Id"
+                                data-category="@b.Category"
+                                data-name="@b.ComponentName"
+                                data-cs2-1080="@b.FpsCs2_1080p"
+                                data-cs2-1440="@b.FpsCs2_1440p"
+                                data-cp-1080="@b.FpsCyberpunk_1080p"
+                                data-cp-1440="@b.FpsCyberpunk_1440p"
+                                data-val-1080="@b.FpsValorant_1080p"
+                                data-val-1440="@b.FpsValorant_1440p">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="post" action="/Admin/DeleteBenchmark" class="d-inline"
+                                  onsubmit="return confirm('Xóa benchmark này?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@b.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background:#1e1b2e;border:1px solid rgba(168,85,247,.3)">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">Thêm benchmark mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/Admin/CreateBenchmark">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">Danh mục</label>
+                            <select name="category" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="cpu">CPU</option>
+                                <option value="gpu">GPU</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label text-muted small">Tên linh kiện (ILIKE match)</label>
+                            <input name="componentName" class="form-control bg-dark text-white border-secondary" placeholder="VD: RTX 4070 Ti, i5-12400F" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Cinebench R23 Multi</label>
+                            <input name="cinebenchR23Multi" type="number" class="form-control bg-dark text-white border-secondary" placeholder="VD: 15200" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Cinebench R23 Single</label>
+                            <input name="cinebenchR23Single" type="number" class="form-control bg-dark text-white border-secondary" placeholder="VD: 1780" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">CS2 FPS @@ 1080p</label>
+                            <input name="fpsCs2_1080p" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">CS2 FPS @@ 1440p</label>
+                            <input name="fpsCs2_1440p" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Cyberpunk @@ 1080p</label>
+                            <input name="fpsCyberpunk_1080p" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Cyberpunk @@ 1440p</label>
+                            <input name="fpsCyberpunk_1440p" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Valorant @@ 1080p</label>
+                            <input name="fpsValorant_1080p" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Valorant @@ 1440p</label>
+                            <input name="fpsValorant_1440p" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-gradient">Lưu benchmark</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background:#1e1b2e;border:1px solid rgba(168,85,247,.3)">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">Chỉnh sửa benchmark</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/Admin/EditBenchmark">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="editId" />
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Tên linh kiện</label>
+                            <input name="componentName" id="editName" class="form-control bg-dark text-white border-secondary" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Cinebench R23 Multi</label>
+                            <input name="cinebenchR23Multi" id="editCbMulti" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Cinebench R23 Single</label>
+                            <input name="cinebenchR23Single" id="editCbSingle" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">CS2 1080p</label>
+                            <input name="fpsCs2_1080p" id="editCs2_1080" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">CS2 1440p</label>
+                            <input name="fpsCs2_1440p" id="editCs2_1440" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Cyberpunk 1080p</label>
+                            <input name="fpsCyberpunk_1080p" id="editCp_1080" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Cyberpunk 1440p</label>
+                            <input name="fpsCyberpunk_1440p" id="editCp_1440" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Valorant 1080p</label>
+                            <input name="fpsValorant_1080p" id="editVal_1080" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small">Valorant 1440p</label>
+                            <input name="fpsValorant_1440p" id="editVal_1440" type="number" class="form-control bg-dark text-white border-secondary" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-gradient">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const d = btn.dataset;
+        document.getElementById('editId').value      = d.id;
+        document.getElementById('editName').value    = d.name;
+        document.getElementById('editCbMulti').value  = d.cbm  ?? '';
+        document.getElementById('editCbSingle').value = d.cbs  ?? '';
+        document.getElementById('editCs2_1080').value = d['cs2-1080'] ?? '';
+        document.getElementById('editCs2_1440').value = d['cs2-1440'] ?? '';
+        document.getElementById('editCp_1080').value  = d['cp-1080']  ?? '';
+        document.getElementById('editCp_1440').value  = d['cp-1440']  ?? '';
+        document.getElementById('editVal_1080').value = d['val-1080'] ?? '';
+        document.getElementById('editVal_1440').value = d['val-1440'] ?? '';
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    });
+});
+</script>
+}
