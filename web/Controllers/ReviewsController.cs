@@ -76,15 +76,7 @@ public class ReviewsController : Controller
             .ToListAsync();
 
         var avg = reviews.Count > 0 ? reviews.Average(r => r.Rating) : 0;
-
-        string? myReviewUserId = null;
-        if (User.Identity?.IsAuthenticated == true)
-            myReviewUserId = _users.GetUserId(User);
-
-        bool hasReviewed = myReviewUserId != null && await _db.ProductReviews
-            .AnyAsync(r => r.UserId == myReviewUserId && r.Category == category && r.ComponentId == id);
-
-        return Json(new { reviews, avg = Math.Round(avg, 1), count = reviews.Count, hasReviewed });
+        return Json(new { reviews, avg = Math.Round(avg, 1), count = reviews.Count, hasReviewed = false });
     }
 
     // POST /Reviews/Submit
@@ -99,25 +91,13 @@ public class ReviewsController : Controller
                        ?? User.Identity!.Name?.Split('@')[0]
                        ?? "Ẩn danh";
 
-        var existing = await _db.ProductReviews
-            .FirstOrDefaultAsync(r => r.UserId == userId && r.Category == req.Category && r.ComponentId == req.ComponentId);
-
-        if (existing != null)
+        _db.ProductReviews.Add(new ProductReview
         {
-            existing.Rating   = req.Rating;
-            existing.Comment  = req.Comment?.Trim();
-            if (!string.IsNullOrEmpty(req.ImageUrl)) existing.ImageUrl = req.ImageUrl;
-        }
-        else
-        {
-            _db.ProductReviews.Add(new ProductReview
-            {
-                UserId = userId, Category = req.Category, ComponentId = req.ComponentId,
-                Rating = req.Rating, Comment = req.Comment?.Trim(),
-                ImageUrl = string.IsNullOrEmpty(req.ImageUrl) ? null : req.ImageUrl,
-                UserDisplayName = displayName
-            });
-        }
+            UserId = userId, Category = req.Category, ComponentId = req.ComponentId,
+            Rating = req.Rating, Comment = req.Comment?.Trim(),
+            ImageUrl = string.IsNullOrEmpty(req.ImageUrl) ? null : req.ImageUrl,
+            UserDisplayName = displayName
+        });
 
         await _db.SaveChangesAsync();
         return Ok(new { ok = true });
