@@ -20,6 +20,40 @@
         ["MaxVGALength"]  = "Chiều dài GPU tối đa vỏ case chứa được (mm). Kiểm tra trước khi chọn card cao cấp.",
     };
 
+    // P28: Killer specs per category
+    var killerSpecKeys = Model.Category switch {
+        "cpu"         => new[] { "Nhân/Luồng", "Xung tăng", "Socket", "TDP" },
+        "gpu"         => new[] { "VRAM", "TDP", "Chiều dài" },
+        "memory"      => new[] { "Loại", "Dung lượng", "Tốc độ" },
+        "motherboard" => new[] { "Socket", "Chipset", "Form Factor", "Loại RAM" },
+        "psu"         => new[] { "Công suất", "Hiệu suất", "Kiểu dây" },
+        "storage"     => new[] { "Dung lượng", "Giao tiếp", "Loại" },
+        "cooler"      => new[] { "Loại", "Max TDP" },
+        "case"        => new[] { "Hỗ trợ MB", "Max GPU" },
+        _             => Array.Empty<string>()
+    };
+    var killerSpecIcons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        ["Nhân/Luồng"] = "bi-cpu-fill",
+        ["Xung tăng"]  = "bi-lightning-fill",
+        ["Socket"]     = "bi-plug-fill",
+        ["TDP"]        = "bi-thermometer-high",
+        ["VRAM"]       = "bi-gpu-card",
+        ["Chiều dài"]  = "bi-rulers",
+        ["Loại"]       = "bi-tag-fill",
+        ["Dung lượng"] = "bi-database-fill",
+        ["Tốc độ"]     = "bi-speedometer2",
+        ["Chipset"]    = "bi-motherboard",
+        ["Form Factor"]= "bi-layout-sidebar",
+        ["Loại RAM"]   = "bi-memory",
+        ["Công suất"]  = "bi-lightning-charge-fill",
+        ["Hiệu suất"]  = "bi-award-fill",
+        ["Kiểu dây"]   = "bi-diagram-3-fill",
+        ["Giao tiếp"]  = "bi-arrow-left-right",
+        ["Max TDP"]    = "bi-shield-check",
+        ["Hỗ trợ MB"]  = "bi-motherboard",
+        ["Max GPU"]    = "bi-gpu-card",
+    };
+
     var catLabel = Model.Category switch {
         "cpu"         => "Processor",
         "motherboard" => "Motherboard",
@@ -117,6 +151,28 @@
                         @Model.Price.ToString("N0")đ
                     </span>
                 </div>
+
+                <!-- P28: Killer Specs highlights -->
+                @if (killerSpecKeys.Length > 0)
+                {
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        @foreach (var specKey in killerSpecKeys)
+                        {
+                            if (Model.Specs.TryGetValue(specKey, out var specVal))
+                            {
+                                var icon = killerSpecIcons.TryGetValue(specKey, out var ic) ? ic : "bi-info-circle";
+                                <div class="d-flex align-items-center gap-1 px-3 py-2 rounded-3"
+                                     style="background:rgba(168,85,247,.18);border:1px solid rgba(168,85,247,.3)">
+                                    <i class="bi @icon" style="font-size:.8rem;color:#c084fc"></i>
+                                    <div class="ms-1">
+                                        <div style="font-size:.65rem;color:rgba(255,255,255,.5);line-height:1">@specKey</div>
+                                        <div class="text-white fw-semibold" style="font-size:.82rem;line-height:1.2">@specVal</div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
 
                 <!-- Action buttons -->
                 <div class="d-flex gap-3 mb-4 flex-wrap">
@@ -613,6 +669,78 @@ async function postAnswer(questionId) {
 // P25: Bootstrap tooltips
 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
     new bootstrap.Tooltip(el, { trigger: 'hover focus' }));
+
+// P32: FPS Estimator (GPU only)
+@if (Model.Category == "gpu" && Model.ApproximatePerformance > 0)
+{
+    <text>
+(function() {
+    const perfScore = @Model.ApproximatePerformance;
+
+    // tier → { game: [min1080p, max1080p, min1440p, max1440p] }
+    const fpsTiers = [
+        { minPerf: 900, label: 'RTX 4090 / RX 7900 XTX', games: { 'CS2': [300,400,240,320], 'Valorant': [400,500,300,400], 'LoL': [500,600,400,500], 'GTA V': [140,180,100,140], 'Cyberpunk': [80,120,55,90], 'Hogwarts Legacy': [90,120,65,90], 'Elden Ring': [60,60,60,60] } },
+        { minPerf: 700, label: 'RTX 4080 / RX 7900 XT',  games: { 'CS2': [240,300,180,240], 'Valorant': [350,400,250,320], 'LoL': [420,500,330,420], 'GTA V': [110,145,80,110], 'Cyberpunk': [65,90,44,65], 'Hogwarts Legacy': [70,90,50,70], 'Elden Ring': [60,60,60,60] } },
+        { minPerf: 500, label: 'RTX 4070 / RX 7800 XT',  games: { 'CS2': [180,240,130,180], 'Valorant': [280,350,200,270], 'LoL': [360,430,270,360], 'GTA V': [90,115,65,90], 'Cyberpunk': [50,65,34,50], 'Hogwarts Legacy': [55,70,38,55], 'Elden Ring': [60,60,55,60] } },
+        { minPerf: 350, label: 'RTX 4060 / RX 7600',     games: { 'CS2': [140,180,95,130], 'Valorant': [210,270,150,210], 'LoL': [280,360,200,280], 'GTA V': [70,90,48,70], 'Cyberpunk': [38,50,26,38], 'Hogwarts Legacy': [42,55,28,42], 'Elden Ring': [55,60,44,55] } },
+        { minPerf: 200, label: 'RTX 3060 / RX 6600',     games: { 'CS2': [110,140,72,100], 'Valorant': [160,210,110,160], 'LoL': [220,280,150,220], 'GTA V': [55,72,36,55], 'Cyberpunk': [28,38,18,28], 'Hogwarts Legacy': [32,42,20,32], 'Elden Ring': [48,55,34,48] } },
+        { minPerf: 100, label: 'GTX 1660 / RX 5500 XT',  games: { 'CS2': [80,110,50,75], 'Valorant': [120,160,80,120], 'LoL': [160,220,110,160], 'GTA V': [40,55,26,40], 'Cyberpunk': [18,28,10,18], 'Hogwarts Legacy': [22,32,12,22], 'Elden Ring': [36,48,22,36] } },
+        { minPerf:   0, label: 'GTX 1060 / RX 580',      games: { 'CS2': [55,80,32,52], 'Valorant': [80,120,50,80], 'LoL': [110,160,70,110], 'GTA V': [28,40,16,28], 'Cyberpunk': [10,18,5,10], 'Hogwarts Legacy': [14,22,7,14], 'Elden Ring': [24,36,14,24] } },
+    ];
+
+    const tier = fpsTiers.find(t => perfScore >= t.minPerf) || fpsTiers[fpsTiers.length - 1];
+
+    function fpsColor(fps) {
+        return fps >= 60 ? '#4ade80' : fps >= 30 ? '#fbbf24' : '#f87171';
+    }
+
+    const gameIcons = { 'CS2': '🔫', 'Valorant': '🎯', 'LoL': '⚔️', 'GTA V': '🏙️', 'Cyberpunk': '🌆', 'Hogwarts Legacy': '🪄', 'Elden Ring': '⚔️' };
+
+    const section = document.createElement('div');
+    section.className = 'mt-4';
+    section.innerHTML = `
+        <h5 class="text-white fw-semibold mb-3">
+            <i class="bi bi-controller me-2" style="color:#a855f7"></i>FPS Ước tính
+            <span class="badge ms-2" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.7rem;font-weight:400">${tier.label}</span>
+        </h5>
+        <div class="glass p-3 rounded-4">
+            <div class="d-flex gap-2 mb-3">
+                <span class="badge" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:.75rem">📺 1080p</span>
+                <span class="badge" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:.75rem">🖥️ 1440p</span>
+                <span class="badge ms-auto" style="background:rgba(74,222,128,.1);color:#4ade80;font-size:.72rem">■ 60+fps mượt</span>
+                <span class="badge" style="background:rgba(251,191,36,.1);color:#fbbf24;font-size:.72rem">■ 30-60fps ổn</span>
+                <span class="badge" style="background:rgba(248,113,113,.1);color:#f87171;font-size:.72rem">■ &lt;30fps thấp</span>
+            </div>
+            <div class="row g-2">
+                ${Object.entries(tier.games).map(([game, fps]) => {
+                    const [lo80, hi80, lo14, hi14] = fps;
+                    const avg80 = Math.round((lo80 + hi80) / 2);
+                    const avg14 = Math.round((lo14 + hi14) / 2);
+                    return `
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="rounded-3 px-3 py-2 d-flex align-items-center justify-content-between"
+                             style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">
+                            <span class="text-white" style="font-size:.82rem">${gameIcons[game] || '🎮'} ${game}</span>
+                            <div class="text-end" style="min-width:90px">
+                                <div style="font-size:.78rem;color:${fpsColor(avg80)};font-weight:700">${lo80}–${hi80} <span style="font-size:.65rem;opacity:.6">1080p</span></div>
+                                <div style="font-size:.72rem;color:${fpsColor(avg14)};opacity:.85">${lo14}–${hi14} <span style="font-size:.62rem;opacity:.6">1440p</span></div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+            <p class="mb-0 mt-3" style="font-size:.7rem;color:rgba(255,255,255,.35)">
+                * FPS ước tính ở mức High/Ultra. Thực tế tùy CPU, RAM, driver và cài đặt game.
+            </p>
+        </div>`;
+
+    // Insert before Reviews section
+    const reviewRow = document.querySelector('.row.g-4.mt-2');
+    if (reviewRow) reviewRow.parentElement.insertBefore(section, reviewRow);
+    else document.querySelector('.container-xl.py-4').appendChild(section);
+})();
+    </text>
+}
 
 // P26: Sticky Add-to-Cart bar
 (function() {

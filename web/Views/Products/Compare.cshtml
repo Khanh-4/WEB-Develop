@@ -151,3 +151,52 @@
     </div>
 
 </div>
+
+@section Scripts {
+<script>
+// P29: Compare diff highlight — green=winner, red=loser, yellow=text-diff
+(function() {
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+    const specRows = Array.from(tbody.querySelectorAll('tr:not(:last-child)'));
+
+    specRows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('td')).slice(1); // skip label cell
+        if (cells.length < 2) return;
+
+        const rawVals = cells.map(c => c.textContent.trim());
+        if (rawVals.every(v => v === rawVals[0])) return; // all same → no highlight
+
+        // Try numeric parse (extract first number from string like "32 GB", "4.9 GHz", etc.)
+        const nums = rawVals.map(v => { const m = v.match(/[\d,]+\.?\d*/); return m ? parseFloat(m[0].replace(',', '')) : null; });
+        const allNumeric = nums.every(n => n !== null);
+
+        if (allNumeric) {
+            const max = Math.max(...nums);
+            const min = Math.min(...nums);
+            cells.forEach((cell, i) => {
+                cell.style.removeProperty('color');
+                cell.style.removeProperty('background');
+                const prev = cell.querySelector('i.bi-arrow-left-right');
+                if (prev) prev.remove();
+
+                if (nums[i] === max && max !== min) {
+                    cell.style.color = '#4ade80';
+                    cell.style.background = 'rgba(34,197,94,0.08)';
+                    cell.insertAdjacentHTML('afterbegin', '<i class="bi bi-trophy-fill me-1" style="font-size:.7rem;color:#4ade80"></i>');
+                } else if (nums[i] === min && max !== min) {
+                    cell.style.color = '#f87171';
+                    cell.style.background = 'rgba(239,68,68,0.06)';
+                }
+            });
+        } else {
+            // Text diff → keep yellow (already done in Razor), just ensure icon present
+            cells.forEach(cell => {
+                const prev = cell.querySelector('i.bi-arrow-left-right');
+                if (!prev) cell.insertAdjacentHTML('afterbegin', '<i class="bi bi-arrow-left-right me-1" style="font-size:.7rem;color:#f59e0b;opacity:.7"></i>');
+            });
+        }
+    });
+})();
+</script>
+}

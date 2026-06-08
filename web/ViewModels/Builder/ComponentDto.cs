@@ -32,5 +32,7 @@ public class FilteredResult
     // Totals for the current selected build
     public decimal TotalPrice { get; set; }
     public int TotalTDP { get; set; }
+    public int CpuTDP { get; set; }        // P34: power breakdown
+    public int GpuTDP { get; set; }        // P34: power breakdown
     public int RecommendedPsuWattage { get; set; }  // (CPU.TDP + GPU.TDP) * 1.3
 }

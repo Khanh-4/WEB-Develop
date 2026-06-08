@@ -53,6 +53,8 @@ public class CompatibilityEngine : ICompatibilityEngine
 
         int cpuTdp = selCpu?.TDP ?? 0;
         int gpuTdp = selGpu?.TDP ?? 0;
+        result.CpuTDP = cpuTdp;
+        result.GpuTDP = gpuTdp;
         result.TotalTDP = cpuTdp + gpuTdp;
         result.RecommendedPsuWattage = (int)Math.Ceiling((cpuTdp + gpuTdp) * 1.3);
 

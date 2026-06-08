@@ -11,6 +11,7 @@ public class ProductDetailViewModel
     public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public Dictionary<string, string> Specs { get; set; } = new();
+    public decimal ApproximatePerformance { get; set; }  // P32: GPU FPS estimator
 }
 
 // 0=InStock 1=LowStock 2=OutOfStock 3=ComingSoon 4=ContactUs

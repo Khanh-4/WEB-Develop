@@ -58,9 +58,35 @@
                         <span class="text-white fw-semibold small" id="perfScore">0</span>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted-white">Power Draw</span>
-                    <span class="text-white fw-semibold" id="totalTdp">0W</span>
+                <!-- P34: Power breakdown panel -->
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-muted-white">Power Draw</span>
+                        <span class="text-white fw-semibold" id="totalTdp">0W</span>
+                    </div>
+                    <div id="powerBreakdown" class="rounded-3 p-2 mb-2" style="background:rgba(255,255,255,.04);display:none">
+                        <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
+                            <span class="text-muted-white"><i class="bi bi-cpu me-1"></i>CPU</span>
+                            <span class="text-white" id="cpuTdpLabel">0W</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
+                            <span class="text-muted-white"><i class="bi bi-gpu-card me-1"></i>GPU</span>
+                            <span class="text-white" id="gpuTdpLabel">0W</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
+                            <span class="text-muted-white"><i class="bi bi-motherboard me-1"></i>Overhead</span>
+                            <span class="text-white">50W</span>
+                        </div>
+                        <hr class="divider-white my-1">
+                        <div class="d-flex justify-content-between" style="font-size:.78rem">
+                            <span class="text-white fw-semibold">Tổng ước tính</span>
+                            <span class="text-white fw-semibold" id="totalTdpBreakdown">50W</span>
+                        </div>
+                    </div>
+                    <button id="filterPsuBtn" class="btn btn-sm glass text-white w-100 d-none" style="font-size:.75rem"
+                            onclick="jumpToPsuFilter()">
+                        <i class="bi bi-funnel me-1" style="color:#a855f7"></i>Lọc PSU phù hợp
+                    </button>
                 </div>
                 <hr class="divider-white my-3">
                 <div class="d-flex justify-content-between align-items-center">
@@ -88,7 +114,7 @@
 
             <!-- Save partial build (always visible when ≥1 component) -->
             <div id="partialSaveBar" class="d-none mb-3">
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 mb-2">
                     <button class="btn glass text-white flex-grow-1 btn-sm" onclick="openSaveModal()">
                         <i class="bi bi-bookmark me-2"></i>Lưu / Chia sẻ
                     </button>
@@ -96,6 +122,11 @@
                         <i class="bi bi-file-earmark-pdf me-2"></i>Xuất PDF
                     </button>
                 </div>
+                <!-- P33: clear localStorage build -->
+                <button class="btn btn-sm w-100" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:.78rem"
+                        onclick="clearSavedBuild()">
+                    <i class="bi bi-trash me-1"></i>Xóa build
+                </button>
             </div>
 
             <!-- Budget filter -->
@@ -222,6 +253,30 @@ const RESULT_KEY_MAP = {
     cooler:      'coolers',
 };
 
+const LS_KEY = 'techspecsBuilder';
+
+// ── P33: localStorage save/restore ───────────────────────────
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem(LS_KEY, JSON.stringify({
+            buildState: { ...buildState },
+            selectedComponents: { ...selectedComponents }
+        }));
+    } catch {}
+}
+
+function clearSavedBuild() {
+    try { localStorage.removeItem(LS_KEY); } catch {}
+    // Clear all selections
+    Object.keys(CATEGORY_KEY_MAP).forEach(cat => {
+        delete selectedComponents[cat];
+        buildState[CATEGORY_KEY_MAP[cat]] = null;
+    });
+    updateBuildPanel();
+    callFilterApi();
+    showToast('<i class="bi bi-trash me-2"></i>Đã xóa build', 'info');
+}
+
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const savedBuild = sessionStorage.getItem('loadBuild');
@@ -234,6 +289,21 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('aiBuildPreset');
         loadAiPreset(JSON.parse(aiPreset));
     } else {
+        // P33: check localStorage for persisted build
+        try {
+            const lsRaw = localStorage.getItem(LS_KEY);
+            if (lsRaw) {
+                const { buildState: lsState, selectedComponents: lsComps } = JSON.parse(lsRaw);
+                if (lsState && lsComps && Object.keys(lsComps).length > 0) {
+                    Object.assign(buildState, lsState);
+                    Object.assign(selectedComponents, lsComps);
+                    updateBuildPanel();
+                    selectCategory('cpu');
+                    callFilterApi();
+                    return;
+                }
+            }
+        } catch {}
         selectCategory('cpu');
         callFilterApi();
     }
@@ -398,6 +468,7 @@ function selectComponent(id, name, price, ppScore, imageUrl = null) {
     buildState[key] = id;
 
     updateBuildPanel();
+    saveToLocalStorage();
     callFilterApi();
 }
 
@@ -410,6 +481,7 @@ function removeComponent(category, event) {
     buildState[key] = null;
 
     updateBuildPanel();
+    saveToLocalStorage();
     callFilterApi();
 }
 
@@ -458,8 +530,36 @@ function updateBuildPanel() {
 }
 
 function updateStats(data) {
-    document.getElementById('totalTdp').textContent   = (data.totalTDP || 0) + 'W';
-    document.getElementById('recPsu').textContent     = data.recommendedPsuWattage > 0 ? data.recommendedPsuWattage + 'W+' : '—';
+    const cpuTdp = data.cpuTDP || 0;
+    const gpuTdp = data.gpuTDP || 0;
+    const total  = data.totalTDP || 0;
+
+    document.getElementById('totalTdp').textContent = total + 'W';
+    document.getElementById('recPsu').textContent   = data.recommendedPsuWattage > 0 ? data.recommendedPsuWattage + 'W+' : '—';
+
+    // P34: power breakdown
+    const breakdown = document.getElementById('powerBreakdown');
+    const filterBtn = document.getElementById('filterPsuBtn');
+    if (cpuTdp > 0 || gpuTdp > 0) {
+        document.getElementById('cpuTdpLabel').textContent = cpuTdp + 'W';
+        document.getElementById('gpuTdpLabel').textContent = gpuTdp + 'W';
+        document.getElementById('totalTdpBreakdown').textContent = (cpuTdp + gpuTdp + 50) + 'W';
+        breakdown.style.display = '';
+        if (data.recommendedPsuWattage > 0) filterBtn.classList.remove('d-none');
+    } else {
+        breakdown.style.display = 'none';
+        filterBtn.classList.add('d-none');
+    }
+}
+
+function jumpToPsuFilter() {
+    const recW = document.getElementById('recPsu').textContent.replace(/\D/g, '');
+    if (recW) {
+        document.getElementById('budgetInput').value = '';
+        selectCategory('powerSupply');
+        buildState.maxBudget = null;
+        callFilterApi();
+    }
 }
 
 // ── Sort (client-side re-render) ──────────────────────────────

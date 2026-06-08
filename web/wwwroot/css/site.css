@@ -218,6 +218,19 @@ body {
 }
 .card-cmp-check input:checked ~ .bi-check2-square { color: #a855f7; }
 
+/* ── P30: Quick View eye button ─────────────────── */
+.qv-eye-btn {
+    position: absolute;
+    bottom: 6px; right: 8px;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(168,85,247,.7); border: none;
+    color: #fff; font-size: .85rem;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity .2s;
+    cursor: pointer; z-index: 3;
+}
+.card-img-wrap:hover .qv-eye-btn { opacity: 1; }
+
 /* ── P24: Active filter tags ────────────────────── */
 .filter-tag {
     display: inline-flex; align-items: center;

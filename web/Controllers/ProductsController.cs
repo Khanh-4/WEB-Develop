@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using TechSpecs.Data;
 using TechSpecs.Models;
 using TechSpecs.ViewModels;
@@ -9,9 +10,10 @@ namespace TechSpecs.Controllers;
 public class ProductsController : Controller
 {
     private readonly AppDbContext _db;
+    private readonly IMemoryCache _cache;
     private const int PageSize = 24;
 
-    public ProductsController(AppDbContext db) => _db = db;
+    public ProductsController(AppDbContext db, IMemoryCache cache) { _db = db; _cache = cache; }
 
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -210,6 +212,7 @@ public class ProductsController : Controller
         {
             Id = g.Id, Category = "gpu", Name = g.Name, Manufacturer = g.Manufacturer,
             Price = g.Price, ImageUrl = g.ImageUrl, VideoUrl = g.VideoUrl, Stock = g.Stock,
+            ApproximatePerformance = g.ApproximatePerformance,
             Specs = new()
             {
                 ["VRAM"]        = $"{g.VRAM} GB",
@@ -465,49 +468,60 @@ public class ProductsController : Controller
     [HttpGet]
     public async Task<IActionResult> FilterOptions(string category)
     {
+        var cacheKey = $"filter_opts_{category}";
+        if (_cache.TryGetValue(cacheKey, out object? cached) && cached is not null)
+            return Json(cached);
+
+        var result = await GetFilterOptionsAsync(category);
+        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
+        return Json(result);
+    }
+
+    private async Task<object> GetFilterOptionsAsync(string category)
+    {
         return category switch
         {
-            "motherboard" => Json(new
+            "motherboard" => (object)new
             {
                 sockets     = await _db.Motherboards.AsNoTracking().Select(m => m.SocketCompatibility).Where(s => s != "").Distinct().OrderBy(s => s).ToListAsync(),
                 formFactors = await _db.Motherboards.AsNoTracking().Select(m => m.FormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
                 memTypes    = await _db.Motherboards.AsNoTracking().Select(m => m.MemoryCompatibility).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 chipsets    = await _db.Motherboards.AsNoTracking().Select(m => m.Chipset).Where(c => c != "").Distinct().OrderBy(c => c).ToListAsync(),
-            }),
-            "memory" => Json(new
+            },
+            "memory" => new
             {
                 types      = await _db.Memories.AsNoTracking().Select(m => m.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 capacities = await _db.Memories.AsNoTracking().Select(m => m.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
                 profiles   = await _db.Memories.AsNoTracking().Select(m => m.Profile).Where(p => p != "").Distinct().OrderBy(p => p).ToListAsync(),
-            }),
-            "gpu" => Json(new
+            },
+            "gpu" => new
             {
                 vrams       = await _db.VideoCards.AsNoTracking().Select(g => g.VRAM).Where(v => v > 0).Distinct().OrderBy(v => v).ToListAsync(),
                 generations = (await _db.VideoCards.AsNoTracking().Select(g => g.Name).ToListAsync())
                                 .Select(GetGpuGeneration).Where(g => g != "Khác").Distinct().OrderBy(g => g).ToList(),
-            }),
-            "storage" => Json(new
+            },
+            "storage" => new
             {
                 types      = await _db.Storages.AsNoTracking().Select(s => s.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 interfaces = await _db.Storages.AsNoTracking().Select(s => s.Interface).Where(i => i != "").Distinct().OrderBy(i => i).ToListAsync(),
                 capacities = await _db.Storages.AsNoTracking().Select(s => s.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
-            }),
-            "psu" => Json(new
+            },
+            "psu" => new
             {
                 efficiencies = await _db.PowerSupplies.AsNoTracking().Select(p => p.Efficiency).Where(e => e != "").Distinct().OrderBy(e => e).ToListAsync(),
                 modulars     = await _db.PowerSupplies.AsNoTracking().Select(p => p.Modular).Where(m => m != "").Distinct().OrderBy(m => m).ToListAsync(),
                 formFactors  = await _db.PowerSupplies.AsNoTracking().Select(p => p.PsuFormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
-            }),
-            "case" => Json(new
+            },
+            "case" => new
             {
                 caseTypes   = await _db.CaseEnclosures.AsNoTracking().Select(c => c.CaseType).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 formFactors = await _db.CaseEnclosures.AsNoTracking().Select(c => c.FormFactorSupport).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
-            }),
-            "cooler" => Json(new
+            },
+            "cooler" => (object)new
             {
                 types = await _db.CpuCoolers.AsNoTracking().Select(c => c.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
-            }),
-            _ => Json(new { })
+            },
+            _ => new { }
         };
     }
 
@@ -539,7 +553,22 @@ public class ProductsController : Controller
         string? psuFormFactor = null,
         string? caseType = null)
     {
-        var items = await LoadAllAsync(category, search);
+        // P35: cache unfiltered DB load for 60s; search queries bypass cache (high cardinality)
+        List<ProductListItem> items;
+        if (string.IsNullOrWhiteSpace(search))
+        {
+            var ck = $"load_all_{category}";
+            if (!_cache.TryGetValue(ck, out List<ProductListItem>? cached) || cached is null)
+            {
+                cached = await LoadAllAsync(category, null);
+                _cache.Set(ck, cached, TimeSpan.FromSeconds(60));
+            }
+            items = cached!;
+        }
+        else
+        {
+            items = await LoadAllAsync(category, search);
+        }
 
         // Price filter
         if (minPrice.HasValue)
@@ -642,10 +671,39 @@ public class ProductsController : Controller
         });
     }
 
+    // P30: Quick View — lightweight JSON for modal (category + id)
+    [HttpGet("Products/QuickView/{category}/{id:int}")]
+    public async Task<IActionResult> QuickView(string category, int id)
+    {
+        var vm = category switch
+        {
+            "cpu"         => await BuildCpuDetailAsync(id),
+            "motherboard" => await BuildMbDetailAsync(id),
+            "memory"      => await BuildMemoryDetailAsync(id),
+            "gpu"         => await BuildGpuDetailAsync(id),
+            "storage"     => await BuildStorageDetailAsync(id),
+            "psu"         => await BuildPsuDetailAsync(id),
+            "case"        => await BuildCaseDetailAsync(id),
+            "cooler"      => await BuildCoolerDetailAsync(id),
+            _             => null,
+        };
+        if (vm == null) return NotFound();
+        return Json(new
+        {
+            id = vm.Id, category = vm.Category, name = vm.Name,
+            manufacturer = vm.Manufacturer, price = vm.Price,
+            imageUrl = vm.ImageUrl, stock = vm.Stock, specs = vm.Specs,
+        });
+    }
+
     // Returns distinct brands for a given category (for brand filter checkboxes)
     [HttpGet]
     public async Task<IActionResult> Brands(string category = "all")
     {
+        var cacheKey = $"brands_{category}";
+        if (_cache.TryGetValue(cacheKey, out List<string>? cachedBrands) && cachedBrands is not null)
+            return Json(cachedBrands);
+
         bool all = category == "all";
         var brands = new List<string>();
 
@@ -694,6 +752,7 @@ public class ProductsController : Controller
                              !b.Equals("Intel", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
+        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
         return Json(result);
     }
 
