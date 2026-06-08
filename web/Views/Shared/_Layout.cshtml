@@ -40,77 +40,7 @@
                          style="min-width:520px;background:rgba(10,6,22,0.98);border:1px solid rgba(168,85,247,0.2)!important;
                                 border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.6);backdrop-filter:blur(20px);
                                 margin-top:10px!important">
-                        <div class="row g-0">
-                            <!-- Left: categories -->
-                            <div class="col-7 p-3">
-                                <p class="text-uppercase mb-2" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Linh kiện PC</p>
-                                <div class="row g-1">
-                                    @{
-                                        var megaCats = new[] {
-                                            ("cpu",         "bi-cpu",              "CPU"),
-                                            ("motherboard", "bi-motherboard",      "Mainboard"),
-                                            ("memory",      "bi-memory",           "RAM"),
-                                            ("gpu",         "bi-gpu-card",         "Card đồ hoạ"),
-                                            ("storage",     "bi-device-hdd",       "SSD / HDD"),
-                                            ("psu",         "bi-lightning-charge", "Nguồn máy tính"),
-                                            ("case",        "bi-box-seam",         "Vỏ case"),
-                                            ("cooler",      "bi-thermometer-half", "Tản nhiệt"),
-                                        };
-                                    }
-                                    @foreach (var (cat, icon, label) in megaCats)
-                                    {
-                                        <div class="col-6">
-                                            <a href="/Products?category=@cat"
-                                               class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 mega-item text-decoration-none"
-                                               style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
-                                               onmouseover="this.style.background='rgba(168,85,247,0.12)';this.style.color='#fff'"
-                                               onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
-                                                <i class="bi @icon" style="font-size:.95rem;color:#a855f7;width:18px;text-align:center"></i>
-                                                @label
-                                            </a>
-                                        </div>
-                                    }
-                                </div>
-                                <hr style="border-color:rgba(255,255,255,.08);margin:8px 0">
-                                <a href="/Products?category=prebuilt"
-                                   class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 text-decoration-none"
-                                   style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
-                                   onmouseover="this.style.background='rgba(16,185,129,0.12)';this.style.color='#34d399'"
-                                   onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
-                                    <i class="bi bi-pc-display" style="font-size:.95rem;color:#34d399;width:18px;text-align:center"></i>
-                                    PC Dựng sẵn
-                                </a>
-                                <a href="/Products"
-                                   class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 text-decoration-none"
-                                   style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
-                                   onmouseover="this.style.background='rgba(168,85,247,0.12)';this.style.color='#fff'"
-                                   onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
-                                    <i class="bi bi-grid-3x3-gap" style="font-size:.95rem;color:#a855f7;width:18px;text-align:center"></i>
-                                    Tất cả sản phẩm
-                                </a>
-                            </div>
-                            <!-- Right: CTA -->
-                            <div class="col-5 p-3 d-flex flex-column gap-3"
-                                 style="border-left:1px solid rgba(255,255,255,.06)">
-                                <p class="text-uppercase mb-0" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Công cụ</p>
-                                <a href="/Builder" class="glass rounded-3 p-3 text-decoration-none d-block"
-                                   style="transition:all .2s"
-                                   onmouseover="this.style.background='rgba(168,85,247,0.15)'"
-                                   onmouseout="this.style.background=''">
-                                    <i class="bi bi-tools" style="font-size:1.4rem;color:#a855f7"></i>
-                                    <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">PC Builder</p>
-                                    <p class="text-muted-white mb-0" style="font-size:.75rem">Tự ráp cấu hình, AI gợi ý linh kiện tương thích</p>
-                                </a>
-                                <a href="/Build/Community" class="glass rounded-3 p-3 text-decoration-none d-block"
-                                   style="transition:all .2s"
-                                   onmouseover="this.style.background='rgba(99,102,241,0.15)'"
-                                   onmouseout="this.style.background=''">
-                                    <i class="bi bi-people" style="font-size:1.4rem;color:#6366f1"></i>
-                                    <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">Cộng đồng</p>
-                                    <p class="text-muted-white mb-0" style="font-size:.75rem">Xem cấu hình từ cộng đồng, chia sẻ build của bạn</p>
-                                </a>
-                            </div>
-                        </div>
+                        @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Dropdown" })
                     </div>
                 </li>
                 <li class="nav-item">
@@ -230,6 +160,63 @@
 <main class="pb-5">
     @RenderBody()
 </main>
+
+<!-- Footer -->
+<footer class="pt-5 pb-4 mt-auto" style="background:rgba(10,6,22,0.8);border-top:1px solid rgba(255,255,255,.06)">
+    <div class="container-xl">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4 col-md-6">
+                <a class="navbar-brand d-flex align-items-center gap-2 mb-3 text-decoration-none" asp-controller="Home" asp-action="Index">
+                    <span class="gradient-icon">
+                        <i class="bi bi-cpu text-white" style="font-size:1.1rem"></i>
+                    </span>
+                    <span class="text-white fw-bold fs-5">TechSpecs</span>
+                </a>
+                <p class="text-muted-white small mb-3">Nền tảng build PC AI thông minh, so sánh giá linh kiện và cộng đồng chia sẻ cấu hình máy tính lớn nhất.</p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-facebook fs-5"></i></a>
+                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-youtube fs-5"></i></a>
+                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-tiktok fs-5"></i></a>
+                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-instagram fs-5"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-3 col-6">
+                <h6 class="text-white fw-bold mb-3">Sản phẩm</h6>
+                <ul class="list-unstyled d-flex flex-column gap-2 small">
+                    <li><a href="/Products?category=prebuilt" class="text-muted-white text-decoration-none">PC Dựng sẵn</a></li>
+                    <li><a href="/Products?category=cpu" class="text-muted-white text-decoration-none">Linh kiện PC</a></li>
+                    <li><a href="/Products?category=monitor" class="text-muted-white text-decoration-none">Màn hình</a></li>
+                    <li><a href="/Builder" class="text-muted-white text-decoration-none">PC Builder</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-3 col-6">
+                <h6 class="text-white fw-bold mb-3">Chính sách & Hỗ trợ</h6>
+                <ul class="list-unstyled d-flex flex-column gap-2 small">
+                    <li><a href="/Warranty" class="text-muted-white text-decoration-none">Chính sách bảo hành</a></li>
+                    <li><a href="#" class="text-muted-white text-decoration-none">Chính sách đổi trả 1-1</a></li>
+                    <li><a href="#" class="text-muted-white text-decoration-none">Hướng dẫn thanh toán</a></li>
+                    <li><a href="#" class="text-muted-white text-decoration-none">Tra cứu đơn hàng</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-white fw-bold mb-3">Hệ thống cửa hàng</h6>
+                <p class="text-muted-white small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>Showroom HCM: 123 Nguyễn Thị Minh Khai, Q.1</p>
+                <p class="text-muted-white small mb-3"><i class="bi bi-telephone me-2 text-primary"></i>Hotline: 1900 6969 (8:00 - 21:00)</p>
+                
+                <h6 class="text-white fw-bold mb-2 mt-4">Chứng nhận & Thanh toán</h6>
+                <div class="d-flex gap-2 align-items-center flex-wrap mt-2">
+                    <img src="https://placehold.co/120x45/1a1a1a/FFF?text=Bo+Cong+Thuong" alt="Bộ Công Thương" class="rounded" style="height:36px;object-fit:cover">
+                    <img src="https://placehold.co/60x40/1a1a1a/FFF?text=Visa" alt="Visa" class="rounded" style="height:30px;object-fit:cover">
+                    <img src="https://placehold.co/60x40/1a1a1a/FFF?text=Mastercard" alt="Mastercard" class="rounded" style="height:30px;object-fit:cover">
+                    <img src="https://placehold.co/60x40/1a1a1a/FFF?text=VNPAY" alt="VNPAY" class="rounded" style="height:30px;object-fit:cover">
+                </div>
+            </div>
+        </div>
+        <div class="text-center pt-3 mt-4 border-top" style="border-color:rgba(255,255,255,.05)!important">
+            <p class="text-muted-white small mb-0">&copy; @DateTime.Now.Year TechSpecs. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 
 <!-- Compare floating tray -->
 <div id="compareTray" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1050;

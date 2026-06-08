@@ -59,6 +59,7 @@ builder.Services.AddScoped<Microsoft.AspNetCore.Identity.IUserClaimsPrincipalFac
 builder.Services.AddScoped<TechSpecs.Services.ICompatibilityEngine, TechSpecs.Services.CompatibilityEngine>();
 builder.Services.AddScoped<TechSpecs.Services.IAIAssistantService, TechSpecs.Services.AIAssistantService>();
 builder.Services.AddScoped<TechSpecs.Services.IEmailSender, TechSpecs.Services.ResendEmailSender>();
+builder.Services.AddScoped<TechSpecs.Services.IMockDataService, TechSpecs.Services.MockDataService>();
 builder.Services.AddHttpClient();
 
 // Persist DataProtection keys to DB so sessions survive container restarts/redeploys

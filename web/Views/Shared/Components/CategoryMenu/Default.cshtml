@@ -1,0 +1,114 @@
+@{
+    var renderAs = ViewBag.RenderAs as string ?? "Dropdown";
+    var megaCats = new[] {
+        ("cpu",         "bi-cpu",              "CPU"),
+        ("motherboard", "bi-motherboard",      "Mainboard"),
+        ("memory",      "bi-memory",           "RAM"),
+        ("gpu",         "bi-gpu-card",         "Card đồ hoạ"),
+        ("storage",     "bi-device-hdd",       "SSD / HDD"),
+        ("psu",         "bi-lightning-charge", "Nguồn máy tính"),
+        ("case",        "bi-box-seam",         "Vỏ case"),
+        ("cooler",      "bi-thermometer-half", "Tản nhiệt"),
+    };
+}
+
+@if (renderAs == "Dropdown")
+{
+    <div class="row g-0">
+        <!-- Left: categories -->
+        <div class="col-7 p-3">
+            <p class="text-uppercase mb-2" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Linh kiện PC</p>
+            <div class="row g-1">
+                @foreach (var (cat, icon, label) in megaCats)
+                {
+                    <div class="col-6">
+                        <a href="/Products?category=@cat"
+                           class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 mega-item text-decoration-none"
+                           style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
+                           onmouseover="this.style.background='rgba(168,85,247,0.12)';this.style.color='#fff'"
+                           onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
+                            <i class="bi @icon" style="font-size:.95rem;color:#a855f7;width:18px;text-align:center"></i>
+                            @label
+                        </a>
+                    </div>
+                }
+            </div>
+            <hr style="border-color:rgba(255,255,255,.08);margin:8px 0">
+            <a href="/Products?category=prebuilt"
+               class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 text-decoration-none"
+               style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
+               onmouseover="this.style.background='rgba(16,185,129,0.12)';this.style.color='#34d399'"
+               onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
+                <i class="bi bi-pc-display" style="font-size:.95rem;color:#34d399;width:18px;text-align:center"></i>
+                PC Dựng sẵn
+            </a>
+            <a href="/Products"
+               class="d-flex align-items-center gap-2 rounded-2 px-2 py-2 text-decoration-none"
+               style="color:rgba(255,255,255,.75);font-size:.82rem;transition:all .15s"
+               onmouseover="this.style.background='rgba(168,85,247,0.12)';this.style.color='#fff'"
+               onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.75)'">
+                <i class="bi bi-grid-3x3-gap" style="font-size:.95rem;color:#a855f7;width:18px;text-align:center"></i>
+                Tất cả sản phẩm
+            </a>
+        </div>
+        <!-- Right: CTA -->
+        <div class="col-5 p-3 d-flex flex-column gap-3"
+             style="border-left:1px solid rgba(255,255,255,.06)">
+            <p class="text-uppercase mb-0" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Công cụ</p>
+            <a href="/Builder" class="glass rounded-3 p-3 text-decoration-none d-block"
+               style="transition:all .2s"
+               onmouseover="this.style.background='rgba(168,85,247,0.15)'"
+               onmouseout="this.style.background=''">
+                <i class="bi bi-tools" style="font-size:1.4rem;color:#a855f7"></i>
+                <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">PC Builder</p>
+                <p class="text-muted-white mb-0" style="font-size:.75rem">Tự ráp cấu hình, AI gợi ý linh kiện tương thích</p>
+            </a>
+            <a href="/Build/Community" class="glass rounded-3 p-3 text-decoration-none d-block"
+               style="transition:all .2s"
+               onmouseover="this.style.background='rgba(99,102,241,0.15)'"
+               onmouseout="this.style.background=''">
+                <i class="bi bi-people" style="font-size:1.4rem;color:#6366f1"></i>
+                <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">Cộng đồng</p>
+                <p class="text-muted-white mb-0" style="font-size:.75rem">Xem cấu hình từ cộng đồng, chia sẻ build của bạn</p>
+            </a>
+        </div>
+    </div>
+}
+else if (renderAs == "Vertical")
+{
+    <div class="vertical-mega-menu d-flex flex-column glass h-100 p-2 py-3 rounded-4">
+        <p class="text-uppercase mb-2 px-3" style="font-size:.75rem;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.08em">Danh mục</p>
+        
+        <a href="/Products?category=prebuilt"
+           class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none rounded-3"
+           style="color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;transition:all .15s"
+           onmouseover="this.style.background='rgba(16,185,129,0.15)';this.style.color='#34d399'"
+           onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.85)'">
+            <i class="bi bi-pc-display" style="font-size:1.1rem;color:#34d399;width:20px;text-align:center"></i>
+            PC Dựng sẵn
+        </a>
+        
+        @foreach (var (cat, icon, label) in megaCats)
+        {
+            <a href="/Products?category=@cat"
+               class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none rounded-3 mt-1"
+               style="color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;transition:all .15s"
+               onmouseover="this.style.background='rgba(168,85,247,0.15)';this.style.color='#c084fc'"
+               onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.85)'">
+                <i class="bi @icon" style="font-size:1.1rem;color:#a855f7;width:20px;text-align:center"></i>
+                @label
+            </a>
+        }
+        
+        <hr style="border-color:rgba(255,255,255,.1);margin:12px 10px">
+        
+        <a href="/Products"
+           class="d-flex align-items-center gap-3 px-3 py-2 text-decoration-none rounded-3"
+           style="color:rgba(255,255,255,.85);font-size:.9rem;font-weight:500;transition:all .15s"
+           onmouseover="this.style.background='rgba(59,130,246,0.15)';this.style.color='#60a5fa'"
+           onmouseout="this.style.background='';this.style.color='rgba(255,255,255,.85)'">
+            <i class="bi bi-grid-3x3-gap" style="font-size:1.1rem;color:#3b82f6;width:20px;text-align:center"></i>
+            Tất cả sản phẩm
+        </a>
+    </div>
+}

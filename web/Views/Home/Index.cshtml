@@ -1,225 +1,289 @@
 @model TechSpecs.ViewModels.HomeViewModel
-@{ ViewData["Title"] = "Home"; }
+@{ ViewData["Title"] = "Trang chủ"; }
 
 @{
     var catMeta = new (string Key, string Label, string Icon, string Color)[] {
-        ("cpu",         "CPU",         "bi-cpu",              "#a855f7"),
-        ("gpu",         "GPU",         "bi-gpu-card",         "#6366f1"),
-        ("memory",      "RAM",         "bi-memory",           "#3b82f6"),
         ("motherboard", "Mainboard",   "bi-motherboard",      "#06b6d4"),
-        ("storage",     "Storage",     "bi-device-hdd",       "#10b981"),
-        ("psu",         "PSU",         "bi-lightning-charge", "#f59e0b"),
-        ("case",        "Case",        "bi-box",              "#ef4444"),
-        ("cooler",      "Cooler",      "bi-thermometer-half", "#8b5cf6"),
+        ("gpu",         "VGA / Card màn hình", "bi-gpu-card",         "#6366f1"),
+        ("case",        "Vỏ Case",        "bi-box",              "#ef4444"),
+        ("cooler",      "Tản nhiệt",      "bi-thermometer-half", "#8b5cf6")
     };
-    string DefaultCat = Model.Categories.Keys.FirstOrDefault() ?? "cpu";
 }
 
-<!-- ═══ HERO ═══ -->
-<section class="px-3 text-center d-flex align-items-center" style="min-height:72vh">
-    <div class="container">
-        <div class="badge mb-4 px-3 py-2 rounded-pill" style="background:rgba(168,85,247,.15);color:#c084fc;font-size:.85rem;border:1px solid rgba(168,85,247,.3)">
-            <i class="bi bi-stars me-2"></i>AI-Powered PC Builder — Smart Compatibility Engine
+<!-- 1. Above the Fold -->
+<section class="container-xl pt-4 pb-4">
+    <div class="row g-3">
+        <!-- Left: Vertical Mega Menu -->
+        <div class="col-lg-3 d-none d-lg-block">
+            @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Vertical" })
         </div>
-        <h1 class="display-2 fw-bold text-white mb-3" style="line-height:1.1">
-            Build Your Dream PC
-            <span class="d-block gradient-text">With Confidence</span>
-        </h1>
-        <p class="lead text-muted-white mb-5 mx-auto" style="max-width:580px">
-            Real-time compatibility validation, AI recommendations, and live pricing
-            from Vietnam's top retailers — all in one place.
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient btn-lg px-5 py-3 rounded-3 fw-semibold">
-                <i class="bi bi-tools me-2"></i>Start Building Free
+        
+        <!-- Center: Hero Banner Slider -->
+        <div class="col-lg-6 col-md-8">
+            <div id="heroCarousel" class="carousel slide hero-slider glass h-100" data-bs-ride="carousel">
+                <div class="carousel-indicators mb-2">
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+                </div>
+                <div class="carousel-inner h-100 rounded-4">
+                    <div class="carousel-item active h-100">
+                        <img src="https://placehold.co/800x400/1e1b4b/a855f7?text=Back+to+School+-+Sale+20%25" class="d-block w-100 h-100" alt="Back to school">
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="https://placehold.co/800x400/1e1b4b/3b82f6?text=Ra+mat+RTX+50-series" class="d-block w-100 h-100" alt="RTX 50">
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="https://placehold.co/800x400/1e1b4b/ef4444?text=Tuan+le+Intel+Core+Ultra" class="d-block w-100 h-100" alt="Intel Core Ultra">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: "Hot" Banners -->
+        <div class="col-lg-3 col-md-4 d-flex flex-column gap-3">
+            <a href="#" class="d-block right-banner glass">
+                <img src="https://placehold.co/400x184/1a1a1a/FFF?text=Combo+Linh+Kien" alt="Combo">
             </a>
-            <a asp-controller="Products" asp-action="Index" class="btn glass btn-lg px-5 py-3 rounded-3 text-white fw-semibold">
-                <i class="bi bi-grid me-2"></i>Browse Components
+            <a href="#" class="d-block right-banner glass">
+                <img src="https://placehold.co/400x184/1a1a1a/FFF?text=Flash+Sale+Moi+Ngay" alt="Flash Sale">
             </a>
         </div>
     </div>
 </section>
 
-<!-- ═══ CATEGORY SHORTCUT BAR ═══ -->
-<section class="px-3 pb-4">
-    <div class="container-xl">
-        <div class="glass p-3 p-md-4">
-            <div class="row g-2 g-md-3 justify-content-center">
-                @foreach (var (key, label, icon, color) in catMeta)
+<!-- 2. Core CTA & Quick Quote -->
+<section class="container-xl pb-5">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="glass p-3 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-2 h-100">
+                <a href="/Builder" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3" style="background:rgba(168,85,247,0.15);flex:1;min-width:120px">
+                    <i class="bi bi-tools mb-2" style="font-size:2rem;color:#c084fc"></i>
+                    <span class="text-white fw-bold">Build PC</span>
+                </a>
+                <a href="#flashsale" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm" style="flex:1;min-width:120px">
+                    <i class="bi bi-lightning-charge mb-2" style="font-size:1.8rem;color:#facc15"></i>
+                    <span class="text-white fw-semibold">Flash Sale</span>
+                </a>
+                <a href="/Products?category=prebuilt" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm" style="flex:1;min-width:120px">
+                    <i class="bi bi-laptop mb-2" style="font-size:1.8rem;color:#38bdf8"></i>
+                    <span class="text-white fw-semibold">Laptop Gaming</span>
+                </a>
+                <a href="#" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm" style="flex:1;min-width:120px">
+                    <i class="bi bi-gift mb-2" style="font-size:1.8rem;color:#f43f5e"></i>
+                    <span class="text-white fw-semibold">Khuyến mãi</span>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass p-3 rounded-4 h-100">
+                <h6 class="text-white fw-bold mb-3"><i class="bi bi-envelope-paper me-2 text-primary"></i>Nhận báo giá nhanh</h6>
+                <!-- Honeypot + CSRF Token included securely by tag helper -->
+                <form asp-controller="Home" asp-action="QuickQuote" method="post">
+                    <!-- Honeypot field: hidden via inline style, bot might fill it -->
+                    <input type="text" name="Website" style="display:none" autocomplete="off" tabindex="-1" />
+                    
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Số điện thoại / Email của bạn" required>
+                    </div>
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Ngân sách (VD: 20 triệu)">
+                    </div>
+                    <button type="submit" class="btn btn-gradient btn-sm w-100 fw-bold">Gửi yêu cầu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. Flash Sale -->
+@if (Model.FlashSales != null && Model.FlashSales.Any())
+{
+    <section id="flashsale" class="container-xl pb-5">
+        <div class="glass p-4 rounded-4" style="border: 1px solid rgba(239,68,68,0.3); background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(10,6,22,0) 100%);">
+            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="text-white fw-bold mb-0" style="color:#fca5a5!important"><i class="bi bi-lightning-fill me-2"></i>GIỜ VÀNG GIÁ SỐC</h3>
+                    <div class="d-flex gap-1">
+                        <!-- Countdown mock -->
+                        <span class="bg-danger text-white rounded px-2 py-1 fw-bold fs-5">05</span><span class="text-white fw-bold fs-5">:</span>
+                        <span class="bg-danger text-white rounded px-2 py-1 fw-bold fs-5">30</span><span class="text-white fw-bold fs-5">:</span>
+                        <span class="bg-danger text-white rounded px-2 py-1 fw-bold fs-5">45</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                @foreach (var item in Model.FlashSales)
                 {
-                    <div class="col-3 col-sm-3 col-md-auto">
-                        <a href="/Products?category=@key"
-                           class="d-flex flex-column align-items-center gap-1 text-decoration-none p-2 rounded-3 cat-shortcut"
-                           style="min-width:80px;transition:background .2s">
-                            <div class="rounded-3 d-flex align-items-center justify-content-center"
-                                 style="width:52px;height:52px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.2)">
-                                <i class="bi @icon text-white fs-4"></i>
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <a href="/Products/Detail/@item.Category/@item.Id" class="card component-card text-decoration-none h-100 d-flex flex-column border-0" style="position:relative;">
+                            <span class="product-badge bg-danger text-white">-@Math.Round((1 - item.SalePrice/item.OriginalPrice) * 100)%</span>
+                            <div class="card-img-wrap p-3 text-center" style="background:rgba(255,255,255,0.02)">
+                                <img src="@item.ImageUrl" class="img-fluid rounded" style="max-height:160px;object-fit:contain" alt="@item.Name" loading="lazy">
                             </div>
-                            <span class="text-muted-white small fw-semibold">@label</span>
+                            <div class="card-body p-3 d-flex flex-column">
+                                <h6 class="card-title text-white mb-2" style="font-size:0.9rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">@item.Name</h6>
+                                <div class="mt-auto">
+                                    <div class="text-decoration-line-through text-muted small">@item.OriginalPrice.ToString("N0")đ</div>
+                                    <div class="fw-bold fs-5 mb-2" style="color:#fca5a5">@item.SalePrice.ToString("N0")đ</div>
+                                    <div class="progress" style="height: 6px; background:rgba(255,255,255,0.1)">
+                                        @{ var pct = (item.SoldQuantity * 100) / item.TotalQuantity; }
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: @pct%" aria-valuenow="@pct" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="text-center mt-1" style="font-size:0.7rem;color:rgba(255,255,255,0.6)">Đã bán @item.SoldQuantity/@item.TotalQuantity</div>
+                                </div>
+                            </div>
                         </a>
                     </div>
                 }
             </div>
         </div>
-    </div>
-</section>
+    </section>
+}
 
-<!-- ═══ FEATURED PRODUCTS ═══ -->
-<section class="px-3 pb-5">
-    <div class="container-xl">
-
-        <!-- Section header -->
+<!-- 4. Pre-built PCs -->
+@if (Model.PrebuiltPcs != null && Model.PrebuiltPcs.Any())
+{
+    <section class="container-xl pb-5">
         <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-            <div>
-                <h2 class="text-white fw-bold mb-1">
-                    <i class="bi bi-fire me-2" style="color:#f59e0b"></i>Featured Products
-                </h2>
-                <p class="text-muted-white small mb-0">Top picks from each category, updated daily</p>
+            <h3 class="text-white fw-bold mb-0"><i class="bi bi-pc-display me-2 text-success"></i>PC Dựng Sẵn Nổi Bật</h3>
+            <!-- Tabs -->
+            <ul class="nav nav-pills glass-sm rounded-pill p-1" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill px-4 text-white" id="pills-gaming-tab" data-bs-toggle="pill" data-bs-target="#pills-gaming" type="button" role="tab" aria-selected="true">Gaming</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4 text-white" id="pills-office-tab" data-bs-toggle="pill" data-bs-target="#pills-office" type="button" role="tab" aria-selected="false">Văn phòng</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4 text-white" id="pills-creator-tab" data-bs-toggle="pill" data-bs-target="#pills-creator" type="button" role="tab" aria-selected="false">Đồ họa / Creator</button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-gaming" role="tabpanel" tabindex="0">
+                <div class="row g-3">
+                    @foreach (var item in Model.PrebuiltPcs.Where(p => p.Purpose == "Gaming"))
+                    {
+                        <div class="col-lg-3 col-md-4 col-sm-6">
+                            <a href="/Products/Detail/prebuilt/@item.Id" class="card component-card text-decoration-none h-100 d-flex flex-column border-0" style="position:relative;">
+                                @if(item.OldPrice.HasValue) {
+                                    <span class="product-badge bg-warning text-dark">Khuyến mãi</span>
+                                }
+                                <div class="card-img-wrap p-3 text-center" style="background:rgba(255,255,255,0.02)">
+                                    <img src="@item.ImageUrl" class="img-fluid rounded" style="max-height:160px;object-fit:contain" alt="@item.Name" loading="lazy">
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column">
+                                    <h6 class="card-title text-white mb-3" style="font-size:0.9rem;line-height:1.4">@item.Name</h6>
+                                    <div class="d-flex flex-wrap gap-1 mb-3">
+                                        <span class="badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.3)">@item.CpuBadge</span>
+                                        <span class="badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.3)">@item.GpuBadge</span>
+                                        <span class="badge" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2)">@item.RamBadge</span>
+                                        <span class="badge" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2)">@item.StorageBadge</span>
+                                    </div>
+                                    <div class="mt-auto">
+                                        @if(item.OldPrice.HasValue) {
+                                            <div class="text-decoration-line-through text-muted small">@item.OldPrice.Value.ToString("N0")đ</div>
+                                        }
+                                        <div class="fw-bold fs-5 text-white">@item.Price.ToString("N0")đ</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
             </div>
-            <a asp-controller="Products" asp-action="Index" class="btn glass text-white px-4">
-                <i class="bi bi-grid me-2"></i>View All
+            <!-- Additional tabs would render similar filtered content (Office, Creator) -->
+            <!-- For MVP, we'll leave them empty or render similarly if there are items -->
+        </div>
+        <div class="text-center mt-4">
+            <a href="/Products?category=prebuilt" class="btn glass text-white px-5 py-2 fw-semibold">
+                Xem tất cả PC Dựng sẵn <i class="bi bi-arrow-right ms-2"></i>
             </a>
         </div>
+    </section>
+}
 
-        <!-- Category tab buttons -->
-        <div class="d-flex gap-2 mb-4 flex-wrap" id="featTabs">
-            @foreach (var (key, label, icon, color) in catMeta)
-            {
-                @if (Model.Categories.ContainsKey(key) && Model.Categories[key].Any())
-                {
-                    <button class="btn feat-tab px-3 py-2 @(key == DefaultCat ? "btn-gradient" : "glass text-white")"
-                            data-cat="@key" onclick="switchFeatCat('@key')">
-                        <i class="bi @icon me-1"></i>@label
-                    </button>
-                }
-            }
-        </div>
-
-        <!-- Product grids per category -->
-        @foreach (var (key, label, icon, color) in catMeta)
+<!-- 5. Featured Components by Category -->
+<section class="container-xl pb-5">
+    @foreach (var cat in catMeta)
+    {
+        if (Model.Categories.ContainsKey(cat.Key) && Model.Categories[cat.Key].Any())
         {
-            @if (Model.Categories.ContainsKey(key))
-            {
-                var products = Model.Categories[key];
-                <div class="feat-grid" data-cat="@key" style="display:@(key == DefaultCat ? "" : "none")">
-                    @if (products.Any())
-                    {
-                        <div class="row g-3">
-                            @await Html.PartialAsync("~/Views/Products/_ProductGrid.cshtml", products)
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="glass p-4 text-center text-muted-white">
-                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>No products available yet
-                        </div>
-                    }
-                    <div class="text-center mt-4">
-                        <a href="/Products?category=@key" class="btn glass text-white px-4">
-                            <i class="bi bi-arrow-right me-2"></i>View All @label
-                        </a>
-                    </div>
+            <div class="mb-5">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+                    <h4 class="text-white fw-bold mb-0"><i class="bi @cat.Icon me-2" style="color:@cat.Color"></i>@cat.Label</h4>
+                    <a href="/Products?category=@cat.Key" class="btn btn-sm glass text-white px-3">Xem tất cả</a>
                 </div>
-            }
+                
+                <div class="row g-3 flex-nowrap overflow-auto" style="padding-bottom:10px">
+                    <!-- Display only first 5 items -->
+                    @foreach (var item in Model.Categories[cat.Key].Take(5))
+                    {
+                        <div class="col-lg-2 col-md-3 col-sm-4 col-6" style="min-width: 200px;">
+                            <a href="/Products/Detail/@item.Category/@item.Id" class="card component-card text-decoration-none h-100 d-flex flex-column border-0" style="position:relative">
+                                @if(item.Price > 10000000) {
+                                    <span class="product-badge bg-success text-white">Bán chạy</span>
+                                }
+                                <div class="card-img-wrap p-2 text-center" style="background:rgba(255,255,255,0.02)">
+                                    <img src="@item.ImageUrl" class="img-fluid rounded" style="height:120px;object-fit:contain" alt="@item.Name" loading="lazy">
+                                </div>
+                                <div class="card-body p-2 d-flex flex-column">
+                                    <h6 class="card-title text-white mb-2" style="font-size:0.8rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">@item.Name</h6>
+                                    <div class="mt-auto">
+                                        <div class="fw-bold text-white" style="font-size:0.95rem;color:@cat.Color!important">@item.Price.ToString("N0")đ</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
         }
-    </div>
+    }
 </section>
 
-<!-- ═══ FEATURES ═══ -->
-<section class="py-5 px-3" style="border-top:1px solid rgba(255,255,255,.06)">
-    <div class="container-xl">
-        <h2 class="text-white fw-bold text-center mb-5">Why TechSpecs?</h2>
-        <div class="row g-4">
-            <div class="col-sm-6 col-lg-3">
-                <div class="glass p-4 h-100 text-center">
-                    <div class="gradient-icon mb-3 mx-auto" style="width:56px;height:56px">
-                        <i class="bi bi-cpu text-white fs-4"></i>
-                    </div>
-                    <h5 class="text-white fw-semibold mb-2">Smart Compatibility</h5>
-                    <p class="text-muted-white small mb-0">Real-time validation prevents incompatible parts — CPU socket, RAM type, GPU length, PSU wattage, all checked automatically.</p>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="glass p-4 h-100 text-center">
-                    <div class="gradient-icon mb-3 mx-auto" style="width:56px;height:56px">
-                        <i class="bi bi-robot text-white fs-4"></i>
-                    </div>
-                    <h5 class="text-white fw-semibold mb-2">AI Recommendations</h5>
-                    <p class="text-muted-white small mb-0">Describe what you need — gaming, editing, coding — and our AI picks the best compatible build within your budget.</p>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="glass p-4 h-100 text-center">
-                    <div class="gradient-icon mb-3 mx-auto" style="width:56px;height:56px">
-                        <i class="bi bi-graph-up-arrow text-white fs-4"></i>
-                    </div>
-                    <h5 class="text-white fw-semibold mb-2">Live Price Data</h5>
-                    <p class="text-muted-white small mb-0">Prices scraped every 12 hours from Phong Vũ, An Phát, GearVN, and TTGShop. Always current, never outdated.</p>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="glass p-4 h-100 text-center">
-                    <div class="gradient-icon mb-3 mx-auto" style="width:56px;height:56px">
-                        <i class="bi bi-people text-white fs-4"></i>
-                    </div>
-                    <h5 class="text-white fw-semibold mb-2">Build Community</h5>
-                    <p class="text-muted-white small mb-0">Save, share, and compare your builds. Browse community builds sorted by upvotes and get inspired.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══ CTA ═══ -->
-<section class="py-5 px-3 mb-4">
-    <div class="container-xl">
-        <div class="glass text-center p-5 mx-auto rounded-4"
-             style="max-width:820px;background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(59,130,246,.2))!important;
-                    border:1px solid rgba(168,85,247,.25)">
-            <div class="badge mb-3 px-3 py-2 rounded-pill" style="background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3)">
-                Powered by AI
-            </div>
-            <h2 class="display-5 fw-bold text-white mb-3">Ready to Build Something Amazing?</h2>
-            <p class="text-muted-white mb-4 mx-auto" style="max-width:520px">
-                Chat with our AI assistant, select your budget, and get a full compatible build in seconds.
-            </p>
-            <div class="d-flex gap-3 justify-content-center flex-wrap">
-                <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient btn-lg px-5 py-3 rounded-3 fw-semibold">
-                    <i class="bi bi-tools me-2"></i>Launch PC Builder
-                </a>
-                <a asp-controller="Build" asp-action="Community" class="btn glass btn-lg px-5 py-3 rounded-3 text-white fw-semibold">
-                    <i class="bi bi-people me-2"></i>Browse Community
-                </a>
-            </div>
+<!-- 6. Brand Showcase -->
+<section class="container-xl pb-5">
+    <h4 class="text-center text-white fw-bold mb-4">Thương Hiệu Đồng Hành</h4>
+    <div class="glass p-4 rounded-4">
+        <div class="d-flex justify-content-around align-items-center flex-wrap gap-4">
+            <a href="/Products?search=ASUS" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
+                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=ASUS" alt="ASUS" class="img-fluid rounded">
+            </a>
+            <a href="/Products?search=MSI" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
+                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=MSI" alt="MSI" class="img-fluid rounded">
+            </a>
+            <a href="/Products?search=GIGABYTE" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
+                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=GIGABYTE" alt="GIGABYTE" class="img-fluid rounded">
+            </a>
+            <a href="/Products?search=Corsair" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
+                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=Corsair" alt="Corsair" class="img-fluid rounded">
+            </a>
         </div>
     </div>
 </section>
 
 @section Scripts {
-<script>
-function switchFeatCat(cat) {
-    document.querySelectorAll('.feat-tab').forEach(btn => {
-        const active = btn.dataset.cat === cat;
-        btn.classList.toggle('btn-gradient', active);
-        btn.classList.toggle('glass', !active);
-        btn.classList.toggle('text-white', true);
-    });
-    document.querySelectorAll('.feat-grid').forEach(grid => {
-        grid.style.display = grid.dataset.cat === cat ? '' : 'none';
-    });
-}
-
-function goBuilder(category, id) {
-    window.location.href = '/Builder?preselect=' + category + ':' + id;
-}
-</script>
-
-<style>
-.cat-shortcut:hover {
-    background: rgba(168, 85, 247, .12);
-}
-.cat-shortcut:hover span {
-    color: #c084fc !important;
-}
-</style>
+    <script>
+        // Ensure nav tabs work seamlessly
+        const triggerTabList = document.querySelectorAll('#pills-tab button')
+        triggerTabList.forEach(triggerEl => {
+          const tabTrigger = new bootstrap.Tab(triggerEl)
+          triggerEl.addEventListener('click', event => {
+            event.preventDefault()
+            tabTrigger.show()
+          })
+        })
+    </script>
 }

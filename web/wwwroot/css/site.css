@@ -317,3 +317,32 @@ body.light-mode .badge.glass-sm {
     color: #374151 !important;
 }
 body.light-mode .perf-bar-track { background: rgba(0,0,0,.1); }
+
+/* ── Homepage specific ──────────────────────────── */
+.hero-slider .carousel-item img {
+    height: 380px;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+.right-banner img {
+    height: 184px;
+    object-fit: cover;
+    border-radius: 1rem;
+    width: 100%;
+}
+.quick-link-btn {
+    transition: all 0.2s;
+}
+.quick-link-btn:hover {
+    transform: translateY(-3px);
+}
+.product-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}

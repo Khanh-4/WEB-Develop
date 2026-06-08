@@ -35,7 +35,7 @@ test.describe('Auth', () => {
         await page.waitForURL('/');
 
         await page.click('.navbar [data-bs-toggle="dropdown"]');
-        await page.click('button:has-text("Sign Out")');
+        await page.click('form[action*="/Account/Logout"] button');
         await page.waitForURL('/');
 
         await expect(page.locator('#cartCount')).not.toBeVisible();

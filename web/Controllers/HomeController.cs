@@ -11,11 +11,13 @@ public class HomeController : Controller
 {
     private readonly AppDbContext _db;
     private readonly ILogger<HomeController> _logger;
+    private readonly TechSpecs.Services.IMockDataService _mockDataService;
 
-    public HomeController(AppDbContext db, ILogger<HomeController> logger)
+    public HomeController(AppDbContext db, ILogger<HomeController> logger, TechSpecs.Services.IMockDataService mockDataService)
     {
         _db = db;
         _logger = logger;
+        _mockDataService = mockDataService;
     }
 
     public async Task<IActionResult> Index()
@@ -103,7 +105,26 @@ public class HomeController : Controller
                 Specs = new() { ["Type"] = c.Type, ["Max TDP"] = $"{c.MaxTDP}W" }
             }).ToList();
 
+        vm.FlashSales = _mockDataService.GetFlashSales();
+        vm.PrebuiltPcs = _mockDataService.GetPrebuiltPcs();
+
         return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult QuickQuote(string? website, string? phoneOrEmail, string? budget)
+    {
+        // Honeypot check
+        if (!string.IsNullOrEmpty(website))
+        {
+            // Bot detected, pretend success
+            return RedirectToAction("Index");
+        }
+
+        // Logic to process the quote request would go here
+        TempData["SuccessMessage"] = "Yêu cầu báo giá của bạn đã được gửi. Chúng tôi sẽ liên hệ sớm nhất!";
+        return RedirectToAction("Index");
     }
 
     public IActionResult Privacy() => View();
