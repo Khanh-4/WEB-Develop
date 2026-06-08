@@ -1,7 +1,7 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-08 (session 12 — Homepage redesign complete; P36–P43 queued below)
+> Last updated: 2026-06-09 (session 14 — Quick Quote live, production crash loop fixed)
 > Status: **Production live** at https://web-develop-production.up.railway.app
 
 ---
@@ -496,6 +496,18 @@ await _cacheStore.EvictByTagAsync("flash-sale", cancellationToken);
 
 ---
 
+## ✅ Done — Session 14 (2026-06-09) — Quick Quote + Production Fix
+
+| Task | File(s) |
+|------|---------|
+| **Quick Quote — lưu DB** — model `QuoteRequest`, migration `AddQuoteRequests`, bảng `quote_requests` | `Models/QuoteRequest.cs`, `Data/AppDbContext.cs`, `Data/Migrations/` |
+| **Quick Quote — gửi email admin** — Resend API, HTML email, fire-and-forget Task.Run | `Controllers/HomeController.cs` |
+| **Admin/QuoteRequests** — danh sách leads, filter chưa liên hệ, mark contacted, xóa | `Controllers/AdminController.cs`, `Views/Admin/QuoteRequests.cshtml` |
+| **Fix production crash loop** — wrap role seeding trong try/catch, xóa "SET STOCK=1000" mỗi boot | `web/Program.cs` |
+| **Fix email link** — dùng `Request.Scheme + Request.Host` thay vì hardcode domain | `Controllers/HomeController.cs` |
+
+---
+
 ## Bugs & Known Issues
 
 | Issue | Mức độ | Ghi chú |
@@ -504,6 +516,7 @@ await _cacheStore.EvictByTagAsync("flash-sale", cancellationToken);
 | ~~VRAM hiển thị sai (VD: "5060 GB")~~ | ~~Medium~~ | Đã fix ✓ |
 | ~~TDP = 0W cho nhiều CPU~~ | ~~Low~~ | Đã fix ✓ |
 | ~~CPU performance score = 0 cho ~27% sản phẩm~~ | ~~Low~~ | Đã fix: lookup table 60+ CPU models + range GHz pattern ✓ |
+| ~~Production Railway crash loop — RoleExistsAsync throws khi Supabase unreachable at boot~~ | ~~Critical~~ | Đã fix: try/catch + xóa SET STOCK block ✓ |
 | `dotnet run` báo port 5003 đã dùng | Low | Dùng `fuser -k 5003/tcp` trước khi chạy |
 | ~~`PORT` env var override khiến local dev chạy trên 8080~~ | ~~Low~~ | Đã fix: chỉ bind khi `PORT` env var thực sự được set ✓ |
 | ~~Nút "Add to Cart" trên Products/Builder chưa hoạt động~~ | ~~High~~ | Đã xong ✓ |
