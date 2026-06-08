@@ -35,6 +35,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionK
     public DbSet<Bundle> Bundles { get; set; }
     public DbSet<BundleItem> BundleItems { get; set; }
     public DbSet<ComponentBenchmark> ComponentBenchmarks { get; set; }
+    public DbSet<QuoteRequest> QuoteRequests { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)

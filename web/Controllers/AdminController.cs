@@ -734,4 +734,33 @@ public class AdminController : Controller
             case "cooler":      var cc = await _db.CpuCoolers.FindAsync(id);     if (cc != null) _db.CpuCoolers.Remove(cc);     break;
         }
     }
+
+    // ── Quote Requests ───────────────────────────────────────────
+
+    public async Task<IActionResult> QuoteRequests(bool? uncontacted = null)
+    {
+        var query = _db.QuoteRequests.AsNoTracking().OrderByDescending(q => q.CreatedAt);
+        var list = uncontacted == true
+            ? await query.Where(q => !q.IsContacted).ToListAsync()
+            : await query.ToListAsync();
+
+        ViewBag.FilterUncontacted = uncontacted;
+        return View(list);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarkContacted(int id)
+    {
+        var q = await _db.QuoteRequests.FindAsync(id);
+        if (q != null) { q.IsContacted = true; await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(QuoteRequests));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteQuoteRequest(int id)
+    {
+        var q = await _db.QuoteRequests.FindAsync(id);
+        if (q != null) { _db.QuoteRequests.Remove(q); await _db.SaveChangesAsync(); }
+        return RedirectToAction(nameof(QuoteRequests));
+    }
 }
