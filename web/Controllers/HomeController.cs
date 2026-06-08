@@ -67,6 +67,7 @@ public class HomeController : Controller
         var adminEmail = _config["Notification:AdminEmail"];
         if (!string.IsNullOrWhiteSpace(adminEmail))
         {
+            var capturedLogger = _logger;
             _ = Task.Run(async () =>
             {
                 try
@@ -81,12 +82,17 @@ public class HomeController : Controller
                         <p><a href="https://techspecsvn.up.railway.app/Admin/QuoteRequests">Xem tất cả yêu cầu →</a></p>
                         """;
                     await _email.SendEmailAsync(adminEmail, $"[TechSpecs] Báo giá #{quote.Id} — {quote.PhoneOrEmail}", html);
+                    capturedLogger.LogInformation("Quote notification email sent to {AdminEmail} for QuoteRequest #{Id}", adminEmail, quote.Id);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Failed to send quote notification email for QuoteRequest #{Id}", quote.Id);
+                    capturedLogger.LogWarning(ex, "Failed to send quote notification email for QuoteRequest #{Id}", quote.Id);
                 }
             });
+        }
+        else
+        {
+            _logger.LogWarning("Notification:AdminEmail not configured — skipping email for QuoteRequest #{Id}", quote.Id);
         }
 
         TempData["SuccessMessage"] = "Yêu cầu báo giá của bạn đã được gửi. Chúng tôi sẽ liên hệ sớm nhất!";
