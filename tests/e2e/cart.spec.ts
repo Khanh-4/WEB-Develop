@@ -96,9 +96,10 @@ test.describe('Cart & Checkout', () => {
         await page.fill('input[name="Phone"]', '0987654321');
         await page.fill('textarea[name="ShippingAddress"]', '456 Detail St');
         await page.click('button[type="submit"]');
+        await expect(page).toHaveURL(/Orders\/Confirmation/);
 
         await page.goto('/Orders');
-        await page.click('a:has-text("Details")');
+        await page.locator('a[href^="/Orders/Detail/"]').first().click();
 
         await expect(page.locator('text=0987654321')).toBeVisible();
         await expect(page.locator('text=456 Detail St')).toBeVisible();
