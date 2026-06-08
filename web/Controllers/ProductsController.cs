@@ -484,7 +484,7 @@ public class ProductsController : Controller
             "motherboard" => (object)new
             {
                 sockets     = await _db.Motherboards.AsNoTracking().Select(m => m.SocketCompatibility).Where(s => s != "").Distinct().OrderBy(s => s).ToListAsync(),
-                formFactors = await _db.Motherboards.AsNoTracking().Select(m => m.FormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
+                formFactors = (await _db.Motherboards.AsNoTracking().Select(m => m.FormFactor).Where(f => f != "").Distinct().ToListAsync()).Union(new[] { "eATX", "ATX", "Micro ATX", "Mini ITX" }).Distinct().OrderBy(f => f).ToList(),
                 memTypes    = await _db.Motherboards.AsNoTracking().Select(m => m.MemoryCompatibility).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 chipsets    = await _db.Motherboards.AsNoTracking().Select(m => m.Chipset).Where(c => c != "").Distinct().OrderBy(c => c).ToListAsync(),
             },
@@ -492,7 +492,7 @@ public class ProductsController : Controller
             {
                 types      = await _db.Memories.AsNoTracking().Select(m => m.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
                 capacities = await _db.Memories.AsNoTracking().Select(m => m.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
-                profiles   = await _db.Memories.AsNoTracking().Select(m => m.Profile).Where(p => p != "").Distinct().OrderBy(p => p).ToListAsync(),
+                profiles   = (await _db.Memories.AsNoTracking().Select(m => m.Profile).Where(p => p != "").Distinct().ToListAsync()).Union(new[] { "Intel XMP", "AMD Expo" }).Distinct().OrderBy(p => p).ToList(),
             },
             "gpu" => new
             {
@@ -502,20 +502,20 @@ public class ProductsController : Controller
             },
             "storage" => new
             {
-                types      = await _db.Storages.AsNoTracking().Select(s => s.Type).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
-                interfaces = await _db.Storages.AsNoTracking().Select(s => s.Interface).Where(i => i != "").Distinct().OrderBy(i => i).ToListAsync(),
+                types      = (await _db.Storages.AsNoTracking().Select(s => s.Type).Where(t => t != "").Distinct().ToListAsync()).Union(new[] { "SSD", "HDD" }).Distinct().OrderBy(t => t).ToList(),
+                interfaces = (await _db.Storages.AsNoTracking().Select(s => s.Interface).Where(i => i != "").Distinct().ToListAsync()).Union(new[] { "PCIe Gen 3", "PCIe Gen 4", "PCIe Gen 5" }).Distinct().OrderBy(i => i).ToList(),
                 capacities = await _db.Storages.AsNoTracking().Select(s => s.Capacity).Where(c => c > 0).Distinct().OrderBy(c => c).ToListAsync(),
             },
             "psu" => new
             {
                 efficiencies = await _db.PowerSupplies.AsNoTracking().Select(p => p.Efficiency).Where(e => e != "").Distinct().OrderBy(e => e).ToListAsync(),
                 modulars     = await _db.PowerSupplies.AsNoTracking().Select(p => p.Modular).Where(m => m != "").Distinct().OrderBy(m => m).ToListAsync(),
-                formFactors  = await _db.PowerSupplies.AsNoTracking().Select(p => p.PsuFormFactor).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
+                formFactors  = (await _db.PowerSupplies.AsNoTracking().Select(p => p.PsuFormFactor).Where(f => f != "").Distinct().ToListAsync()).Union(new[] { "ATX", "SFX" }).Distinct().OrderBy(f => f).ToList(),
             },
             "case" => new
             {
-                caseTypes   = await _db.CaseEnclosures.AsNoTracking().Select(c => c.CaseType).Where(t => t != "").Distinct().OrderBy(t => t).ToListAsync(),
-                formFactors = await _db.CaseEnclosures.AsNoTracking().Select(c => c.FormFactorSupport).Where(f => f != "").Distinct().OrderBy(f => f).ToListAsync(),
+                caseTypes   = (await _db.CaseEnclosures.AsNoTracking().Select(c => c.CaseType).Where(t => t != "").Distinct().ToListAsync()).Union(new[] { "Mini-Tower", "Mid-Tower", "Full-Tower" }).Distinct().OrderBy(t => t).ToList(),
+                formFactors = (await _db.CaseEnclosures.AsNoTracking().Select(c => c.FormFactorSupport).Where(f => f != "").Distinct().ToListAsync()).SelectMany(f => f.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)).Union(new[] { "eATX", "ATX", "Micro ATX", "Mini ITX" }).Distinct().OrderBy(f => f).ToList(),
             },
             "cooler" => (object)new
             {

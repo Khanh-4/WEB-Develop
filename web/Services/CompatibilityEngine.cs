@@ -82,11 +82,10 @@ public class CompatibilityEngine : ICompatibilityEngine
 
     private static List<ComponentDto> ScoreAndSelectDtos(List<ComponentDto> dtos)
     {
-        var valid = dtos.Where(x => x.Price > 0).ToList();
+        var valid = dtos.Where(x => x.Price > 0 && x.IsCompatible).ToList();
 
         var sorted = valid
-            .OrderByDescending(x => x.IsCompatible)
-            .ThenByDescending(x => x.IsRecommended)
+            .OrderByDescending(x => x.IsRecommended)
             .ThenByDescending(x => x.PpScore)
             .ToList();
 

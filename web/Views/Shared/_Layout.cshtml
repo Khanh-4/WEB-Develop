@@ -125,10 +125,7 @@
                            aria-expanded="false" onclick="return megaNavClick(event, this)">
                             @L["Nav.Products"]
                         </a>
-                        <div class="dropdown-menu p-0 border-0 mega-menu" aria-labelledby="megaMenuToggle"
-                             style="min-width:520px;background:rgba(10,6,22,0.98);border:1px solid rgba(168,85,247,0.2)!important;
-                                    border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.6);backdrop-filter:blur(20px);
-                                    margin-top:6px!important">
+                        <div class="dropdown-menu p-0 border-0 mega-menu" aria-labelledby="megaMenuToggle">
                             @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Dropdown" })
                         </div>
                     </li>
@@ -216,7 +213,7 @@
 </main>
 
 <!-- Footer -->
-<footer class="pt-5 pb-4 mt-auto" style="background:rgba(10,6,22,0.8);border-top:1px solid rgba(255,255,255,.06)">
+<footer class="site-footer pt-5 pb-4 mt-auto">
     <div class="container-xl">
         <div class="row g-4 mb-4">
             <div class="col-lg-4 col-md-6">

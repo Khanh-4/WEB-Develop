@@ -141,6 +141,7 @@ using (var scope = app.Services.CreateScope())
 using (var scope2 = app.Services.CreateScope())
 {
     var db2 = scope2.ServiceProvider.GetRequiredService<TechSpecs.Data.AppDbContext>();
+    
     await db2.Cpus.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
     await db2.Motherboards.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));
     await db2.Memories.ExecuteUpdateAsync(s => s.SetProperty(b => b.Stock, 1000));

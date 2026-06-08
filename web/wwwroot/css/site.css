@@ -725,3 +725,54 @@ body.light-mode .spec-chip {
     font-size: 0.75rem;
     font-weight: 700;
 }
+
+/* ── Mega Menu & Footer Default ──────────────────────────── */
+.mega-menu {
+    min-width: 520px;
+    background: rgba(10, 6, 22, 0.98);
+    border: 1px solid rgba(168, 85, 247, 0.2) !important;
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    margin-top: 6px !important;
+}
+.site-footer {
+    background: rgba(10, 6, 22, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+/* ── Light Mode Specifics for Menu & Footer ──────────────── */
+body.light-mode .mega-menu {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
+}
+body.light-mode .mega-menu p,
+body.light-mode .mega-menu a,
+body.light-mode .vertical-mega-menu p,
+body.light-mode .vertical-mega-menu a {
+    color: #1e293b !important;
+}
+body.light-mode .site-footer {
+    background: rgba(255, 255, 255, 0.8);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+body.light-mode .site-footer .text-white {
+    color: #1e293b !important;
+}
+body.light-mode .site-footer .text-muted-white {
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+body.light-mode .filter-sidebar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+body.light-mode .filter-sidebar label {
+    color: #1e293b !important;
+}
+body.light-mode .filter-sidebar .text-white {
+    color: #1e293b !important;
+}
+body.light-mode .filter-sidebar .text-muted-white {
+    color: rgba(0, 0, 0, 0.5) !important;
+}
