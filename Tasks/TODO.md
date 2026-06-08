@@ -1,7 +1,7 @@
 # 📋 Upcoming Tasks
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-07 (session 6 — all 4 original feature groups complete)
+> Last updated: 2026-06-08 (session 11 — P1–P35 + Build Compare + Admin Benchmarks all complete)
 > Status: **Production live** at https://web-develop-production.up.railway.app
 
 ---
@@ -188,6 +188,48 @@
 "Supabase": { "Url": "https://xxx.supabase.co", "AnonKey": "eyJ..." }
 ```
 And create a Storage bucket named `reviews` in Supabase dashboard with public access.
+
+---
+
+## ✅ Done — Session 9 (2026-06-08) — P20–P27 Micro-interactions & Contextual UX
+
+| Task | File(s) |
+|------|---------|
+| **P20 — Add-to-cart fly animation** | `wwwroot/js/site.js` (`flyToCart()`), `Views/Products/Index.cshtml` |
+| **P21 — Skeleton loading** | `wwwroot/css/site.css` (`.sk-box`, `@keyframes skShimmer`), `Views/Products/Index.cshtml` |
+| **P22 — Card hover spec overlay** | `wwwroot/css/site.css` (`.card-specs-overlay`), `Views/Products/Index.cshtml` |
+| **P23 — Lazy image loading** | `loading="lazy"` on all `<img>` in `renderProducts()` |
+| **P24 — Active Filters chips** | `#activeFilters` div + `renderActiveFilters()` in `Views/Products/Index.cshtml` |
+| **P25 — Spec tooltips** | `specTips` dict + Bootstrap tooltip init in `Views/Products/Detail.cshtml` |
+| **P26 — Sticky Add-to-Cart bar** | `#stickyCartBar` + `IntersectionObserver` in `Views/Products/Detail.cshtml` |
+| **P27 — Compare sticky bar** | `.card-cmp-check` checkbox, `#cmpBar`, `toggleCompare()` in `Views/Products/Index.cshtml` |
+
+---
+
+## ✅ Done — Session 10 (2026-06-08) — P28–P35 Feature Polish
+
+| Task | File(s) |
+|------|---------|
+| **P28 — Killer Specs badges** | `killerSpecKeys[]` + icon chips on `Views/Products/Detail.cshtml` |
+| **P29 — Compare diff highlight** | `@section Scripts` in `Views/Products/Compare.cshtml` — green=winner, red=loser, trophy icon |
+| **P30 — Quick View modal** | `GET /Products/QuickView/{cat}/{id}`, `.qv-eye-btn` hover, AJAX modal in `Views/Products/Index.cshtml` |
+| **P31 — Keyboard shortcuts** | `/` focus search, `Esc` close modal, `←→` navigate Quick View |
+| **P32 — FPS Estimator (GPU)** | `ApproximatePerformance` on ViewModel, 7-tier × 7-game card grid in `Views/Products/Detail.cshtml` |
+| **P33 — Builder localStorage** | `saveToLocalStorage()`, `clearSavedBuild()`, restore on DOMContentLoaded |
+| **P34 — PSU Power Breakdown** | `CpuTDP`/`GpuTDP` on `FilteredResult`, expandable panel in Builder left sidebar |
+| **P35 — IMemoryCache** | `AddMemoryCache()`, 60s cache for product lists, 10min for FilterOptions/Brands |
+
+---
+
+## ✅ Done — Session 11 (2026-06-08) — Build Comparison + Admin Benchmarks
+
+| Task | File(s) |
+|------|---------|
+| **Build Compare** — Snapshot Build A button (≥3 components), slide-in panel, Chart.js 5-axis radar | `Views/Builder/Index.cshtml`, `Controllers/BuilderController.cs` |
+| **POST /Builder/CompareBuilds** — hybrid benchmark (DB real data + ApproxPerf fallback), radar scores, 4 spec groups | `Controllers/BuilderController.cs`, `ViewModels/CompareViewModels.cs` |
+| **ComponentBenchmarks table** — EF migration, Admin CRUD (`/Admin/Benchmarks`) | `Models/ComponentBenchmark.cs`, `Controllers/AdminController.cs`, `Views/Admin/Benchmarks.cshtml` |
+| **Allow multiple reviews** — drop unique index, always insert new review | `Controllers/ReviewsController.cs`, migration `AllowMultipleReviews` |
+| **Bug fix: P27 compare URL** — was `/Build/Compare?a=cat_id` (broken), fixed to `/Products/Compare?category=&ids=` | `Views/Products/Index.cshtml` |
 
 ---
 

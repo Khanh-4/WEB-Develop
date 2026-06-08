@@ -753,7 +753,7 @@ function renderCompareBar() {
         : '';
 
     const canCompare = cmpItems.length >= 2 && cmpItems.every(i => i.cat === cmpItems[0].cat);
-    const compareUrl = `/Build/Compare?a=${cmpItems[0]?.cat}_${cmpItems[0]?.id}&b=${cmpItems[1]?.cat}_${cmpItems[1]?.id}`;
+    const compareUrl = `/Products/Compare?category=${cmpItems[0]?.cat}&ids=${cmpItems.map(i => i.id).join(',')}`;
 
     bar.innerHTML = `
         <span class="text-white fw-semibold me-2" style="white-space:nowrap;font-size:.82rem">
