@@ -3,7 +3,7 @@
 > **URL production:** https://web-develop-production.up.railway.app  
 > **Tài khoản admin:** `duylamasd1995@gmail.com`  
 > **Cách ghi lỗi:** URL + hành động + kết quả thực tế + screenshot nếu có  
-> **Cập nhật:** 2026-06-09 (Session 16 — full feature audit)
+> **Cập nhật:** 2026-06-09 (Session 17 — QA bug fixes)
 
 ---
 
@@ -290,6 +290,92 @@
 - [ ] **Purchase Toast**: chờ 15 giây trên trang chủ → pop-up "Anh K. vừa đặt mua…" xuất hiện góc dưới-trái → tự đóng sau 5 giây
 - [ ] **Live Chat**: 2 icon (Zalo + Messenger) cố định ở góc dưới-phải
 - [ ] **Membership badge**: vào Profile sau khi có đơn hàng được Confirm → hiện cấp thành viên (Silver / Gold / Diamond) + điểm loyalty
+
+---
+
+---
+
+## 12. BUG FIXES SESSION 17 — Kiểm tra sau khi sửa
+
+> Test mục này bằng cả **dark theme** lẫn **light theme**. Dùng tài khoản admin `duylamasd1995@gmail.com`.
+
+### 12.1 B1 — Light theme: text trên card không bị invisible
+
+**Setup:** Bật light theme (icon mặt trời góc header).
+
+- [ ] Vào `/Products` → hover lên card bất kỳ → spec overlay slide lên: text tên spec và giá trị phải **màu tối, đọc được** (không phải trắng trên trắng)
+- [ ] Hover card có Flash Sale badge → dòng "Đã bán X/Y" và thanh tiến độ phải nhìn thấy được
+- [ ] Tick chọn ≥1 sản phẩm vào compare bar (sticky bar dưới màn hình) → nút × xóa item và dòng "+ Thêm X sản phẩm" phải hiện màu tối, đọc được
+- [ ] Quay lại dark theme → tất cả text vẫn hiển thị bình thường (không bị ảnh hưởng)
+
+### 12.2 B2 — Add to cart khi chưa đăng nhập: redirect đúng returnUrl
+
+**Setup:** Đăng xuất hoàn toàn.
+
+- [ ] Vào `/Products` → hover card → bấm nút "Thêm vào giỏ" → trang **redirect sang `/Account/Login?returnUrl=...`** (phải thấy `returnUrl` trong URL), **không** ở lại trang trống hay bị lỗi
+- [ ] Vào `/Builder` → chọn đủ ≥1 linh kiện → bấm "Thêm tất cả vào giỏ" → tương tự: redirect login với returnUrl
+- [ ] Vào `/Products/Detail/cpu/1` → bấm "Thêm vào giỏ" → redirect login với returnUrl
+- [ ] Sau khi login từ trang `/Account/Login?returnUrl=/Products` → **redirect về đúng trang Products**, không về homepage
+
+### 12.3 B3 — Admin tạo Flash Sale không bị lỗi 500
+
+**Setup:** Đăng nhập admin.
+
+- [ ] Vào `/Admin/CreateFlashSale` → điền đầy đủ: Category = CPU, Product ID (lấy 1 ID bất kỳ từ `/Admin/Products`), tên sale, giá sale, % giảm, số lượng
+- [ ] **Chọn ngày bắt đầu và kết thúc** qua datetime-local picker (không gõ tay)
+- [ ] Bấm "Tạo Flash Sale" → kết quả: **redirect về `/Admin/FlashSales`**, toast "Tạo thành công", flash sale xuất hiện trong danh sách
+- [ ] **KHÔNG** thấy lỗi 500 hay trang trắng
+
+### 12.4 B4 — Admin tạo Coupon không bị lỗi 500
+
+**Setup:** Đăng nhập admin.
+
+- [ ] Vào `/Admin/CreateCoupon` → điền: Code = `TEST17`, Discount = 15%, giới hạn sử dụng = 10
+- [ ] Chọn ngày bắt đầu và ngày hết hạn qua picker
+- [ ] Bấm "Tạo Coupon" → **redirect về `/Admin/Coupons`**, coupon `TEST17` xuất hiện trong danh sách
+- [ ] **KHÔNG** thấy lỗi 500
+- [ ] Cleanup: xóa coupon `TEST17` sau khi test
+
+### 12.5 B5 — Admin sửa sản phẩm: giá thập phân lưu được
+
+**Setup:** Đăng nhập admin. Dùng **ngôn ngữ tiếng Việt** (vi locale) trên trình duyệt.
+
+- [ ] Vào `/Admin/Products` → chọn tab CPU → bấm Edit sản phẩm bất kỳ
+- [ ] Trang edit load đúng, không lỗi
+- [ ] Đổi giá thành một số có phần thập phân ví dụ `5990000` (không cần thập phân nếu là số nguyên) → Lưu → **redirect về danh sách**, toast "Đã lưu"
+- [ ] Thử lại với GPU, RAM — tương tự không lỗi
+- [ ] Kiểm tra giá mới hiện đúng ngoài trang `/Products`
+- [ ] **KHÔNG** thấy ModelState invalid hay lỗi "not a valid number"
+
+### 12.6 B6 — Nút "So sánh" khi chọn <2 sản phẩm: hiện toast thay vì không làm gì
+
+**Setup:** Vào `/Products`.
+
+- [ ] Tick chọn đúng **1 sản phẩm** vào compare bar → bar hiện "So sánh (1)" ở dưới → bấm nút **"So sánh"** → **toast thông báo** "Chọn ≥2 sản phẩm cùng loại để so sánh" xuất hiện, **không** chuyển trang, **không** im lặng
+- [ ] Tick 2 sản phẩm **khác loại** (ví dụ 1 CPU + 1 GPU) → bấm "So sánh" → toast thông báo chọn cùng loại
+- [ ] Tick 2 sản phẩm **cùng loại** (ví dụ 2 CPU) → bấm "So sánh" → **chuyển trang compare thành công**
+
+### 12.7 I1 — Trang Product Detail: KHÔNG còn section "Lịch sử giá"
+
+- [ ] Vào `/Products/Detail/cpu/1` (bất kỳ sản phẩm) → scroll xuống hết trang
+- [ ] **KHÔNG** thấy biểu đồ lịch sử giá, không thấy Chart.js canvas, không thấy tiêu đề "Lịch sử giá"
+- [ ] Trang vẫn load bình thường, không lỗi JS console
+
+### 12.8 I2 — Chipset filter Mainboard có nhiều options
+
+- [ ] Vào `/Products` → bấm category pill **"Mainboard"** → bấm filter **"Chipset"** (hoặc Advanced Filters)
+- [ ] Phải thấy **nhiều chipset** trong dropdown: B760, B660, Z790, Z690, X670, B650, B550, v.v. (trước fix chỉ có 1–2 options)
+- [ ] Chọn chipset "Z790" → chỉ hiện mainboard Z790
+- [ ] Chọn chipset "B650" → chỉ hiện mainboard B650
+
+### 12.9 I3 — PC Builder: nút +/- số lượng linh kiện
+
+- [ ] Vào `/Builder` → chọn 1 linh kiện bất kỳ (ví dụ RAM) → **hàng nút +/−** xuất hiện ngay dưới tên linh kiện trong panel bên trái
+- [ ] Bấm **"+"** → số lượng tăng lên 2, giá trong tổng tiền nhân đôi
+- [ ] Bấm **"+"** nhiều lần → tối đa dừng ở **9** (không vượt quá)
+- [ ] Bấm **"−"** → số lượng giảm, tối thiểu dừng ở **1** (không về 0)
+- [ ] Bấm "Thêm tất cả vào giỏ" → sản phẩm được thêm đúng **số lượng** đã chọn
+- [ ] Reload trang (F5) → số lượng đã chọn **được khôi phục** từ localStorage (persist)
 
 ---
 
