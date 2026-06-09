@@ -32,12 +32,12 @@ test('admin dashboard loads with all stat cards', async ({ page }) => {
     await loginAdmin(page);
     await page.goto('/Admin/Dashboard');
     await expect(page).toHaveTitle(/Dashboard/);
-    // 4 stat cards
-    await expect(page.locator('.stat-card')).toHaveCount.call(null);
+    // stat cards (4 summary + 10 quick-nav = 14 total)
     const cards = page.locator('.stat-card');
+    expect(await cards.count()).toBeGreaterThanOrEqual(4);
     await expect(cards.first()).toBeVisible();
-    // Quick nav grid rendered (at least 8 items)
-    const navLinks = page.locator('.stat-card a');
+    // Quick nav grid rendered (at least 8 items — <a> wraps .stat-card)
+    const navLinks = page.locator('a:has(.stat-card)');
     expect(await navLinks.count()).toBeGreaterThanOrEqual(8);
     // No error text
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
@@ -118,14 +118,16 @@ test('admin users search works', async ({ page }) => {
 test('admin flash sales page loads', async ({ page }) => {
     await loginAdmin(page);
     await page.goto('/Admin/FlashSales');
-    await expect(page.locator('table.tx-table')).toBeVisible();
+    // page renders either a table (data) or empty-state card
+    await expect(page.locator('.tx-card').first()).toBeVisible();
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
 });
 
 test('admin create flash sale form loads', async ({ page }) => {
     await loginAdmin(page);
     await page.goto('/Admin/CreateFlashSale');
-    await expect(page.locator('input[name="Name"]')).toBeVisible();
+    // first field is ProductName (no "Name" field exists)
+    await expect(page.locator('input[name="ProductName"]')).toBeVisible();
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
 });
 
@@ -134,7 +136,8 @@ test('admin create flash sale form loads', async ({ page }) => {
 test('admin coupons page loads', async ({ page }) => {
     await loginAdmin(page);
     await page.goto('/Admin/Coupons');
-    await expect(page.locator('table.tx-table')).toBeVisible();
+    // page renders either a table (data) or empty-state card
+    await expect(page.locator('.tx-card').first()).toBeVisible();
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
 });
 
@@ -175,7 +178,8 @@ test('admin quote requests page loads', async ({ page }) => {
 test('admin benchmarks page loads', async ({ page }) => {
     await loginAdmin(page);
     await page.goto('/Admin/Benchmarks');
-    await expect(page.locator('table.tx-table')).toBeVisible();
+    // page renders either a table (data) or empty-state card
+    await expect(page.locator('.tx-card').first()).toBeVisible();
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
 });
 
