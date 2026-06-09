@@ -94,10 +94,6 @@
   <data name="Order.Cancel"><value>Cancel Order</value></data>
   <data name="Order.CancelConfirmTitle"><value>Confirm Cancellation</value></data>
   <data name="Order.CancelConfirmBody"><value>Are you sure you want to cancel this order? This action cannot be undone.</value></data>
-  <data name="Order.Recipient"><value>Recipient</value></data>
-  <data name="Order.Phone"><value>Phone</value></data>
-  <data name="Order.Address"><value>Address</value></data>
-  <data name="Order.Note"><value>Note</value></data>
   <data name="Label.No"><value>No</value></data>
   <data name="Label.YesCancel"><value>Yes, Cancel</value></data>
 

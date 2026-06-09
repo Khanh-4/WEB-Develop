@@ -94,10 +94,6 @@
   <data name="Order.Cancel"><value>Huỷ đơn hàng</value></data>
   <data name="Order.CancelConfirmTitle"><value>Xác nhận huỷ đơn</value></data>
   <data name="Order.CancelConfirmBody"><value>Bạn có chắc chắn muốn huỷ đơn hàng này không? Hành động này không thể hoàn tác.</value></data>
-  <data name="Order.Recipient"><value>Người nhận</value></data>
-  <data name="Order.Phone"><value>Điện thoại</value></data>
-  <data name="Order.Address"><value>Địa chỉ</value></data>
-  <data name="Order.Note"><value>Ghi chú</value></data>
   <data name="Label.No"><value>Không</value></data>
   <data name="Label.YesCancel"><value>Có, Huỷ đơn</value></data>
 
