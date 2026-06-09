@@ -71,11 +71,11 @@
 <div class="container-xl py-4 px-3">
 
     <!-- Price History Chart (hidden until data loads) -->
-    <div id="priceHistorySection" class="glass p-4 mb-4" style="display:none">
-        <h5 class="text-white fw-semibold mb-3">
+    <div id="priceHistorySection" class="tx-card p-4 mb-4" style="display:none">
+        <h5 class="fw-semibold mb-3" style="color:var(--text)">
             <i class="bi bi-graph-up me-2" style="color:#a855f7"></i>Lịch sử giá
         </h5>
-        <div class="no-data text-muted-white small" style="display:none">Chưa có dữ liệu lịch sử giá.</div>
+        <div class="no-data small" style="display:none;color:var(--text-muted)">Chưa có dữ liệu lịch sử giá.</div>
         <canvas id="priceChart" height="120"></canvas>
     </div>
 
@@ -143,7 +143,7 @@
 
                 <!-- Name + manufacturer -->
                 <p class="mb-1" style="color:var(--text-muted);font-size:.85rem">@Model.Manufacturer</p>
-                <h1 class="fw-bold mb-4" style="font-size:1.4rem;line-height:1.35;color:var(--text)">@Model.Name</h1>
+                <h1 id="productNameEl" class="fw-bold mb-4" style="font-size:1.4rem;line-height:1.35;color:var(--text)">@Model.Name</h1>
 
                 <!-- Price -->
                 <div class="mb-4">
@@ -167,7 +167,7 @@
                                     <i class="bi @icon" style="font-size:.8rem;color:#c084fc"></i>
                                     <div class="ms-1">
                                         <div style="font-size:.65rem;color:rgba(255,255,255,.5);line-height:1">@specKey</div>
-                                        <div class="text-white fw-semibold" style="font-size:.82rem;line-height:1.2">@specVal</div>
+                                        <div class="fw-semibold" style="font-size:.82rem;line-height:1.2;color:var(--text)">@specVal</div>
                                     </div>
                                 </div>
                             }
@@ -242,7 +242,7 @@
 
     <!-- Cross-sell: related products -->
     <div id="crossSellSection" class="mt-4" style="display:none">
-        <h5 class="text-white fw-semibold mb-3">
+        <h5 class="fw-semibold mb-3" style="color:var(--text)">
             <i class="bi bi-bag-heart me-2" style="color:#a855f7"></i>Mua kèm phù hợp
         </h5>
         <div id="crossSellGrid" class="row g-3"></div>
@@ -251,10 +251,10 @@
     @if (!string.IsNullOrEmpty(Model.VideoUrl))
     {
         <div class="mt-4">
-            <h5 class="text-white fw-semibold mb-3">
+            <h5 class="fw-semibold mb-3" style="color:var(--text)">
                 <i class="bi bi-play-circle me-2" style="color:#a855f7"></i>Video đánh giá
             </h5>
-            <div class="glass p-3" style="border-radius:16px">
+            <div class="tx-card p-3">
                 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px">
                     <iframe src="@Model.VideoUrl"
                             style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
@@ -271,42 +271,42 @@
 
         <!-- Reviews column -->
         <div class="col-lg-6">
-            <div class="glass p-4 h-100">
+            <div class="tx-card p-4 h-100">
                 <div class="d-flex align-items-center gap-3 mb-3">
-                    <h5 class="text-white fw-semibold mb-0">
+                    <h5 class="fw-semibold mb-0" style="color:var(--text)">
                         <i class="bi bi-star-half me-2" style="color:#f59e0b"></i>Đánh giá
                     </h5>
                     <div id="ratingBadge" class="ms-auto" style="display:none">
                         <span id="avgStars" class="fw-bold" style="color:#f59e0b;font-size:1.1rem"></span>
-                        <span id="reviewCount" class="text-muted-white" style="font-size:.82rem"></span>
+                        <span id="reviewCount" style="font-size:.82rem;color:var(--text-muted)"></span>
                     </div>
                 </div>
 
                 <!-- Star rating form (auth only) -->
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <div id="reviewForm" class="mb-4 p-3 rounded-3" style="background:rgba(255,255,255,.04);display:none">
-                        <p class="text-white mb-2" style="font-size:.85rem;font-weight:600">Đánh giá của bạn:</p>
+                    <div id="reviewForm" class="mb-4 p-3 rounded-3" style="background:var(--surface-2);display:none">
+                        <p class="mb-2" style="font-size:.85rem;font-weight:600;color:var(--text)">Đánh giá của bạn:</p>
                         <div class="d-flex gap-1 mb-2" id="starPicker">
                             @for (int i = 1; i <= 5; i++)
                             {
                                 <i class="bi bi-star star-pick" data-val="@i"
-                                   style="font-size:1.5rem;cursor:pointer;color:rgba(255,255,255,.25);transition:color .15s"
+                                   style="font-size:1.5rem;cursor:pointer;color:var(--border);transition:color .15s"
                                    onmouseover="hoverStars(@i)" onmouseout="resetStars()"
                                    onclick="pickStar(@i)"></i>
                             }
                         </div>
-                        <textarea id="reviewComment" rows="2" class="form-control glass border-0 text-white mb-2"
-                                  placeholder="Nhận xét (tuỳ chọn)..." style="font-size:.83rem;resize:none;background:rgba(255,255,255,.06)"></textarea>
+                        <textarea id="reviewComment" rows="2" class="form-control mb-2"
+                                  placeholder="Nhận xét (tuỳ chọn)..." style="font-size:.83rem;resize:none"></textarea>
                         <!-- Photo upload -->
                         <div class="mb-2">
-                            <label class="text-muted-white d-block mb-1" style="font-size:.76rem;cursor:pointer">
+                            <label class="d-block mb-1" style="font-size:.76rem;cursor:pointer;color:var(--text-muted)">
                                 <i class="bi bi-image me-1"></i>Thêm ảnh (tùy chọn, tối đa 5MB)
                                 <input type="file" id="reviewPhotoInput" accept="image/*" class="d-none" onchange="previewPhoto(this)">
                             </label>
                             <div id="photoPreviewBox" class="d-none">
                                 <img id="photoPreview" style="max-height:80px;border-radius:6px;object-fit:cover" />
-                                <button type="button" class="btn btn-sm glass text-white ms-2 px-2 py-1" onclick="clearPhoto()" style="font-size:.72rem">
+                                <button type="button" class="btn btn-sm glass ms-2 px-2 py-1" style="color:var(--text);font-size:.72rem" onclick="clearPhoto()">
                                     <i class="bi bi-x"></i>
                                 </button>
                             </div>
@@ -318,15 +318,15 @@
 
                 <!-- Reviews list -->
                 <div id="reviewsList">
-                    <p class="text-muted-white" style="font-size:.83rem">Đang tải đánh giá…</p>
+                    <p style="font-size:.83rem;color:var(--text-muted)">Đang tải đánh giá…</p>
                 </div>
             </div>
         </div>
 
         <!-- Q&A column -->
         <div class="col-lg-6">
-            <div class="glass p-4 h-100">
-                <h5 class="text-white fw-semibold mb-3">
+            <div class="tx-card p-4 h-100">
+                <h5 class="fw-semibold mb-3" style="color:var(--text)">
                     <i class="bi bi-chat-dots me-2" style="color:#6366f1"></i>Hỏi & Đáp
                 </h5>
 
@@ -334,17 +334,17 @@
                 {
                     <div class="mb-3 d-flex gap-2">
                         <input type="text" id="qInput" maxlength="500"
-                               class="form-control glass border-0 text-white"
+                               class="form-control"
                                placeholder="Đặt câu hỏi về sản phẩm này…"
-                               style="font-size:.83rem;background:rgba(255,255,255,.06)">
-                        <button onclick="postQuestion()" class="btn glass text-white px-3 flex-shrink-0">
+                               style="font-size:.83rem">
+                        <button onclick="postQuestion()" class="btn glass px-3 flex-shrink-0" style="color:var(--text)">
                             <i class="bi bi-send"></i>
                         </button>
                     </div>
                 }
 
                 <div id="qaList">
-                    <p class="text-muted-white" style="font-size:.83rem">Đang tải hỏi đáp…</p>
+                    <p style="font-size:.83rem;color:var(--text-muted)">Đang tải hỏi đáp…</p>
                 </div>
             </div>
         </div>
@@ -533,18 +533,18 @@ function starsHtml(rating, size) {
                         <span style="font-size:.82rem;color:#fff;font-weight:600">${rv.userDisplayName}</span>
                         <span class="ms-auto">${starsHtml(rv.rating, '.8rem')}</span>
                     </div>
-                    ${rv.comment ? `<p class="mb-1 text-muted-white" style="font-size:.82rem">${rv.comment}</p>` : ''}
+                    ${rv.comment ? `<p class="mb-1" style="font-size:.82rem;color:var(--text-muted)">${rv.comment}</p>` : ''}
                     ${rv.imageUrl ? `<img src="${rv.imageUrl}" alt="Review photo" style="max-height:120px;max-width:200px;border-radius:8px;object-fit:cover;margin-bottom:4px;cursor:pointer" onclick="window.open('${rv.imageUrl}','_blank')">` : ''}
-                    <small class="text-muted-white" style="font-size:.72rem;opacity:.5">${rv.createdAt}</small>
+                    <small style="font-size:.72rem;opacity:.5;color:var(--text-muted)">${rv.createdAt}</small>
                 </div>`).join('')
-            : '<p class="text-muted-white" style="font-size:.83rem">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+            : '<p style="font-size:.83rem;color:var(--text-muted)">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
     } catch { el.innerHTML = ''; }
 })();
 
 function hoverStars(n) {
     document.querySelectorAll('.star-pick').forEach((s, i) => {
         s.className = `bi ${i < n ? 'bi-star-fill' : 'bi-star'} star-pick`;
-        s.style.color = i < n ? '#f59e0b' : 'rgba(255,255,255,.25)';
+        s.style.color = i < n ? '#f59e0b' : 'var(--border)';
     });
 }
 function resetStars() { hoverStars(_pickedStar); }
@@ -609,24 +609,24 @@ async function submitReview() {
                     <div class="d-flex gap-2 mb-1">
                         <i class="bi bi-question-circle" style="color:#6366f1;font-size:.85rem;margin-top:2px"></i>
                         <div>
-                            <p class="text-white mb-1 lh-sm" style="font-size:.83rem;font-weight:600">${q.question}</p>
-                            <small class="text-muted-white" style="font-size:.72rem;opacity:.5">${q.userDisplayName} · ${q.createdAt}</small>
+                            <p class="mb-1 lh-sm" style="font-size:.83rem;font-weight:600;color:var(--text)">${q.question}</p>
+                            <small style="font-size:.72rem;opacity:.5;color:var(--text-muted)">${q.userDisplayName} · ${q.createdAt}</small>
                         </div>
                     </div>
                     ${q.answers.map(a => `
                         <div class="d-flex gap-2 mt-2 ms-3">
                             <i class="bi bi-arrow-return-right" style="color:#a855f7;font-size:.8rem;margin-top:3px"></i>
                             <div>
-                                <p class="text-white mb-0 lh-sm" style="font-size:.82rem">${a.answer}</p>
-                                <small class="text-muted-white" style="font-size:.7rem;opacity:.5">${a.userDisplayName} · ${a.createdAt}</small>
+                                <p class="mb-0 lh-sm" style="font-size:.82rem;color:var(--text)">${a.answer}</p>
+                                <small style="font-size:.7rem;opacity:.5;color:var(--text-muted)">${a.userDisplayName} · ${a.createdAt}</small>
                             </div>
                         </div>`).join('')}
                     <div class="ms-3 mt-2" id="answerArea_${q.id}" style="display:none">
                         <div class="d-flex gap-2">
-                            <input type="text" class="form-control form-control-sm glass border-0 text-white"
+                            <input type="text" class="form-control form-control-sm"
                                    id="ansInput_${q.id}" placeholder="Viết câu trả lời…"
-                                   style="font-size:.8rem;background:rgba(255,255,255,.06)">
-                            <button onclick="postAnswer(${q.id})" class="btn glass text-white btn-sm px-2 flex-shrink-0">
+                                   style="font-size:.8rem">
+                            <button onclick="postAnswer(${q.id})" class="btn glass btn-sm px-2 flex-shrink-0" style="color:var(--text)">
                                 <i class="bi bi-send"></i>
                             </button>
                         </div>
@@ -635,13 +635,13 @@ async function submitReview() {
                     {
                         <text>
                     <button onclick="document.getElementById('answerArea_'+${q.id}).style.display=''"
-                            class="btn btn-sm glass text-white px-2 py-0 mt-1 ms-3" style="font-size:.72rem">
+                            class="btn btn-sm glass px-2 py-0 mt-1 ms-3" style="font-size:.72rem;color:var(--text)"
                         Trả lời
                     </button>
                         </text>
                     }
                 </div>`).join('')
-            : '<p class="text-muted-white" style="font-size:.83rem">Chưa có câu hỏi nào.</p>';
+            : '<p style="font-size:.83rem;color:var(--text-muted)">Chưa có câu hỏi nào.</p>';
     } catch { el.innerHTML = ''; }
 })();
 
@@ -705,14 +705,14 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
     const section = document.createElement('div');
     section.className = 'mt-4';
     section.innerHTML = `
-        <h5 class="text-white fw-semibold mb-3">
-            <i class="bi bi-controller me-2" style="color:#a855f7"></i>FPS Ước tính
+        <h5 class="fw-semibold mb-3" style="color:var(--text);">
+            <i class="bi bi-controller me-2" style="color:var(--primary)"></i>FPS Ước tính
             <span class="badge ms-2" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.7rem;font-weight:400">${tier.label}</span>
         </h5>
-        <div class="glass p-3 rounded-4">
+        <div class="tx-card p-3">
             <div class="d-flex gap-2 mb-3">
-                <span class="badge" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:.75rem">📺 1080p</span>
-                <span class="badge" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:.75rem">🖥️ 1440p</span>
+                <span class="badge" style="background:var(--surface-2);color:var(--text-muted);font-size:.75rem">📺 1080p</span>
+                <span class="badge" style="background:var(--surface-2);color:var(--text-muted);font-size:.75rem">🖥️ 1440p</span>
                 <span class="badge ms-auto" style="background:rgba(74,222,128,.1);color:#4ade80;font-size:.72rem">■ 60+fps mượt</span>
                 <span class="badge" style="background:rgba(251,191,36,.1);color:#fbbf24;font-size:.72rem">■ 30-60fps ổn</span>
                 <span class="badge" style="background:rgba(248,113,113,.1);color:#f87171;font-size:.72rem">■ &lt;30fps thấp</span>
@@ -725,8 +725,8 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
                     return `
                     <div class="col-sm-6 col-lg-4">
                         <div class="rounded-3 px-3 py-2 d-flex align-items-center justify-content-between"
-                             style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">
-                            <span class="text-white" style="font-size:.82rem">${gameIcons[game] || '🎮'} ${game}</span>
+                             style="background:var(--surface-2);border:1px solid var(--border)">
+                            <span style="font-size:.82rem;color:var(--text)">${gameIcons[game] || '🎮'} ${game}</span>
                             <div class="text-end" style="min-width:90px">
                                 <div style="font-size:.78rem;color:${fpsColor(avg80)};font-weight:700">${lo80}–${hi80} <span style="font-size:.65rem;opacity:.6">1080p</span></div>
                                 <div style="font-size:.72rem;color:${fpsColor(avg14)};opacity:.85">${lo14}–${hi14} <span style="font-size:.62rem;opacity:.6">1440p</span></div>
@@ -750,7 +750,7 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
 
 // P26: Sticky Add-to-Cart bar
 (function() {
-    const nameEl  = document.querySelector('h1.text-white');
+    const nameEl  = document.getElementById('productNameEl');
     const priceEl = document.querySelector('[style*="2rem"]');
     if (!nameEl || !priceEl) return;
 
@@ -767,7 +767,7 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
     bar.innerHTML = `
         <div class="container-xl d-flex align-items-center gap-3 px-3">
             <div style="flex:1;min-width:0">
-                <div class="text-white fw-semibold" style="font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                <div class="fw-semibold" style="font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)">
                     ${productName}
                 </div>
                 <div style="font-size:.9rem;font-weight:700;background:linear-gradient(135deg,#a855f7,#6366f1);

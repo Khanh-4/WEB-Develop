@@ -18,7 +18,7 @@
 
     @if (!Model.Items.Any())
     {
-        <div class="glass p-5 text-center">
+        <div class="tx-card p-5 text-center">
             <i class="bi bi-cart-x" style="font-size:4rem;color:var(--text-muted)"></i>
             <h4 class="mt-3" style="color:var(--text)">@L["Cart.Empty"]</h4>
             <p class="mb-4" style="color:var(--text-muted)">@L["Cart.EmptyHint"]</p>
@@ -30,7 +30,7 @@
         <div class="row g-4">
             <!-- Cart items -->
             <div class="col-lg-8">
-                <div class="glass p-0 overflow-hidden rounded-4" id="cartItemsContainer">
+                <div class="tx-card p-0 overflow-hidden" id="cartItemsContainer">
                     @foreach (var item in Model.Items)
                     {
                         <div class="d-flex align-items-center gap-3 p-3" id="item-@item.CartItemId"
@@ -103,7 +103,7 @@
 
             <!-- Order summary -->
             <div class="col-lg-4">
-                <div class="glass p-4 rounded-4 sticky-top" style="top:80px">
+                <div class="tx-card p-4 sticky-top" style="top:80px">
                     <h5 class="fw-semibold mb-4" style="color:var(--text)">@L["Cart.OrderSummary"]</h5>
 
                     <div class="d-flex justify-content-between mb-2">

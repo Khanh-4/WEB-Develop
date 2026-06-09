@@ -17,11 +17,11 @@
     </section>
 
     <!-- Filter Bar -->
-    <div class="glass p-4 mb-4">
+    <div class="tx-card p-4 mb-4">
         <div class="row g-3 mb-3">
             <div class="col-lg-7">
                 <div class="position-relative">
-                    <i class="bi bi-search position-absolute text-muted-white" style="left:14px;top:50%;transform:translateY(-50%)"></i>
+                    <i class="bi bi-search position-absolute" style="left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
                     <input type="text" id="searchInput" class="form-control ps-5"
                            placeholder="@L["Products.Search"]"
                            value="@Model.SearchQuery"
@@ -37,7 +37,7 @@
                 </select>
             </div>
             <div class="col-lg-2">
-                <span class="text-muted-white small d-flex align-items-center h-100">
+                <span class="small d-flex align-items-center h-100" style="color:var(--text-muted)">
                     <span id="countLabel">@Model.TotalCount @L["Products.Results"]</span>
                 </span>
             </div>
@@ -70,8 +70,8 @@
         </div>
 
         <!-- Advanced Filters toggle -->
-        <div class="border-top pt-3" style="border-color:rgba(255,255,255,.1)!important">
-            <button class="btn btn-sm glass text-white px-3" type="button"
+        <div class="border-top pt-3" style="border-color:var(--border)!important">
+            <button class="btn btn-sm glass px-3" style="color:var(--text)" type="button"
                     data-bs-toggle="collapse" data-bs-target="#advFilters"
                     onclick="this.querySelector('i:last-child').classList.toggle('bi-chevron-up'); this.querySelector('i:last-child').classList.toggle('bi-chevron-down')">
                 <i class="bi bi-sliders me-1"></i>@L["Products.AdvancedFilters"]
@@ -82,7 +82,7 @@
                 <div class="row g-3 mt-2">
                     <!-- Price Range -->
                     <div class="col-sm-6 col-lg-3">
-                        <label class="text-muted-white small mb-1 d-block">@L["Products.PriceRange"]</label>
+                        <label class="small mb-1 d-block" style="color:var(--text-muted)">@L["Products.PriceRange"]</label>
                         <div class="d-flex gap-2">
                             <input type="number" id="minPrice" class="form-control" placeholder="Min (đ)" min="0" oninput="debounceSearch()">
                             <input type="number" id="maxPrice" class="form-control" placeholder="Max (đ)" min="0" oninput="debounceSearch()">
@@ -90,16 +90,16 @@
                     </div>
                     <!-- Brand Filter -->
                     <div class="col-sm-6 col-lg-3" id="brandFilterCol">
-                        <label class="text-muted-white small mb-1 d-block">@L["Products.Brand"]</label>
+                        <label class="small mb-1 d-block" style="color:var(--text-muted)">@L["Products.Brand"]</label>
                         <div class="dropdown">
-                            <button class="btn glass text-white w-100 d-flex justify-content-between align-items-center"
+                            <button class="btn glass w-100 d-flex justify-content-between align-items-center" style="color:var(--text)"
                                     type="button" id="brandDropdownBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 <span id="brandLabel">@L["Products.AllBrands"]</span>
                                 <i class="bi bi-chevron-down"></i>
                             </button>
                             <div class="dropdown-menu glass p-3" style="min-width:200px;max-height:220px;overflow-y:auto">
                                 <div id="brandCheckboxes">
-                                    <span class="text-muted-white small">@L["Products.Loading"]</span>
+                                    <span class="small" style="color:var(--text-muted)">@L["Products.Loading"]</span>
                                 </div>
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                     </div>
                     <!-- Reset -->
                     <div class="col-sm-12 col-lg-2 d-flex align-items-end">
-                        <button class="btn glass text-white px-4" onclick="resetAdvFilters()">
+                        <button class="btn glass px-4" style="color:var(--text)" onclick="resetAdvFilters()">
                             <i class="bi bi-arrow-counterclockwise me-1"></i>@L["Products.Reset"]
                         </button>
                     </div>
@@ -134,30 +134,30 @@
             var currentP = Model.Page;
             var totalP = Model.TotalPages;
 
-            <button class="btn glass text-white rounded-3 px-3" @(currentP == 1 ? "disabled" : "") onclick="goPage(@(currentP - 1))">&laquo;</button>
+            <button class="btn glass rounded-3 px-3" style="color:var(--text)" @(currentP == 1 ? "disabled" : "") onclick="goPage(@(currentP - 1))">&laquo;</button>
 
             var startP = Math.Max(1, currentP - 2);
             var endP = Math.Min(totalP, currentP + 2);
 
             if (startP > 1)
             {
-                <button class="btn glass text-white rounded-3 px-3" onclick="goPage(1)">1</button>
-                if (startP > 2) { <span class="text-muted-white align-self-end px-1 pb-1">...</span> }
+                <button class="btn glass rounded-3 px-3" style="color:var(--text)" onclick="goPage(1)">1</button>
+                if (startP > 2) { <span class="align-self-end px-1 pb-1" style="color:var(--text-muted)">...</span> }
             }
 
             for (int p = startP; p <= endP; p++)
             {
-                <button class="btn @(p == currentP ? "btn-gradient" : "glass text-white") rounded-3 px-3"
+                <button class="btn @(p == currentP ? "btn-gradient" : "glass") rounded-3 px-3" style="@(p == currentP ? "" : "color:var(--text)")"
                         onclick="goPage(@p)">@p</button>
             }
 
             if (endP < totalP)
             {
-                if (endP < totalP - 1) { <span class="text-muted-white align-self-end px-1 pb-1">...</span> }
-                <button class="btn glass text-white rounded-3 px-3" onclick="goPage(@totalP)">@totalP</button>
+                if (endP < totalP - 1) { <span class="align-self-end px-1 pb-1" style="color:var(--text-muted)">...</span> }
+                <button class="btn glass rounded-3 px-3" style="color:var(--text)" onclick="goPage(@totalP)">@totalP</button>
             }
 
-            <button class="btn glass text-white rounded-3 px-3" @(currentP == totalP ? "disabled" : "") onclick="goPage(@(currentP + 1))">&raquo;</button>
+            <button class="btn glass rounded-3 px-3" style="color:var(--text)" @(currentP == totalP ? "disabled" : "") onclick="goPage(@(currentP + 1))">&raquo;</button>
         }
     </div>
 </div>
@@ -165,14 +165,14 @@
 <!-- P30: Quick View Modal -->
 <div class="modal fade" id="quickViewModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content glass border-0" style="background:rgba(15,23,42,.97)">
+        <div class="modal-content glass border-0">
             <div class="modal-header border-0 pb-0">
-                <h6 class="modal-title text-muted-white fw-normal" id="qvModalLabel" style="font-size:.85rem">Xem nhanh</h6>
+                <h6 class="modal-title fw-normal" id="qvModalLabel" style="font-size:.85rem;color:var(--text-muted)">Xem nhanh</h6>
                 <div class="ms-auto d-flex gap-2">
-                    <button class="btn btn-sm glass text-white px-2 py-1" onclick="qvNav(-1)" title="Trước (←)">
+                    <button class="btn btn-sm glass px-2 py-1" style="color:var(--text)" onclick="qvNav(-1)" title="Trước (←)">
                         <i class="bi bi-arrow-left"></i>
                     </button>
-                    <button class="btn btn-sm glass text-white px-2 py-1" onclick="qvNav(1)" title="Sau (→)">
+                    <button class="btn btn-sm glass px-2 py-1" style="color:var(--text)" onclick="qvNav(1)" title="Sau (→)">
                         <i class="bi bi-arrow-right"></i>
                     </button>
                     <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
@@ -259,21 +259,21 @@ function loadBrands(cat) {
     if (cat === 'all') { col.style.display = 'none'; return; }
     col.style.display = '';
     document.getElementById('brandCheckboxes').innerHTML =
-        `<span class="text-muted-white small"><span class="spinner-border spinner-border-sm me-1"></span>${i18n.loading}</span>`;
+        `<span class="small" style="color:var(--text-muted)"><span class="spinner-border spinner-border-sm me-1"></span>${i18n.loading}</span>`;
 
     fetch('/Products/Brands?category=' + cat)
         .then(r => r.json())
         .then(brands => {
             if (!brands.length) {
                 document.getElementById('brandCheckboxes').innerHTML =
-                    '<span class="text-muted-white small">—</span>';
+                    '<span class="small" style="color:var(--text-muted)">—</span>';
                 return;
             }
             document.getElementById('brandCheckboxes').innerHTML = brands.map(b => `
                 <div class="form-check mb-1">
                     <input class="form-check-input" type="checkbox" id="br-${CSS.escape(b)}" value="${esc(b)}"
                            ${currentBrands.includes(b) ? 'checked' : ''} onchange="updateBrands()">
-                    <label class="form-check-label text-white small" for="br-${CSS.escape(b)}">${esc(b)}</label>
+                    <label class="form-check-label small" style="color:var(--text)" for="br-${CSS.escape(b)}">${esc(b)}</label>
                 </div>`).join('');
         });
 }
@@ -310,7 +310,7 @@ function renderCatFilters(cat, opts) {
         ).join('');
         return `
             <div class="col-sm-6 col-lg-3">
-                <label class="text-muted-white small mb-1 d-block">${label}</label>
+                <label class="small mb-1 d-block" style="color:var(--text-muted)">${label}</label>
                 <select class="form-select" id="${id}" data-param="${paramKey}" onchange="applyFilters()">
                     <option value="">${i18n.filterAll}</option>
                     ${options}
@@ -344,12 +344,12 @@ function renderCatFilters(cat, opts) {
     else if (cat === 'psu') {
         html += `
             <div class="col-sm-6 col-lg-3">
-                <label class="text-muted-white small mb-1 d-block">${i18n.filters.wattage}</label>
+                <label class="small mb-1 d-block" style="color:var(--text-muted)">${i18n.filters.wattage}</label>
                 <div class="input-group">
                     <input type="number" id="filterMinWattage" data-param="minWattage"
                            class="form-control" placeholder="${i18n.filters.minW}" min="0" step="50"
                            oninput="debounceSearch()">
-                    <span class="input-group-text glass text-white border-0">W</span>
+                    <span class="input-group-text glass border-0" style="color:var(--text)">W</span>
                 </div>
             </div>`;
         html += makeSelect('filterEfficiency',    i18n.filters.efficiency,    'efficiency',    opts.efficiencies || []);
@@ -465,7 +465,7 @@ function applyFilters() {
             }
         })
         .catch(() => {
-            grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
+            grid.innerHTML = `<div class="col-12 text-center py-5" style="color:var(--text-muted)"
                 <i class="bi bi-exclamation-circle fs-1 mb-3 d-block"></i>
                 <p>${i18n.loadError}</p></div>`;
         });
@@ -474,7 +474,7 @@ function applyFilters() {
 function renderProducts(products) {
     const grid = document.getElementById('productGrid');
     if (!products || !products.length) {
-        grid.innerHTML = `<div class="col-12 text-center py-5 text-muted-white">
+        grid.innerHTML = `<div class="col-12 text-center py-5" style="color:var(--text-muted)"
             <i class="bi bi-search fs-1 mb-3 d-block"></i>
             <p class="mb-0">${i18n.noResults}</p>
             <small>${i18n.noResultsHint}</small></div>`;
@@ -578,25 +578,25 @@ function renderPagination(totalPages, currentP) {
     if (totalPages <= 1) { el.innerHTML = ''; return; }
 
     let html = '';
-    html += `<button class="btn glass text-white rounded-3 px-3" ${currentP === 1 ? 'disabled' : `onclick="goPage(${currentP - 1})"`}>&laquo;</button>`;
+    html += `<button class="btn glass rounded-3 px-3" style="color:var(--text)" ${currentP === 1 ? 'disabled' : `onclick="goPage(${currentP - 1})"`}>&laquo;</button>`;
 
     let start = Math.max(1, currentP - 2);
     let end   = Math.min(totalPages, currentP + 2);
 
     if (start > 1) {
-        html += `<button class="btn glass text-white rounded-3 px-3" onclick="goPage(1)">1</button>`;
-        if (start > 2) html += `<span class="text-muted-white align-self-end px-1 pb-1">...</span>`;
+        html += `<button class="btn glass rounded-3 px-3" style="color:var(--text)" onclick="goPage(1)">1</button>`;
+        if (start > 2) html += `<span class="align-self-end px-1 pb-1" style="color:var(--text-muted)">...</span>`;
     }
 
     for (let p = start; p <= end; p++)
-        html += `<button class="btn ${p===currentP?'btn-gradient':'glass text-white'} rounded-3 px-3" onclick="goPage(${p})">${p}</button>`;
+        html += `<button class="btn ${p===currentP?'btn-gradient':'glass'} rounded-3 px-3" ${p===currentP?'':' style="color:var(--text)"'} onclick="goPage(${p})">${p}</button>`;
 
     if (end < totalPages) {
-        if (end < totalPages - 1) html += `<span class="text-muted-white align-self-end px-1 pb-1">...</span>`;
-        html += `<button class="btn glass text-white rounded-3 px-3" onclick="goPage(${totalPages})">${totalPages}</button>`;
+        if (end < totalPages - 1) html += `<span class="align-self-end px-1 pb-1" style="color:var(--text-muted)">...</span>`;
+        html += `<button class="btn glass rounded-3 px-3" style="color:var(--text)" onclick="goPage(${totalPages})">${totalPages}</button>`;
     }
 
-    html += `<button class="btn glass text-white rounded-3 px-3" ${currentP === totalPages ? 'disabled' : `onclick="goPage(${currentP + 1})"`}>&raquo;</button>`;
+    html += `<button class="btn glass rounded-3 px-3" style="color:var(--text)" ${currentP === totalPages ? 'disabled' : `onclick="goPage(${currentP + 1})"`}>&raquo;</button>`;
     el.innerHTML = html;
 }
 
@@ -771,7 +771,7 @@ function renderCompareBar() {
                 ? `<img src="${item.img}" style="width:36px;height:36px;object-fit:cover;border-radius:6px" loading="lazy">`
                 : `<div style="width:36px;height:36px;border-radius:6px;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center"><i class="bi bi-cpu" style="color:#a855f7"></i></div>`}
             <div style="min-width:0">
-                <div class="text-white" style="font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px">${item.name}</div>
+                <div style="font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;color:var(--text)">${item.name}</div>
                 <div style="color:#a855f7;font-size:.7rem">${Number(item.price).toLocaleString('vi')}đ</div>
             </div>
             <button class="btn btn-sm p-0" style="color:rgba(255,255,255,.4);line-height:1;flex-shrink:0"
@@ -788,13 +788,13 @@ function renderCompareBar() {
     const compareUrl = `/Products/Compare?category=${cmpItems[0]?.cat}&ids=${cmpItems.map(i => i.id).join(',')}`;
 
     bar.innerHTML = `
-        <span class="text-white fw-semibold me-2" style="white-space:nowrap;font-size:.82rem">
+        <span class="fw-semibold me-2" style="white-space:nowrap;font-size:.82rem;color:var(--text)">
             <i class="bi bi-layout-split me-1" style="color:#a855f7"></i>So sánh (${cmpItems.length}/3)
         </span>
         <div class="d-flex gap-2 flex-wrap flex-grow-1">${avatars}${slots}</div>
         <div class="d-flex gap-2 ms-auto flex-shrink-0">
             ${canCompare ? `<a href="${compareUrl}" class="btn btn-gradient btn-sm px-4 fw-semibold">So sánh chi tiết</a>` : `<button class="btn btn-gradient btn-sm px-4" disabled title="Cần ≥2 sản phẩm cùng loại">So sánh</button>`}
-            <button class="btn glass text-white btn-sm px-3" onclick="clearCompare()"><i class="bi bi-x-lg"></i></button>
+            <button class="btn glass btn-sm px-3" style="color:var(--text)" onclick="clearCompare()"><i class="bi bi-x-lg"></i></button>
         </div>`;
 }
 
@@ -841,9 +841,9 @@ async function loadQuickView(category, id) {
 
         const catLabels = { cpu:'CPU', motherboard:'Mainboard', memory:'RAM', gpu:'VGA', storage:'Storage', psu:'Nguồn', case:'Case', cooler:'Tản nhiệt' };
         const specsRows = Object.entries(p.specs || {}).map(([k, v]) =>
-            `<div class="d-flex" style="border-bottom:1px solid rgba(255,255,255,.05)">
-                <div class="px-3 py-2 text-muted-white" style="width:140px;font-size:.8rem;background:rgba(255,255,255,.03)">${k}</div>
-                <div class="px-3 py-2 text-white" style="font-size:.82rem">${v}</div>
+            `<div class="d-flex" style="border-bottom:1px solid var(--border)">
+                <div class="px-3 py-2" style="width:140px;font-size:.8rem;background:var(--surface-2);color:var(--text-muted)">${k}</div>
+                <div class="px-3 py-2" style="font-size:.82rem;color:var(--text)">${v}</div>
              </div>`).join('');
 
         const stockHtml = p.stock > 0
@@ -853,22 +853,22 @@ async function loadQuickView(category, id) {
         body.innerHTML = `
             <div class="row g-4">
                 <div class="col-md-5 d-flex align-items-center justify-content-center"
-                     style="min-height:240px;background:rgba(255,255,255,.04);border-radius:12px">
+                     style="min-height:240px;background:var(--surface-2);border-radius:12px">
                     ${p.imageUrl
                         ? `<img src="${p.imageUrl}" alt="" style="max-height:220px;max-width:100%;object-fit:contain">`
-                        : `<i class="bi bi-cpu text-muted-white" style="font-size:5rem;opacity:.3"></i>`}
+                        : `<i class="bi bi-cpu" style="font-size:5rem;opacity:.3;color:var(--text-muted)"></i>`}
                 </div>
                 <div class="col-md-7">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="badge" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.75rem">${catLabels[p.category] || p.category}</span>
                         ${stockHtml}
                     </div>
-                    <p class="text-muted-white mb-1" style="font-size:.8rem">${p.manufacturer}</p>
-                    <h5 class="text-white fw-semibold mb-3 lh-sm" style="font-size:1rem">${p.name}</h5>
+                    <p class="mb-1" style="font-size:.8rem;color:var(--text-muted)">${p.manufacturer}</p>
+                    <h5 class="fw-semibold mb-3 lh-sm" style="font-size:1rem;color:var(--text)">${p.name}</h5>
                     <div class="mb-3 fw-bold" style="font-size:1.5rem;background:linear-gradient(135deg,#a855f7,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
                         ${new Intl.NumberFormat('vi-VN').format(p.price)}đ
                     </div>
-                    <div class="rounded-3 overflow-hidden mb-3" style="border:1px solid rgba(255,255,255,.08)">
+                    <div class="rounded-3 overflow-hidden mb-3" style="border:1px solid var(--border)">
                         ${specsRows}
                     </div>
                     <div class="d-flex gap-2">
@@ -876,14 +876,14 @@ async function loadQuickView(category, id) {
                                 onclick="addToCart(${p.id},'${p.category}','${p.name.replace(/'/g,"\\'")}',${p.price},${p.imageUrl?`'${p.imageUrl}'`:'null'},this)">
                             <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
                         </button>
-                        <a href="/Products/Detail/${p.category}/${p.id}" class="btn glass text-white px-4 py-2 rounded-3">
+                        <a href="/Products/Detail/${p.category}/${p.id}" class="btn glass px-4 py-2 rounded-3" style="color:var(--text)"
                             <i class="bi bi-info-circle me-2"></i>Chi tiết
                         </a>
                     </div>
                 </div>
             </div>`;
     } catch {
-        body.innerHTML = '<p class="text-muted-white text-center py-4">Không thể tải thông tin sản phẩm.</p>';
+        body.innerHTML = '<p class="text-center py-4" style="color:var(--text-muted)">Không thể tải thông tin sản phẩm.</p>';
     }
 }
 
