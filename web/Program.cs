@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using QuestPDF.Infrastructure;
 using System.Globalization;
 using TechSpecs.Data;
+using TechSpecs.ModelBinders;
 using TechSpecs.Models;
 
 QuestPDF.Settings.License = LicenseType.Community;
@@ -77,7 +78,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddOutputCache();
 builder.Services.AddLocalization(opts => opts.ResourcesPath = "");
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(opts =>
+    opts.ModelBinderProviders.Insert(0, new InvariantDecimalModelBinderProvider()))
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
 

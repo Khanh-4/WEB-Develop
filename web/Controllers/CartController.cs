@@ -28,8 +28,12 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [Microsoft.AspNetCore.Authorization.AllowAnonymous]
     public async Task<IActionResult> Add([FromBody] AddToCartRequest req)
     {
+        if (!(User.Identity?.IsAuthenticated ?? false))
+            return Unauthorized(new { error = "login_required" });
+
         if (string.IsNullOrWhiteSpace(req.Category) || req.ComponentId <= 0)
             return BadRequest(new { error = "Invalid request" });
 

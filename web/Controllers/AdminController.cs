@@ -246,6 +246,8 @@ public class AdminController : Controller
     public async Task<IActionResult> CreateFlashSale(FlashSale model)
     {
         if (!ModelState.IsValid) return View(model);
+        model.StartsAt = DateTime.SpecifyKind(model.StartsAt, DateTimeKind.Utc);
+        model.EndsAt   = DateTime.SpecifyKind(model.EndsAt,   DateTimeKind.Utc);
         model.SalePrice = Math.Round(model.OriginalPrice * (1 - model.DiscountPercent / 100m), 0);
         _db.FlashSales.Add(model);
         await _db.SaveChangesAsync();
@@ -301,6 +303,8 @@ public class AdminController : Controller
     {
         if (!ModelState.IsValid) return View(model);
         model.Code = model.Code.Trim().ToUpperInvariant();
+        if (model.StartsAt.HasValue)  model.StartsAt  = DateTime.SpecifyKind(model.StartsAt.Value,  DateTimeKind.Utc);
+        if (model.ExpiresAt.HasValue) model.ExpiresAt = DateTime.SpecifyKind(model.ExpiresAt.Value, DateTimeKind.Utc);
         _db.Coupons.Add(model);
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Coupons));

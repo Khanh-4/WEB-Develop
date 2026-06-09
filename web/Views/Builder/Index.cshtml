@@ -41,6 +41,12 @@
                                 </button>
                             </div>
                             <div class="fw-semibold small mt-1 d-none" style="color:var(--primary)" id="step-price-@step.Item1"></div>
+                            <div class="d-none align-items-center gap-2 mt-1" id="step-qty-row-@step.Item1" onclick="event.stopPropagation()">
+                                <button class="builder-qty-btn" onclick="changeQty('@step.Item1',-1)">−</button>
+                                <span class="small fw-semibold" style="min-width:18px;text-align:center;color:var(--text)" id="step-qty-@step.Item1">1</span>
+                                <button class="builder-qty-btn" onclick="changeQty('@step.Item1',+1)">+</button>
+                                <span class="small" style="color:var(--text-muted)" id="step-qty-label-@step.Item1"></span>
+                            </div>
                         </div>
                     }
                 </div>
@@ -314,7 +320,7 @@ const buildState = {
     maxBudget: null, searchQuery: null
 };
 
-const selectedComponents = {}; // category → { id, name, price, ppScore }
+const selectedComponents = {}; // category → { id, name, price, ppScore, imageUrl, qty }
 let currentCategory = 'cpu';
 let currentProducts  = [];
 let filterTimer      = null;
@@ -552,13 +558,22 @@ function selectComponent(id, name, price, ppScore, imageUrl = null) {
     const key = CATEGORY_KEY_MAP[currentCategory];
     if (!key) return;
 
-    selectedComponents[currentCategory] = { id, name, price, ppScore, imageUrl };
+    const prevQty = selectedComponents[currentCategory]?.qty ?? 1;
+    selectedComponents[currentCategory] = { id, name, price, ppScore, imageUrl, qty: prevQty };
     buildState[key] = id;
 
     updateBuildPanel();
     saveToLocalStorage();
     callFilterApi();
     if (snapshotState) updateComparePanel();
+}
+
+function changeQty(category, delta) {
+    const comp = selectedComponents[category];
+    if (!comp) return;
+    comp.qty = Math.max(1, Math.min(9, (comp.qty ?? 1) + delta));
+    updateBuildPanel();
+    saveToLocalStorage();
 }
 
 function removeComponent(category, event) {
@@ -590,17 +605,25 @@ function updateBuildPanel() {
         const priceEl  = document.getElementById(`step-price-${cat}`);
         const removeEl = document.getElementById(`step-remove-${cat}`);
 
+        const qtyRowEl  = document.getElementById(`step-qty-row-${cat}`);
+        const qtyEl     = document.getElementById(`step-qty-${cat}`);
+        const qtyLblEl  = document.getElementById(`step-qty-label-${cat}`);
         if (comp) {
+            const qty = comp.qty ?? 1;
             nameEl.textContent  = comp.name;
-            priceEl.textContent = fmtPrice(comp.price);
+            priceEl.textContent = qty > 1 ? `×${qty} = ${fmtPrice(comp.price * qty)}` : fmtPrice(comp.price);
             priceEl.classList.remove('d-none');
             removeEl.classList.remove('d-none');
-            totalPrice += comp.price;
+            if (qtyRowEl) { qtyRowEl.classList.remove('d-none'); qtyRowEl.classList.add('d-flex'); }
+            if (qtyEl) qtyEl.textContent = qty;
+            if (qtyLblEl) qtyLblEl.textContent = qty > 1 ? `× ${fmtPrice(comp.price)}` : '';
+            totalPrice += comp.price * qty;
             if (comp.ppScore) { perfSum += comp.ppScore; perfCount++; }
         } else {
             nameEl.textContent = 'Not selected';
             priceEl.classList.add('d-none');
             removeEl.classList.add('d-none');
+            if (qtyRowEl) { qtyRowEl.classList.add('d-none'); qtyRowEl.classList.remove('d-flex'); }
             if (requiredCats.includes(cat)) allDone = false;
         }
     });
@@ -668,15 +691,18 @@ async function addAllToCart() {
     let addedCount = 0;
 
     for (const [cat, comp] of components) {
-        try {
-            const r = await fetch('/Cart/Add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
-                body: JSON.stringify({ componentId: comp.id, category: cat, name: comp.name, price: comp.price, imageUrl: comp.imageUrl || null })
-            });
-            if (r.status === 401) { window.location.href = '/Account/Login'; return; }
-            if (r.ok) { const d = await r.json(); addedCount = d.count; }
-        } catch (e) { /* skip failed items */ }
+        const qty = comp.qty ?? 1;
+        for (let i = 0; i < qty; i++) {
+            try {
+                const r = await fetch('/Cart/Add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                    body: JSON.stringify({ componentId: comp.id, category: cat, name: comp.name, price: comp.price, imageUrl: comp.imageUrl || null })
+                });
+                if (r.status === 401) { window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname); return; }
+                if (r.ok) { const d = await r.json(); addedCount = d.count; }
+            } catch (e) { /* skip failed items */ }
+        }
     }
 
     if (addedCount > 0) {

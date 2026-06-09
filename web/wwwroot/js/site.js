@@ -73,7 +73,7 @@ function addToCart(id, category, name, price, imageUrl, triggerEl) {
         body: JSON.stringify({ componentId: id, category, name, price, imageUrl: imageUrl || null })
     })
     .then(r => {
-        if (r.status === 401) { window.location.href = '/Account/Login'; return null; }
+        if (r.status === 401) { window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname + window.location.search); return null; }
         return r.ok ? r.json() : null;
     })
     .then(d => {

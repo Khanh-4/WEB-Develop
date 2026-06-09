@@ -70,15 +70,6 @@
 
 <div class="container-xl py-4 px-3">
 
-    <!-- Price History Chart (hidden until data loads) -->
-    <div id="priceHistorySection" class="tx-card p-4 mb-4" style="display:none">
-        <h5 class="fw-semibold mb-3" style="color:var(--text)">
-            <i class="bi bi-graph-up me-2" style="color:#a855f7"></i>Lịch sử giá
-        </h5>
-        <div class="no-data small" style="display:none;color:var(--text-muted)">Chưa có dữ liệu lịch sử giá.</div>
-        <canvas id="priceChart" height="120"></canvas>
-    </div>
-
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
@@ -398,60 +389,6 @@ async function toggleWishlist(btn) {
     } finally { btn.disabled = false; }
 }
 
-// Price history chart
-(async () => {
-    const category = '@Model.Category';
-    const name     = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Name));
-    const section  = document.getElementById('priceHistorySection');
-    const canvas   = document.getElementById('priceChart');
-    if (!canvas) return;
-
-    try {
-        const r = await fetch(`/Products/PriceHistory?category=${encodeURIComponent(category)}&name=${encodeURIComponent(name)}`);
-        const data = await r.json();
-        if (!data || data.length < 1) {
-            section.querySelector('.no-data').style.display = '';
-            canvas.style.display = 'none';
-            return;
-        }
-        section.style.display = '';
-        new Chart(canvas, {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.date),
-                datasets: [{
-                    label: 'Price (đ)',
-                    data: data.map(d => d.price),
-                    borderColor: '#a855f7',
-                    backgroundColor: 'rgba(168,85,247,.12)',
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#a855f7',
-                    fill: true,
-                    tension: 0.3,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ctx.parsed.y.toLocaleString('vi-VN') + 'đ'
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: 'rgba(255,255,255,.55)', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,.06)' } },
-                    y: {
-                        ticks: { color: 'rgba(255,255,255,.55)', callback: v => (v/1000000).toFixed(1) + 'M' },
-                        grid: { color: 'rgba(255,255,255,.06)' }
-                    }
-                }
-            }
-        });
-    } catch {}
-})();
 
 // Cross-sell
 (async () => {

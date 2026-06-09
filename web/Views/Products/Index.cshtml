@@ -546,8 +546,8 @@ function renderProducts(products) {
                         <div class="card-specs-overlay">
                             ${Object.entries(p.specs||{}).slice(0,3).map(([k,v])=>`
                             <div class="d-flex justify-content-between gap-2">
-                                <span style="color:rgba(255,255,255,.6);font-size:.73rem">${esc(k)}</span>
-                                <span style="color:#fff;font-size:.73rem;font-weight:600">${esc(v)}</span>
+                                <span style="color:var(--text-muted);font-size:.73rem">${esc(k)}</span>
+                                <span style="color:var(--text);font-size:.73rem;font-weight:600">${esc(v)}</span>
                             </div>`).join('')}
                         </div>` : ''}
                     </div>
@@ -627,10 +627,10 @@ function flashSaleHtml(sale) {
                 <span class="badge" style="background:#ef4444;font-size:.68rem"><i class="bi bi-lightning-charge"></i> -${sale.discountPercent}%</span>
                 <span style="font-size:.68rem;color:#fb923c;font-variant-numeric:tabular-nums" class="flash-timer" data-ends="${sale.endsAtMs}">${timer}</span>
             </div>
-            <div style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-bottom:4px">
+            <div class="flash-progress-track" style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin-bottom:4px">
                 <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b);border-radius:2px"></div>
             </div>
-            <div style="font-size:.68rem;color:rgba(255,255,255,.5)">Đã bán ${sale.soldQty}/${sale.totalQty}</div>
+            <div class="flash-sold-text" style="font-size:.68rem;color:rgba(255,255,255,.5)">Đã bán ${sale.soldQty}/${sale.totalQty}</div>
         </div>`;
 }
 
@@ -793,7 +793,9 @@ function renderCompareBar() {
         </span>
         <div class="d-flex gap-2 flex-wrap flex-grow-1">${avatars}${slots}</div>
         <div class="d-flex gap-2 ms-auto flex-shrink-0">
-            ${canCompare ? `<a href="${compareUrl}" class="btn btn-gradient btn-sm px-4 fw-semibold">So sánh chi tiết</a>` : `<button class="btn btn-gradient btn-sm px-4" disabled title="Cần ≥2 sản phẩm cùng loại">So sánh</button>`}
+            ${canCompare
+                ? `<a href="${compareUrl}" class="btn btn-gradient btn-sm px-4 fw-semibold">So sánh chi tiết</a>`
+                : `<button class="btn btn-gradient btn-sm px-4 fw-semibold" onclick="showToast('<i class=\\'bi bi-exclamation-circle me-2\\'></i>Chọn ≥2 sản phẩm <b>cùng loại</b> để so sánh','info')">So sánh</button>`}
             <button class="btn glass btn-sm px-3" style="color:var(--text)" onclick="clearCompare()"><i class="bi bi-x-lg"></i></button>
         </div>`;
 }
