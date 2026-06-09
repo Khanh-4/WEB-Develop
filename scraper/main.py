@@ -41,36 +41,92 @@ _TABLE_CAT = {
 }
 
 
+# Spec fields that can be filled/updated from scraper per table.
+# Excludes: Id, Name, Manufacturer, Price, Stock, StockStatusOverride (manually managed).
+# Strategy: only write if the DB value is currently empty/zero ("fill-in-the-gaps").
+_SPEC_FIELDS: dict[str, list[str]] = {
+    "motherboard":    ["Chipset", "SocketCompatibility", "FormFactor", "MemoryCompatibility",
+                       "MemorySlots", "MaxMemoryCapacity", "ImageUrl"],
+    "cpu":            ["Socket", "CoreCount", "ThreadCount", "BaseClock", "BoostClock",
+                       "TDP", "ApproximatePerformance", "ImageUrl"],
+    "video_card":     ["VRAM", "Length", "TDP", "ApproximatePerformance", "ImageUrl"],
+    "memory":         ["Type", "Capacity", "Modules", "Speed", "Profile", "ImageUrl"],
+    "storage":        ["Type", "Capacity", "Interface", "ReadSpeed", "WriteSpeed", "ImageUrl"],
+    "power_supply":   ["Wattage", "Efficiency", "Modular", "PsuFormFactor", "ImageUrl"],
+    "case_enclosure": ["FormFactorSupport", "MaxVGALength", "Color", "CaseType",
+                       "RadiatorSupport", "ImageUrl"],
+    "cpu_cooler":     ["SocketCompatibility", "MaxTDP", "Height", "Type", "ImageUrl"],
+}
+
+
+def _is_empty(val) -> bool:
+    """True when a DB field is considered unfilled (empty string or zero)."""
+    if val is None:
+        return True
+    if isinstance(val, str):
+        return val.strip() == ""
+    return val == 0
+
+
 def upsert(session: Session, items: list, table: str):
     if not items:
         print("  (no items to insert)")
         return
 
-    category = _TABLE_CAT.get(table, table)
-    now = datetime.now(timezone.utc)
+    category   = _TABLE_CAT.get(table, table)
+    now        = datetime.now(timezone.utc)
+    spec_fields = _SPEC_FIELDS.get(table, [])
 
-    # Fetch existing name → current price
-    existing = {r[0]: r[1] for r in session.execute(text(f'SELECT "Name", "Price" FROM "{table}"'))}
+    # Fetch existing rows: name → {price, <spec fields...>}
+    extra_cols = (", " + ", ".join(f'"{f}"' for f in spec_fields)) if spec_fields else ""
+    rows = session.execute(text(f'SELECT "Name", "Price"{extra_cols} FROM "{table}"'))
+    existing: dict[str, dict] = {}
+    for row in rows:
+        existing[row[0]] = {
+            "price": row[1],
+            **{spec_fields[i]: row[i + 2] for i in range(len(spec_fields))},
+        }
 
-    new_items, price_records, price_updates = [], [], []
+    new_items, price_records, price_updates, spec_updates = [], [], [], []
+
     for item in items:
         if item.Name not in existing:
+            # Brand new product — insert
             new_items.append(item)
             if item.Price > 0:
                 price_records.append({"category": category, "product_name": item.Name,
                                       "price": float(item.Price), "recorded_at": now})
         else:
-            old_price = existing[item.Name]
+            db_row   = existing[item.Name]
+            old_price = db_row["price"]
+
+            # Price changed → update
             if item.Price > 0 and item.Price != old_price:
                 price_updates.append({"name": item.Name, "price": float(item.Price)})
                 price_records.append({"category": category, "product_name": item.Name,
                                       "price": float(item.Price), "recorded_at": now})
+
+            # Spec fill-in: only update fields that are currently empty in DB
+            upd: dict = {}
+            for field in spec_fields:
+                db_val  = db_row.get(field)
+                new_val = getattr(item, field, None)
+                if _is_empty(db_val) and not _is_empty(new_val):
+                    upd[field] = new_val
+            if upd:
+                upd["name"] = item.Name
+                spec_updates.append(upd)
 
     if new_items:
         session.add_all(new_items)
 
     for upd in price_updates:
         session.execute(text(f'UPDATE "{table}" SET "Price" = :price WHERE "Name" = :name'), upd)
+
+    for upd in spec_updates:
+        cols = [k for k in upd if k != "name"]
+        set_clause = ", ".join(f'"{c}" = :{c}' for c in cols)
+        session.execute(text(f'UPDATE "{table}" SET {set_clause} WHERE "Name" = :name'), upd)
 
     if price_records:
         session.execute(
@@ -81,7 +137,8 @@ def upsert(session: Session, items: list, table: str):
 
     session.commit()
     print(f"  ✓ {len(new_items)} inserted, {len(price_updates)} price updated, "
-          f"{len(items)-len(new_items)-len(price_updates)} unchanged")
+          f"{len(spec_updates)} spec filled, "
+          f"{len(items) - len(new_items)} existing")
 
 
 def run(cats: list[str], sources: list[str]):
