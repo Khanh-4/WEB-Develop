@@ -1,0 +1,109 @@
+@{ ViewData["Title"] = "Giới thiệu"; }
+
+<div class="tx-hero mb-5">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="fw-black mb-3" style="color:var(--text)">Về <span class="text-gradient">TechSpecs</span></h1>
+                <p class="lead" style="color:var(--text-muted)">Nền tảng build PC AI thông minh — so sánh linh kiện, kiểm tra tương thích và cộng đồng chia sẻ cấu hình lớn nhất Việt Nam.</p>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block" style="font-size:6rem;opacity:.25">
+                <i class="bi bi-cpu-fill text-gradient"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-xl pb-5">
+    <!-- Mission / Team / Awards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="tx-card p-4 h-100">
+                <div style="width:48px;height:48px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;margin-bottom:1rem">
+                    <i class="bi bi-bullseye" style="font-size:1.3rem;color:#fff"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="color:var(--text)">Sứ mệnh</h5>
+                <p style="color:var(--text-muted)">Mang công nghệ chính hãng, giá tốt và trải nghiệm build PC thông minh đến mọi người dùng Việt Nam.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="tx-card p-4 h-100">
+                <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;margin-bottom:1rem">
+                    <i class="bi bi-people-fill" style="font-size:1.3rem;color:#fff"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="color:var(--text)">Đội ngũ</h5>
+                <p style="color:var(--text-muted)">Đội ngũ kỹ sư và tư vấn công nghệ với nhiều năm kinh nghiệm, luôn sẵn sàng hỗ trợ bạn chọn linh kiện phù hợp.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="tx-card p-4 h-100">
+                <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;margin-bottom:1rem">
+                    <i class="bi bi-award-fill" style="font-size:1.3rem;color:#fff"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="color:var(--text)">Cam kết</h5>
+                <p style="color:var(--text-muted)">100% hàng chính hãng, bảo hành đầy đủ, hỗ trợ kỹ thuật miễn phí trọn đời cho mọi sản phẩm mua tại TechSpecs.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="row g-3 mb-5">
+        @foreach (var (num, label, icon) in new[] {
+            ("3,500+", "Linh kiện PC", "bi-cpu"),
+            ("10,000+", "Cấu hình đã build", "bi-pc-display"),
+            ("98%",    "Khách hàng hài lòng", "bi-star-fill"),
+            ("24/7",   "Hỗ trợ kỹ thuật", "bi-headset"),
+        })
+        {
+            <div class="col-6 col-md-3">
+                <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:.5rem;padding:1.4rem">
+                    <i class="bi @icon" style="font-size:1.5rem;color:var(--primary)"></i>
+                    <div class="value" style="font-size:1.6rem;font-weight:800;color:var(--text)">@num</div>
+                    <div class="label" style="font-size:.82rem;color:var(--text-muted)">@label</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Features -->
+    <div class="tx-card p-4 mb-5">
+        <h4 class="fw-bold mb-4" style="color:var(--text)"><i class="bi bi-stars me-2" style="color:var(--primary)"></i>Tại sao chọn TechSpecs?</h4>
+        <div class="row g-3">
+            @foreach (var (icon, title, desc) in new[] {
+                ("bi-robot",         "AI PC Builder",          "Trợ lý AI tư vấn build PC theo ngân sách, tự động kiểm tra tương thích CPU↔MB↔RAM↔Case."),
+                ("bi-shield-check",  "Kiểm tra tương thích",   "Engine 3-pass kiểm tra socket, RAM type, độ dài GPU, form factor case, công suất PSU theo TDP thực."),
+                ("bi-bar-chart",     "So sánh hiệu năng",      "Điểm benchmark thực tế, biểu đồ radar so sánh, bộ lọc nâng cao theo khoảng giá và thương hiệu."),
+                ("bi-share",         "Chia sẻ cấu hình",       "Lưu và chia sẻ build của bạn qua link, xem cộng đồng build của người khác để tham khảo."),
+                ("bi-truck",         "Giao hàng nhanh",        "Giao hàng nội thành HCM & Hà Nội trong 2–4h, toàn quốc 1–3 ngày. Miễn phí ship đơn từ 500K."),
+                ("bi-arrow-repeat",  "Cập nhật giá thực",      "Scraper tự động từ Phong Vũ & An Phát — giá và tồn kho cập nhật mỗi ngày."),
+            })
+            {
+                <div class="col-md-4">
+                    <div class="d-flex gap-3 align-items-start p-3" style="border-radius:10px;background:var(--surface-2)">
+                        <div style="width:38px;height:38px;border-radius:10px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <i class="bi @icon" style="color:#fff;font-size:.9rem"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold mb-1" style="font-size:.88rem;color:var(--text)">@title</div>
+                            <div style="font-size:.8rem;color:var(--text-muted)">@desc</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="tx-card p-4 text-center" style="background:var(--gradient-primary)">
+        <h4 class="fw-bold mb-2" style="color:#fff">Sẵn sàng build PC của bạn?</h4>
+        <p class="mb-4" style="color:rgba(255,255,255,.8)">Để AI TechSpecs tư vấn cấu hình phù hợp với ngân sách của bạn chỉ trong vài giây.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/Builder" class="btn px-4 py-2 fw-semibold" style="background:#fff;color:#8b5cf6;border-radius:10px">
+                <i class="bi bi-cpu me-2"></i>Bắt đầu build PC
+            </a>
+            <a href="/Home/Contact" class="btn px-4 py-2 fw-semibold" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:10px">
+                <i class="bi bi-chat-dots me-2"></i>Liên hệ tư vấn
+            </a>
+        </div>
+    </div>
+</div>

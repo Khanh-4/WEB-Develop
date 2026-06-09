@@ -184,6 +184,16 @@
                class="@(currentCtrl == "OrderTracking" ? "active" : "")">
                 <i class="bi bi-truck me-1"></i>Đơn hàng
             </a>
+
+            <a asp-controller="Home" asp-action="About"
+               class="@(currentCtrl == "Home" && currentAction == "About" ? "active" : "")">
+                <i class="bi bi-info-circle me-1"></i>Giới thiệu
+            </a>
+
+            <a asp-controller="Home" asp-action="Contact"
+               class="@(currentCtrl == "Home" && currentAction == "Contact" ? "active" : "")">
+                <i class="bi bi-envelope me-1"></i>Liên hệ
+            </a>
         </nav>
     </div>
 </header>
@@ -229,8 +239,8 @@
                 <h6>Hỗ trợ</h6>
                 <ul class="list-unstyled small d-flex flex-column gap-2">
                     <li><a href="/Warranty">Chính sách bảo hành</a></li>
-                    <li><a href="#">Đổi trả 7 ngày</a></li>
-                    <li><a href="#">Hướng dẫn thanh toán</a></li>
+                    <li><a href="/Home/Privacy">Đổi trả 7 ngày</a></li>
+                    <li><a href="/Home/Contact">Hướng dẫn thanh toán</a></li>
                     <li><a href="/OrderTracking">Tra cứu đơn hàng</a></li>
                 </ul>
             </div>

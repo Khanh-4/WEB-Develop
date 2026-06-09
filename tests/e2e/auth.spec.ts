@@ -12,7 +12,8 @@ test.describe('Auth', () => {
         await page.click('button[type="submit"]');
 
         await expect(page).toHaveURL('/');
-        await expect(page.locator('.navbar')).toContainText('Test User');
+        // tx-header is the Mock V2 header container
+        await expect(page.locator('.tx-header')).toContainText('Test User');
     });
 
     test('login with wrong password shows error', async ({ page }) => {
@@ -34,12 +35,14 @@ test.describe('Auth', () => {
         await page.click('button[type="submit"]');
         await page.waitForURL('/');
 
-        await page.click('.navbar a:has(i.bi-person-circle)');
+        // Open user dropdown via the avatar button
+        await page.click('button[data-bs-toggle="dropdown"] .avatar');
+        // Click the logout form's submit button
         await page.click('form[action*="/Account/Logout"] button');
         await page.waitForURL('/');
 
         await expect(page.locator('#cartCount')).not.toBeVisible();
-        await expect(page.locator('.navbar')).not.toContainText('Test User');
+        await expect(page.locator('.tx-header')).not.toContainText('Test User');
     });
 
     test('protected routes redirect to login when unauthenticated', async ({ page }) => {

@@ -145,6 +145,16 @@ public class AdminController : Controller
         return View(vm);
     }
 
+    public async Task<IActionResult> OrderDetail(int id)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Details)
+            .Include(o => o.User)
+            .FirstOrDefaultAsync(o => o.Id == id);
+        if (order == null) return NotFound();
+        return View(order);
+    }
+
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateOrderStatus(int id, OrderStatus status)
     {

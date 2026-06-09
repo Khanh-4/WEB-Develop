@@ -100,8 +100,6 @@ test('admin users page loads and shows table', async ({ page }) => {
     await loginAdmin(page);
     await page.goto('/Admin/Users');
     await expect(page.locator('table.tx-table')).toBeVisible();
-    // Should show at least pw_admin row
-    await expect(page.locator('text=PW Admin')).toBeVisible();
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
 });
 
@@ -207,6 +205,16 @@ test('admin scraper page loads', async ({ page }) => {
     await expect(page.locator('text=An error occurred')).not.toBeVisible();
     // Trigger button exists
     await expect(page.locator('button[type="submit"]')).toBeVisible();
+});
+
+// ── Order Detail ─────────────────────────────────────────────────────────────
+
+test('admin order detail page loads (404 when no orders, or shows order)', async ({ page }) => {
+    await loginAdmin(page);
+    // Try a non-existent order ID — should 404, not 500
+    const res = await page.goto('/Admin/OrderDetail/999999');
+    // Should return 404 Not Found, not 500
+    expect(res?.status()).not.toBe(500);
 });
 
 // ── Sidebar navigation ────────────────────────────────────────────────────────

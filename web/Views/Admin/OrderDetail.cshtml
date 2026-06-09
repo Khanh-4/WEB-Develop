@@ -1,0 +1,233 @@
+@model TechSpecs.Models.Order
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.Id}";
+
+    string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch {
+        TechSpecs.Models.OrderStatus.Pending      => "Chờ xác nhận",
+        TechSpecs.Models.OrderStatus.Confirmed    => "Đã xác nhận",
+        TechSpecs.Models.OrderStatus.Assembling   => "Đang lắp ráp",
+        TechSpecs.Models.OrderStatus.InstallingOS => "Đang cài Win",
+        TechSpecs.Models.OrderStatus.Shipped      => "Đang giao",
+        TechSpecs.Models.OrderStatus.Delivered    => "Đã nhận",
+        TechSpecs.Models.OrderStatus.Cancelled    => "Đã huỷ",
+        _ => s.ToString()
+    };
+    string StatusPill(TechSpecs.Models.OrderStatus s) => s switch {
+        TechSpecs.Models.OrderStatus.Pending      => "pending",
+        TechSpecs.Models.OrderStatus.Confirmed    => "confirmed",
+        TechSpecs.Models.OrderStatus.Assembling   => "shipping",
+        TechSpecs.Models.OrderStatus.InstallingOS => "shipping",
+        TechSpecs.Models.OrderStatus.Shipped      => "shipping",
+        TechSpecs.Models.OrderStatus.Delivered    => "completed",
+        TechSpecs.Models.OrderStatus.Cancelled    => "cancelled",
+        _ => ""
+    };
+    string PayLabel(TechSpecs.Models.PaymentMethod p) => p switch {
+        TechSpecs.Models.PaymentMethod.COD          => "Thanh toán khi nhận hàng (COD)",
+        TechSpecs.Models.PaymentMethod.BankTransfer => "Chuyển khoản ngân hàng",
+        TechSpecs.Models.PaymentMethod.VnPay        => "VnPay",
+        TechSpecs.Models.PaymentMethod.MoMo         => "MoMo",
+        TechSpecs.Models.PaymentMethod.ZaloPay      => "ZaloPay",
+        _ => p.ToString()
+    };
+}
+
+<div class="p-4">
+    <!-- Breadcrumb -->
+    <div class="d-flex align-items-center gap-2 mb-4" style="font-size:.85rem;color:var(--text-muted)">
+        <a href="/Admin/Orders" style="color:var(--text-muted);text-decoration:none">
+            <i class="bi bi-receipt me-1"></i>Đơn hàng
+        </a>
+        <i class="bi bi-chevron-right" style="font-size:.7rem"></i>
+        <span style="color:var(--text)">#@Model.Id</span>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Left: Items + Status -->
+        <div class="col-lg-8">
+
+            <!-- Order items -->
+            <div class="tx-card mb-4">
+                <div class="tx-card-head">
+                    <h5><i class="bi bi-receipt me-2" style="color:var(--primary)"></i>Đơn hàng #@Model.Id</h5>
+                    <span class="status-pill @StatusPill(Model.Status)">@StatusLabel(Model.Status)</span>
+                </div>
+                <table class="tx-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Details)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl" alt="" class="thumb" style="width:42px;height:42px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.05);padding:3px">
+                                        }
+                                        else
+                                        {
+                                            <div style="width:42px;height:42px;border-radius:6px;background:var(--surface-2);display:flex;align-items:center;justify-content:center">
+                                                <i class="bi bi-cpu" style="color:var(--text-muted)"></i>
+                                            </div>
+                                        }
+                                        <div>
+                                            <div style="font-size:.85rem;color:var(--text)">@item.ComponentName</div>
+                                            <div style="font-size:.75rem;color:var(--text-muted)">@item.Category.ToUpper() · #@item.ComponentId</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center fw-semibold">@item.Quantity</td>
+                                <td class="text-end" style="font-size:.85rem;color:var(--text-muted)">@item.Price.ToString("N0")đ</td>
+                                <td class="text-end fw-bold">@((item.Price * item.Quantity).ToString("N0"))đ</td>
+                            </tr>
+                        }
+                        @if (!Model.Details.Any())
+                        {
+                            <tr><td colspan="4" class="text-center py-4" style="color:var(--text-muted)">
+                                <i class="bi bi-inbox d-block mb-1 fs-3"></i>Đơn hàng không có chi tiết sản phẩm.
+                            </td></tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-semibold py-3" style="color:var(--text-muted)">Tổng cộng</td>
+                            <td class="text-end fw-black py-3" style="font-size:1.05rem;color:var(--primary)">@Model.TotalAmount.ToString("N0")đ</td>
+                        </tr>
+                        @if (Model.DiscountAmount > 0)
+                        {
+                            <tr>
+                                <td colspan="3" class="text-end" style="color:var(--text-muted);font-size:.85rem">Giảm giá</td>
+                                <td class="text-end" style="color:var(--danger);font-size:.85rem">−@Model.DiscountAmount.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Status update -->
+            <div class="tx-card p-4">
+                <h5 class="fw-bold mb-3" style="color:var(--text)"><i class="bi bi-arrow-repeat me-2" style="color:var(--primary)"></i>Cập nhật trạng thái</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (TechSpecs.Models.OrderStatus s in Enum.GetValues(typeof(TechSpecs.Models.OrderStatus)))
+                    {
+                        <button type="button"
+                                class="btn px-3 py-2 status-btn @(Model.Status == s ? "btn-gradient" : "glass")"
+                                style="font-size:.83rem;@(Model.Status == s ? "" : "color:var(--text)")"
+                                onclick="updateStatus(@((int)s), '@StatusLabel(s)')">
+                            @StatusLabel(s)
+                        </button>
+                    }
+                </div>
+                <div id="statusFeedback" class="mt-2" style="font-size:.82rem;color:var(--text-muted);display:none"></div>
+            </div>
+        </div>
+
+        <!-- Right: Customer + Payment info -->
+        <div class="col-lg-4">
+
+            <!-- Customer info -->
+            <div class="tx-card mb-4">
+                <div class="tx-card-head">
+                    <h5><i class="bi bi-person-fill me-2" style="color:var(--primary)"></i>Khách hàng</h5>
+                </div>
+                <div class="p-3 d-flex flex-column gap-3">
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Họ tên người nhận</div>
+                        <div class="fw-semibold" style="color:var(--text)">@Model.RecipientName</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Số điện thoại</div>
+                        <a href="tel:@Model.Phone" class="fw-semibold text-decoration-none" style="color:var(--primary)">@Model.Phone</a>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Tài khoản</div>
+                        <div style="font-size:.85rem;color:var(--text)">@(Model.User?.Email ?? "—")</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Địa chỉ giao hàng</div>
+                        <div style="font-size:.85rem;color:var(--text)">@Model.ShippingAddress</div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Note))
+                    {
+                        <div>
+                            <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Ghi chú</div>
+                            <div style="font-size:.85rem;color:var(--text)">@Model.Note</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Payment info -->
+            <div class="tx-card mb-4">
+                <div class="tx-card-head">
+                    <h5><i class="bi bi-credit-card me-2" style="color:var(--primary)"></i>Thanh toán</h5>
+                </div>
+                <div class="p-3 d-flex flex-column gap-3">
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Phương thức</div>
+                        <div class="fw-semibold" style="color:var(--text)">@PayLabel(Model.PaymentMethod)</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Ngày đặt</div>
+                        <div style="color:var(--text)">@Model.CreatedAt.ToLocalTime().ToString("HH:mm · dd/MM/yyyy")</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:2px">Số sản phẩm</div>
+                        <div style="color:var(--text)">@Model.Details.Sum(d => d.Quantity) sản phẩm · @Model.Details.Count loại</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex flex-column gap-2">
+                <a href="/Admin/Orders" class="btn glass py-2" style="color:var(--text)">
+                    <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+                <a href="/Orders/Detail/@Model.Id" target="_blank" class="btn glass py-2" style="color:var(--text-muted);font-size:.85rem">
+                    <i class="bi bi-box-arrow-up-right me-2"></i>Xem trang khách hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+var currentOrderId = @Model.Id;
+
+function updateStatus(statusInt, statusLabel) {
+    var token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+    fetch('/Admin/UpdateOrderStatus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+        body: 'id=' + currentOrderId + '&status=' + statusInt
+    })
+    .then(function(r) {
+        if (r.ok) {
+            showToast('Đã cập nhật: ' + statusLabel, 'success');
+            var btns = document.querySelectorAll('.status-btn');
+            btns.forEach(function(b, i) {
+                if (i === statusInt) {
+                    b.className = 'btn px-3 py-2 status-btn btn-gradient';
+                    b.style.color = '';
+                } else {
+                    b.className = 'btn px-3 py-2 status-btn glass';
+                    b.style.color = 'var(--text)';
+                }
+            });
+        } else {
+            showToast('Lỗi cập nhật trạng thái', 'error');
+        }
+    })
+    .catch(function() { showToast('Lỗi kết nối', 'error'); });
+}
+</script>
+}

@@ -1,0 +1,135 @@
+@{ ViewData["Title"] = "Liên hệ"; }
+
+<div class="container-xl py-5">
+    <div class="row g-4">
+
+        <!-- Contact info -->
+        <div class="col-lg-4">
+            <h2 class="fw-bold mb-2" style="color:var(--text)"><i class="bi bi-envelope-paper me-2" style="color:var(--primary)"></i>Liên hệ</h2>
+            <p class="mb-4" style="color:var(--text-muted)">Mọi câu hỏi về sản phẩm, tư vấn cấu hình hoặc hỗ trợ kỹ thuật — chúng tôi luôn sẵn sàng.</p>
+
+            <div class="d-flex flex-column gap-3">
+                @foreach (var (icon, label, value, href) in new[] {
+                    ("bi-geo-alt-fill",    "Showroom",     "123 Nguyễn Thị Minh Khai, Q.1, TP.HCM",  ""),
+                    ("bi-telephone-fill",  "Hotline",      "1900 6969 (8:00 – 21:00)",                "tel:19006969"),
+                    ("bi-envelope-fill",   "Email",        "support@techspecs.vn",                    "mailto:support@techspecs.vn"),
+                    ("bi-clock-fill",      "Giờ làm việc", "T2 – CN, 8:00 – 21:00",                 ""),
+                })
+                {
+                    <div class="d-flex gap-3 align-items-start">
+                        <div style="width:42px;height:42px;border-radius:12px;background:var(--gradient-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <i class="bi @icon" style="color:#fff;font-size:.9rem"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold" style="font-size:.85rem;color:var(--text)">@label</div>
+                            @if (!string.IsNullOrEmpty(href))
+                            {
+                                <a href="@href" style="font-size:.82rem;color:var(--text-muted);text-decoration:none">@value</a>
+                            }
+                            else
+                            {
+                                <div style="font-size:.82rem;color:var(--text-muted)">@value</div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="mt-4 pt-3" style="border-top:1px solid var(--border)">
+                <h6 class="fw-semibold mb-3" style="color:var(--text)">Theo dõi chúng tôi</h6>
+                <div class="d-flex gap-2">
+                    <a href="#" class="btn-icon" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="btn-icon" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="btn-icon" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" class="btn-icon" title="Instagram"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact form -->
+        <div class="col-lg-8">
+            <div class="tx-card p-4">
+                <h5 class="fw-bold mb-4" style="color:var(--text)"><i class="bi bi-send me-2" style="color:var(--primary)"></i>Gửi tin nhắn</h5>
+                <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" style="color:var(--text-muted);font-size:.82rem">Họ và tên <span style="color:var(--danger)">*</span></label>
+                            <input type="text" name="name" class="form-control" placeholder="Nguyễn Văn A" required
+                                   style="background:var(--surface-2);border-color:var(--border);color:var(--text)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color:var(--text-muted);font-size:.82rem">Email <span style="color:var(--danger)">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="email@example.com" required
+                                   style="background:var(--surface-2);border-color:var(--border);color:var(--text)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color:var(--text-muted);font-size:.82rem">Số điện thoại</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="0901 234 567"
+                                   style="background:var(--surface-2);border-color:var(--border);color:var(--text)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color:var(--text-muted);font-size:.82rem">Chủ đề</label>
+                            <select name="subject" class="form-select"
+                                    style="background:var(--surface-2);border-color:var(--border);color:var(--text)">
+                                <option value="">-- Chọn chủ đề --</option>
+                                <option>Tư vấn cấu hình PC</option>
+                                <option>Hỏi về sản phẩm</option>
+                                <option>Hỗ trợ kỹ thuật</option>
+                                <option>Bảo hành & đổi trả</option>
+                                <option>Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" style="color:var(--text-muted);font-size:.82rem">Nội dung <span style="color:var(--danger)">*</span></label>
+                            <textarea name="message" rows="5" class="form-control" placeholder="Mô tả câu hỏi hoặc vấn đề của bạn..." required
+                                      style="background:var(--surface-2);border-color:var(--border);color:var(--text)"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" id="contactBtn" class="btn btn-gradient px-4">
+                                <i class="bi bi-send me-2"></i>Gửi tin nhắn
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Quick links -->
+            <div class="row g-3 mt-1">
+                @foreach (var (icon, title, desc, url) in new[] {
+                    ("bi-cpu",           "PC Builder AI",          "Tự build cấu hình với AI gợi ý tương thích.", "/Builder"),
+                    ("bi-shield-check",  "Tra cứu bảo hành",      "Kiểm tra tình trạng bảo hành theo SĐT.",       "/Warranty"),
+                    ("bi-truck",         "Theo dõi đơn hàng",     "Tra cứu trạng thái giao hàng theo mã đơn.",   "/OrderTracking"),
+                })
+                {
+                    <div class="col-md-4">
+                        <a href="@url" class="tx-card p-3 d-flex align-items-center gap-3 text-decoration-none" style="transition:border-color .2s">
+                            <i class="bi @icon" style="font-size:1.4rem;color:var(--primary);flex-shrink:0"></i>
+                            <div>
+                                <div class="fw-semibold" style="font-size:.85rem;color:var(--text)">@title</div>
+                                <div style="font-size:.78rem;color:var(--text-muted)">@desc</div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function handleContactSubmit(e) {
+    e.preventDefault();
+    var btn = document.getElementById('contactBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+    // Simulate send (no backend endpoint needed — this is a static contact page)
+    setTimeout(function () {
+        showToast('Đã gửi tin nhắn! Chúng tôi sẽ phản hồi trong 24h.', 'success');
+        document.getElementById('contactForm').reset();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send me-2"></i>Gửi tin nhắn';
+    }, 800);
+}
+</script>
+}

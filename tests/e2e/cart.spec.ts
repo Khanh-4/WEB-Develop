@@ -17,7 +17,7 @@ test.describe('Cart & Checkout', () => {
         await addProductToCart(page, 1);
 
         await page.goto('/Cart');
-        const items = page.locator('.cart-item');
+        const items = page.locator('[id^="item-"]');
         await expect(items).toHaveCount(2);
         await expect(page.locator('#cartTotal')).not.toBeEmpty();
     });
@@ -30,7 +30,7 @@ test.describe('Cart & Checkout', () => {
         await page.click('button[onclick^="removeItem"]');
         await page.waitForTimeout(1000);
 
-        const items = page.locator('.cart-item');
+        const items = page.locator('[id^="item-"]');
         await expect(items).toHaveCount(1);
     });
 

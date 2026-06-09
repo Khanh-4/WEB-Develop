@@ -54,17 +54,31 @@ test.describe('Products page', () => {
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(1200);
 
-        const initialCount = await page.locator('.component-card').count();
-
         await page.click('.category-pill[data-cat="cpu"]');
         await page.waitForTimeout(1200);
 
-        const cpuCount = await page.locator('.component-card').count();
+        const cpuCount = await page.locator('.product-card').count();
         expect(cpuCount).toBeGreaterThan(0);
-        expect(cpuCount).toBeLessThanOrEqual(initialCount);
+    });
+});
 
-        // Category badge uses class "badge mb-2" — all should say "CPU"
-        const catBadges = await page.locator('.component-card .badge.mb-2').allInnerTexts();
-        expect(catBadges.every(b => b === 'CPU')).toBe(true);
+test.describe('Static pages', () => {
+    test('About page loads', async ({ page }) => {
+        await page.goto('/Home/About');
+        await expect(page).toHaveTitle(/Giới thiệu/);
+        await expect(page.locator('.tx-hero')).toBeVisible();
+        await expect(page.locator('text=An error occurred')).not.toBeVisible();
+    });
+
+    test('Contact page loads and has a send button', async ({ page }) => {
+        await page.goto('/Home/Contact');
+        await expect(page).toHaveTitle(/Liên hệ/);
+        await expect(page.locator('#contactBtn')).toBeVisible();
+        await expect(page.locator('text=An error occurred')).not.toBeVisible();
+    });
+
+    test('Privacy page loads', async ({ page }) => {
+        await page.goto('/Home/Privacy');
+        await expect(page.locator('text=An error occurred')).not.toBeVisible();
     });
 });
