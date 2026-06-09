@@ -1430,6 +1430,47 @@ input[type="radio"], input[type="checkbox"], .form-check-input { accent-color: v
 [data-theme="light"] .compat-ok    { color: #065f46; }
 [data-theme="light"] .purchase-toast-text { color: var(--text); }
 
+/* Hero section — swap dark card for light palette */
+[data-theme="light"] .tx-hero {
+    background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #e0e7ff 100%);
+    color: #0f172a;
+    border-color: rgba(139,92,246,.25);
+    box-shadow: 0 8px 30px rgba(139,92,246,.12);
+}
+[data-theme="light"] .tx-hero::before { opacity: .3; }
+[data-theme="light"] .tx-hero::after {
+    background:
+        radial-gradient(circle at 80% 20%, rgba(139,92,246,.08), transparent 45%),
+        radial-gradient(circle at 20% 80%, rgba(99,102,241,.08), transparent 45%);
+}
+[data-theme="light"] .tx-hero h1 { text-shadow: none; }
+[data-theme="light"] .tx-hero .lead { text-shadow: none; opacity: .85; }
+
+/* Neon badges — cyan is invisible on white */
+[data-theme="light"] .badge-neon {
+    background: rgba(139,92,246,.1);
+    color: #5b21b6 !important;
+    border-color: rgba(139,92,246,.3);
+    text-shadow: none;
+}
+[data-theme="light"] .badge-neon-pink {
+    background: rgba(236,72,153,.1);
+    color: #9d174d !important;
+    border-color: rgba(236,72,153,.3);
+}
+
+/* Light-coloured text classes */
+[data-theme="light"] .text-purple { color: #6d28d9 !important; }
+[data-theme="light"] .purchase-toast-text strong { color: #6d28d9; }
+[data-theme="light"] .text-muted-white { color: var(--text-muted) !important; }
+
+/* Filter clear tag — light-pink hard to read on white */
+[data-theme="light"] .filter-tag-clear { color: #991b1b; border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.08); }
+[data-theme="light"] .filter-tag-clear:hover { background: rgba(239,68,68,.15); }
+
+/* Bottom cart badge border to match light background */
+[data-theme="light"] .bottom-cart-badge { box-shadow: 0 0 0 2px #f8fafc; }
+
 /* ═══════════════════════════════════════════════════
    MISC LEGACY HELPERS
    ═══════════════════════════════════════════════════ */
