@@ -508,6 +508,22 @@ await _cacheStore.EvictByTagAsync("flash-sale", cancellationToken);
 
 ---
 
+## ✅ Done — Session 16 (2026-06-09) — Admin 500 fix, missing pages, test suite green
+
+| Task | File(s) |
+|------|---------|
+| **Fix admin 500** — root cause: `href` + `asp-area=""` on same `<a>` in `_AdminLayout.cshtml` throws `InvalidOperationException` | `Views/Shared/_AdminLayout.cshtml` |
+| **Fix Substring bug** — `Name[0..1]` throws on empty string in `_Layout.cshtml` + `_AdminLayout.cshtml` | both layout files |
+| **Admin/Reviews** — paginated review moderation, filter by rating/category, delete | `Controllers/AdminController.cs`, `Views/Admin/Reviews.cshtml` |
+| **Admin/OrderDetail** — dedicated admin order detail: items table, customer/payment info, inline AJAX status update | `Controllers/AdminController.cs`, `Views/Admin/OrderDetail.cshtml` |
+| **Home/About** — Giới thiệu page: hero, mission/team/commitment cards, stats, features, CTA | `Controllers/HomeController.cs`, `Views/Home/About.cshtml` |
+| **Home/Contact** — Liên hệ page: contact info panel, send form, quick-link cards | `Controllers/HomeController.cs`, `Views/Home/Contact.cshtml` |
+| **Nav links** — added Giới thiệu + Liên hệ to top nav bar | `Views/Shared/_Layout.cshtml` |
+| **Footer dead links** — fixed 2 `href="#"` links to point to Privacy + Contact | `Views/Shared/_Layout.cshtml` |
+| **Playwright tests** — 22 admin tests + 3 static page tests + selector fixes for Mock V2 renames: 49/49 pass | `tests/e2e/*.spec.ts` |
+
+---
+
 ## Bugs & Known Issues
 
 | Issue | Mức độ | Ghi chú |
