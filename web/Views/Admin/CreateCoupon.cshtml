@@ -1,71 +1,63 @@
 @model TechSpecs.Models.Coupon
 @{
     ViewData["Title"] = "Tạo Coupon";
-    Layout = "_Layout";
 }
 
-<div class="container py-4" style="max-width:600px">
+<div class="p-4" style="max-width:620px">
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/Admin/Coupons" class="btn glass text-white"><i class="bi bi-arrow-left"></i></a>
-        <h3 class="text-white fw-bold mb-0"><i class="bi bi-ticket-perforated me-2" style="color:#a855f7"></i>Tạo Coupon</h3>
+        <a href="/Admin/Coupons" class="btn glass" style="color:var(--text)"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" style="color:var(--text)"><i class="bi bi-ticket-perforated me-2" style="color:var(--primary)"></i>Tạo Coupon</h4>
     </div>
 
-    <div class="glass p-4">
+    <div class="tx-card p-4">
         <form method="post">
             @Html.AntiForgeryToken()
             <div class="row g-3">
                 <div class="col-8">
-                    <label class="text-muted-white small mb-1">Mã coupon</label>
-                    <input name="Code" type="text" class="form-control glass border-0 text-white" required
-                           style="background:rgba(255,255,255,.06);font-family:monospace;text-transform:uppercase"
+                    <label class="form-label small" style="color:var(--text-muted)">Mã coupon</label>
+                    <input name="Code" type="text" class="form-control" required
+                           style="font-family:monospace;text-transform:uppercase"
                            placeholder="VD: SUMMER20" maxlength="50" />
                 </div>
                 <div class="col-4">
-                    <label class="text-muted-white small mb-1">Loại giảm</label>
-                    <select name="DiscountType" class="form-select glass border-0 text-white" style="background:rgba(255,255,255,.06)">
+                    <label class="form-label small" style="color:var(--text-muted)">Loại giảm</label>
+                    <select name="DiscountType" class="form-select">
                         <option value="0">% Phần trăm</option>
                         <option value="1">đ Số tiền</option>
                     </select>
                 </div>
                 <div class="col-6">
-                    <label class="text-muted-white small mb-1">Giá trị giảm</label>
-                    <input name="DiscountValue" type="number" class="form-control glass border-0 text-white" required
-                           style="background:rgba(255,255,255,.06)" min="0" step="0.01" />
+                    <label class="form-label small" style="color:var(--text-muted)">Giá trị giảm</label>
+                    <input name="DiscountValue" type="number" class="form-control" required min="0" step="0.01" />
                 </div>
                 <div class="col-6">
-                    <label class="text-muted-white small mb-1">Đơn tối thiểu (đ)</label>
-                    <input name="MinOrderAmount" type="number" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" min="0" placeholder="Bỏ trống = không giới hạn" />
+                    <label class="form-label small" style="color:var(--text-muted)">Đơn tối thiểu (đ)</label>
+                    <input name="MinOrderAmount" type="number" class="form-control" min="0" placeholder="Bỏ trống = không giới hạn" />
                 </div>
                 <div class="col-6">
-                    <label class="text-muted-white small mb-1">Số lần dùng tối đa</label>
-                    <input name="MaxUses" type="number" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" min="1" placeholder="Bỏ trống = không giới hạn" />
+                    <label class="form-label small" style="color:var(--text-muted)">Số lần dùng tối đa</label>
+                    <input name="MaxUses" type="number" class="form-control" min="1" placeholder="Bỏ trống = không giới hạn" />
                 </div>
                 <div class="col-6">
-                    <label class="text-muted-white small mb-1">Hết hạn</label>
-                    <input name="ExpiresAt" type="datetime-local" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" />
+                    <label class="form-label small" style="color:var(--text-muted)">Hết hạn</label>
+                    <input name="ExpiresAt" type="datetime-local" class="form-control" />
                 </div>
                 <div class="col-6">
-                    <label class="text-muted-white small mb-1">Chỉ áp dụng danh mục</label>
-                    <input name="CategoryFilter" type="text" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" placeholder="VD: cpu,gpu (bỏ trống = tất cả)" maxlength="200" />
+                    <label class="form-label small" style="color:var(--text-muted)">Chỉ áp dụng danh mục</label>
+                    <input name="CategoryFilter" type="text" class="form-control" placeholder="VD: cpu,gpu (bỏ trống = tất cả)" maxlength="200" />
                 </div>
                 <div class="col-6">
-                    <label class="text-muted-white small mb-1">Chỉ áp dụng thương hiệu</label>
-                    <input name="BrandFilter" type="text" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" placeholder="VD: ASUS (bỏ trống = tất cả)" maxlength="100" />
+                    <label class="form-label small" style="color:var(--text-muted)">Chỉ áp dụng thương hiệu</label>
+                    <input name="BrandFilter" type="text" class="form-control" placeholder="VD: ASUS (bỏ trống = tất cả)" maxlength="100" />
                 </div>
                 <div class="col-12">
-                    <label class="text-muted-white small mb-1">Mô tả</label>
-                    <input name="Description" type="text" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" maxlength="200" />
+                    <label class="form-label small" style="color:var(--text-muted)">Mô tả</label>
+                    <input name="Description" type="text" class="form-control" maxlength="200" />
                 </div>
                 <div class="col-12">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="IsFreeShip" value="true" id="freeshipCheck">
-                        <label class="form-check-label text-muted-white" for="freeshipCheck">Freeship</label>
+                        <label class="form-check-label" style="color:var(--text-muted)" for="freeshipCheck">Freeship</label>
                     </div>
                 </div>
                 <div class="col-12">

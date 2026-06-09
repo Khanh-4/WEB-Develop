@@ -1,39 +1,35 @@
 @{
     ViewData["Title"] = "Tạo Combo";
-    Layout = "_Layout";
 }
 
-<div class="container py-4" style="max-width:700px">
+<div class="p-4" style="max-width:720px">
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/Admin/Bundles" class="btn glass text-white"><i class="bi bi-arrow-left"></i></a>
-        <h3 class="text-white fw-bold mb-0"><i class="bi bi-boxes me-2" style="color:#4ade80"></i>Tạo Combo</h3>
+        <a href="/Admin/Bundles" class="btn glass" style="color:var(--text)"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" style="color:var(--text)"><i class="bi bi-boxes me-2" style="color:#4ade80"></i>Tạo Combo</h4>
     </div>
 
-    <div class="glass p-4">
+    <div class="tx-card p-4">
         <form method="post" id="bundleForm">
             @Html.AntiForgeryToken()
             <div class="row g-3 mb-3">
                 <div class="col-8">
-                    <label class="text-muted-white small mb-1">Tên combo</label>
-                    <input name="name" type="text" class="form-control glass border-0 text-white" required
-                           style="background:rgba(255,255,255,.06)" placeholder="VD: Bộ CPU + Mainboard Intel" />
+                    <label class="form-label small" style="color:var(--text-muted)">Tên combo</label>
+                    <input name="name" type="text" class="form-control" required placeholder="VD: Bộ CPU + Mainboard Intel" />
                 </div>
                 <div class="col-4">
-                    <label class="text-muted-white small mb-1">Giảm (%)</label>
-                    <input name="discountPercent" type="number" class="form-control glass border-0 text-white" required
-                           style="background:rgba(255,255,255,.06)" min="1" max="50" value="5" />
+                    <label class="form-label small" style="color:var(--text-muted)">Giảm (%)</label>
+                    <input name="discountPercent" type="number" class="form-control" required min="1" max="50" value="5" />
                 </div>
                 <div class="col-12">
-                    <label class="text-muted-white small mb-1">Mô tả (tùy chọn)</label>
-                    <input name="description" type="text" class="form-control glass border-0 text-white"
-                           style="background:rgba(255,255,255,.06)" maxlength="500" />
+                    <label class="form-label small" style="color:var(--text-muted)">Mô tả (tùy chọn)</label>
+                    <input name="description" type="text" class="form-control" maxlength="500" />
                 </div>
             </div>
 
-            <h6 class="text-white mb-2 fw-semibold">Sản phẩm trong combo</h6>
+            <h6 class="fw-semibold mb-2" style="color:var(--text)">Sản phẩm trong combo</h6>
             <div id="itemsContainer"></div>
 
-            <button type="button" class="btn glass text-white btn-sm mb-3" onclick="addItem()">
+            <button type="button" class="btn glass btn-sm mb-3" style="color:var(--text)" onclick="addItem()">
                 <i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm
             </button>
 
@@ -52,32 +48,29 @@ let itemCount = 0;
 function addItem() {
     const idx = itemCount++;
     const div = document.createElement('div');
-    div.className = 'glass p-3 mb-2 rounded-3';
+    div.className = 'tx-card p-3 mb-2';
     div.innerHTML = `
         <div class="row g-2 align-items-end">
             <div class="col-3">
-                <label class="text-muted-white small mb-1">Danh mục</label>
-                <select name="categories" class="form-select glass border-0 text-white" style="background:rgba(255,255,255,.06)">
+                <label class="form-label small" style="color:var(--text-muted)">Danh mục</label>
+                <select name="categories" class="form-select">
                     ${cats.map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('')}
                 </select>
             </div>
             <div class="col-2">
-                <label class="text-muted-white small mb-1">ID</label>
-                <input name="componentIds" type="number" class="form-control glass border-0 text-white" required
-                       style="background:rgba(255,255,255,.06)" min="1" />
+                <label class="form-label small" style="color:var(--text-muted)">ID</label>
+                <input name="componentIds" type="number" class="form-control" required min="1" />
             </div>
             <div class="col-4">
-                <label class="text-muted-white small mb-1">Tên sản phẩm</label>
-                <input name="productNames" type="text" class="form-control glass border-0 text-white" required
-                       style="background:rgba(255,255,255,.06)" maxlength="300" />
+                <label class="form-label small" style="color:var(--text-muted)">Tên sản phẩm</label>
+                <input name="productNames" type="text" class="form-control" required maxlength="300" />
             </div>
             <div class="col-2">
-                <label class="text-muted-white small mb-1">Giá (đ)</label>
-                <input name="prices" type="number" class="form-control glass border-0 text-white" required
-                       style="background:rgba(255,255,255,.06)" min="0" />
+                <label class="form-label small" style="color:var(--text-muted)">Giá (đ)</label>
+                <input name="prices" type="number" class="form-control" required min="0" />
             </div>
             <div class="col-1 d-flex align-items-end pb-1">
-                <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.glass').remove()">
+                <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.tx-card').remove()">
                     <i class="bi bi-x"></i>
                 </button>
             </div>

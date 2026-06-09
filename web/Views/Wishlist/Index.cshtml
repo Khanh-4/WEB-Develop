@@ -3,20 +3,20 @@
 
 <div class="container-xl py-4 px-3">
     <div class="d-flex align-items-center justify-content-between mb-4">
-        <h1 class="text-white fw-bold mb-0">
+        <h4 class="fw-bold mb-0" style="color:var(--text)">
             <i class="bi bi-heart me-2" style="color:#f472b6"></i>@L["Wishlist.Title"]
-        </h1>
-        <a asp-controller="Products" asp-action="Index" class="btn glass text-white px-4">
+        </h4>
+        <a asp-controller="Products" asp-action="Index" class="btn glass px-4" style="color:var(--text)">
             <i class="bi bi-search me-2"></i>@L["Wishlist.Browse"]
         </a>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="glass p-5 text-center">
-            <i class="bi bi-heart fs-1 d-block mb-3" style="color:rgba(244,114,182,.3)"></i>
-            <h5 class="text-white mb-2">@L["Wishlist.Empty"]</h5>
-            <p class="text-muted-white mb-4">@L["Wishlist.EmptyDesc"]</p>
+        <div class="tx-card p-5 text-center">
+            <i class="bi bi-heart fs-1 d-block mb-3" style="color:#f472b6;opacity:.3"></i>
+            <h5 class="fw-bold mb-2" style="color:var(--text)">@L["Wishlist.Empty"]</h5>
+            <p class="mb-4" style="color:var(--text-muted)">@L["Wishlist.EmptyDesc"]</p>
             <a asp-controller="Products" asp-action="Index" class="btn btn-gradient px-4">
                 <i class="bi bi-search me-2"></i>@L["Wishlist.Explore"]
             </a>
@@ -33,34 +33,34 @@
                     "case" => "Case", "cooler" => "CPU Cooler", _ => item.Category
                 };
                 <div class="col-md-6 col-xl-4" id="wish-@item.Id">
-                    <div class="glass p-4 h-100 d-flex flex-column">
+                    <div class="tx-card p-4 h-100 d-flex flex-column">
                         <div class="d-flex gap-3 mb-3">
                             @if (item.ImageUrl != null)
                             {
                                 <img src="@item.ImageUrl" alt="@item.ComponentName"
-                                     style="width:64px;height:64px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.04);flex-shrink:0">
+                                     style="width:64px;height:64px;object-fit:contain;border-radius:8px;background:var(--surface-2);flex-shrink:0">
                             }
                             else
                             {
                                 <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                                     style="width:64px;height:64px;background:rgba(255,255,255,.06)">
-                                    <i class="bi bi-cpu text-muted-white fs-4"></i>
+                                     style="width:64px;height:64px;background:var(--surface-2)">
+                                    <i class="bi bi-cpu fs-4" style="color:var(--text-muted)"></i>
                                 </div>
                             }
                             <div class="overflow-hidden flex-grow-1">
-                                <div class="text-muted-white small mb-1">@catLabel</div>
-                                <div class="text-white fw-semibold" style="font-size:.9rem;line-height:1.3">@item.ComponentName</div>
-                                <div class="text-white fw-bold mt-1">@item.Price.ToString("N0")đ</div>
+                                <div class="small mb-1" style="color:var(--text-muted)">@catLabel</div>
+                                <div class="fw-semibold" style="font-size:.9rem;line-height:1.3;color:var(--text)">@item.ComponentName</div>
+                                <div class="fw-bold mt-1" style="color:var(--primary)">@item.Price.ToString("N0")đ</div>
                             </div>
                         </div>
 
-                        <div class="text-muted-white small mb-3">
+                        <div class="small mb-3" style="color:var(--text-muted)">
                             @L["Wishlist.SavedOn"] @item.AddedAt.ToString("dd/MM/yyyy HH:mm")
                         </div>
 
                         <div class="d-flex gap-2 mt-auto">
                             <a href="/Products/Detail/@item.Category/@item.ComponentId"
-                               class="btn glass text-white flex-grow-1">
+                               class="btn glass flex-grow-1" style="color:var(--text)">
                                 <i class="bi bi-eye me-1"></i>@L["Wishlist.ViewDetail"]
                             </a>
                             <button class="btn btn-gradient px-3"
@@ -70,7 +70,7 @@
                                     onclick="addToCartFromData(this)" title="@L["Btn.AddToCart"]">
                                 <i class="bi bi-cart-plus"></i>
                             </button>
-                            <button class="btn glass text-danger px-3" title="@L["Btn.Delete"]"
+                            <button class="btn glass px-3" style="color:var(--danger)" title="@L["Btn.Delete"]"
                                     onclick="removeWish(@item.Id, this)">
                                 <i class="bi bi-heart-fill"></i>
                             </button>

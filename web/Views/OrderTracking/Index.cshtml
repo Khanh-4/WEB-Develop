@@ -4,24 +4,24 @@
 
 <div class="container py-5" style="max-width:760px">
     <div class="text-center mb-4">
-        <i class="bi bi-truck text-purple" style="font-size:3rem"></i>
-        <h2 class="fw-bold mt-2">Tra cứu đơn hàng</h2>
-        <p class="text-muted">Nhập mã đơn hàng và số điện thoại để xem trạng thái</p>
+        <i class="bi bi-truck" style="font-size:3rem;color:var(--primary)"></i>
+        <h4 class="fw-bold mt-2" style="color:var(--text)">Tra cứu đơn hàng</h4>
+        <p style="color:var(--text-muted)">Nhập mã đơn hàng và số điện thoại để xem trạng thái</p>
     </div>
 
-    <div class="glass p-4 rounded-4 mb-4">
+    <div class="tx-card p-4 mb-4">
         <form id="trackForm">
             @Html.AntiForgeryToken()
             <div class="row g-3">
                 <div class="col-md-5">
-                    <label class="form-label small text-muted">Mã đơn hàng *</label>
+                    <label class="form-label small" style="color:var(--text-muted)">Mã đơn hàng *</label>
                     <div class="input-group">
-                        <span class="input-group-text glass-sm border-0 text-muted">#</span>
+                        <span class="input-group-text glass-sm border-0" style="color:var(--text-muted)">#</span>
                         <input id="trackOrderId" type="number" class="form-control" placeholder="12345" min="1" required>
                     </div>
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label small text-muted">Số điện thoại *</label>
+                    <label class="form-label small" style="color:var(--text-muted)">Số điện thoại *</label>
                     <input id="trackPhone" type="tel" class="form-control" placeholder="0912 345 678" required>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
@@ -37,22 +37,21 @@
 </div>
 
 <style>
-    .text-purple { color: #a855f7; }
     .track-step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
     .track-step::before { content:''; position:absolute; top:16px; left:50%; right:-50%;
-                           height:2px; background:rgba(255,255,255,.1); z-index:0; }
+                           height:2px; background:var(--border); z-index:0; }
     .track-step:last-child::before { display:none; }
-    .track-dot { width:32px; height:32px; border-radius:50%; border:2px solid rgba(255,255,255,.15);
+    .track-dot { width:32px; height:32px; border-radius:50%; border:2px solid var(--border);
                  display:flex; align-items:center; justify-content:center; font-size:.8rem;
-                 position:relative; z-index:1; background:#1a1a2e; }
-    .track-dot.done { background:linear-gradient(135deg,#a855f7,#6366f1); border-color:#a855f7; }
-    .track-dot.active { background:#1a1a2e; border-color:#a855f7; box-shadow:0 0 0 4px rgba(168,85,247,.2); }
-    .track-dot.active .dot-inner { background:#a855f7; border-radius:50%; width:10px; height:10px; }
-    .track-label { font-size:.68rem; text-align:center; margin-top:6px; color:rgba(255,255,255,.5); line-height:1.2; }
-    .track-label.done, .track-label.active { color:rgba(255,255,255,.9); }
-    .track-connector { flex:1; height:2px; background:rgba(255,255,255,.1); margin-top:16px; }
-    .track-connector.done { background:linear-gradient(90deg,#a855f7,#6366f1); }
-    .item-img { width:40px; height:40px; object-fit:contain; border-radius:6px; background:rgba(255,255,255,.05); }
+                 position:relative; z-index:1; background:var(--surface); }
+    .track-dot.done { background:var(--gradient-primary); border-color:var(--primary); }
+    .track-dot.active { background:var(--surface); border-color:var(--primary); box-shadow:0 0 0 4px rgba(139,92,246,.2); }
+    .track-dot.active .dot-inner { background:var(--primary); border-radius:50%; width:10px; height:10px; }
+    .track-label { font-size:.68rem; text-align:center; margin-top:6px; color:var(--text-muted); line-height:1.2; }
+    .track-label.done, .track-label.active { color:var(--text); font-weight:600; }
+    .track-connector { flex:1; height:2px; background:var(--border); margin-top:16px; }
+    .track-connector.done { background:var(--gradient-primary); }
+    .item-img { width:40px; height:40px; object-fit:contain; border-radius:6px; background:var(--surface-2); }
 </style>
 
 <script>
@@ -63,7 +62,7 @@
         const res     = document.getElementById('trackResult');
         const token   = document.querySelector('[name="__RequestVerificationToken"]').value;
 
-        res.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-purple" role="status"></div></div>';
+        res.innerHTML = `<div class="text-center py-4"><div class="spinner-border" style="color:var(--primary)" role="status"></div></div>`;
 
         const resp = await fetch('/OrderTracking/Check', {
             method: 'POST',
@@ -74,14 +73,13 @@
 
         if (data.error) { res.innerHTML = `<div class="alert glass-sm text-warning">${data.error}</div>`; return; }
         if (!data.found) {
-            res.innerHTML = `<div class="glass p-4 rounded-4 text-center text-muted">
+            res.innerHTML = `<div class="tx-card p-4 text-center" style="color:var(--text-muted)">
                 <i class="bi bi-search" style="font-size:2rem;opacity:.4"></i>
                 <p class="mt-2">Không tìm thấy đơn hàng.<br>Vui lòng kiểm tra lại mã đơn và số điện thoại.</p>
             </div>`;
             return;
         }
 
-        // Status stepper
         let stepperHtml = '';
         if (data.isCancelled) {
             stepperHtml = `<div class="glass-sm p-3 rounded-3 mb-4 text-center" style="border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.07)">
@@ -89,16 +87,15 @@
                 <span style="color:#f87171">Đơn hàng đã bị hủy</span>
             </div>`;
         } else {
-            const connectors = [];
             const dots = data.steps.map((s, i) => {
                 const isDone   = s.status < data.currentStep;
                 const isActive = s.status === data.currentStep;
                 const cls = isDone ? 'done' : isActive ? 'active' : '';
                 const icon = isDone
-                    ? `<i class="bi bi-check-lg text-white"></i>`
+                    ? `<i class="bi bi-check-lg" style="color:#fff"></i>`
                     : isActive
                         ? `<div class="dot-inner"></div>`
-                        : `<i class="bi ${s.icon}" style="opacity:.3;font-size:.75rem"></i>`;
+                        : `<i class="bi ${s.icon}" style="opacity:.3;font-size:.75rem;color:var(--text-muted)"></i>`;
                 const connector = i < data.steps.length - 1
                     ? `<div class="track-connector ${isDone ? 'done' : ''}"></div>`
                     : '';
@@ -112,7 +109,6 @@
             stepperHtml = `<div class="d-flex align-items-start px-2 mb-4">${dots.join('')}</div>`;
         }
 
-        // Order items
         const payIcon = data.paymentMethod === 'BankTransfer'
             ? '<i class="bi bi-bank me-1" style="color:#60a5fa"></i>Chuyển khoản'
             : '<i class="bi bi-cash-coin me-1" style="color:#fbbf24"></i>COD';
@@ -120,37 +116,37 @@
         const itemsHtml = data.items.map(item => {
             const img = item.imageUrl
                 ? `<img src="${item.imageUrl}" alt="" class="item-img">`
-                : `<div class="item-img d-flex align-items-center justify-content-center"><i class="bi bi-cpu opacity-25"></i></div>`;
+                : `<div class="item-img d-flex align-items-center justify-content-center"><i class="bi bi-cpu" style="opacity:.25;color:var(--text-muted)"></i></div>`;
             return `<div class="d-flex align-items-center gap-3 mb-2">
                 ${img}
-                <div class="flex-grow-1"><p class="mb-0" style="font-size:.8rem">${item.componentName}</p>
-                    <span class="text-muted" style="font-size:.75rem">×${item.quantity}</span></div>
-                <span class="fw-semibold" style="font-size:.85rem">${item.subtotal.toLocaleString('vi-VN')}đ</span>
+                <div class="flex-grow-1"><p class="mb-0" style="font-size:.8rem;color:var(--text)">${item.componentName}</p>
+                    <span style="font-size:.75rem;color:var(--text-muted)">×${item.quantity}</span></div>
+                <span class="fw-semibold" style="font-size:.85rem;color:var(--text)">${item.subtotal.toLocaleString('vi-VN')}đ</span>
             </div>`;
         }).join('');
 
         const discountRow = data.discountAmount > 0
-            ? `<div class="d-flex justify-content-between mb-1"><span class="text-muted"><i class="bi bi-tag-fill me-1"></i>Giảm giá</span><span style="color:#4ade80">-${data.discountAmount.toLocaleString('vi-VN')}đ</span></div>`
+            ? `<div class="d-flex justify-content-between mb-1"><span style="color:var(--text-muted)"><i class="bi bi-tag-fill me-1"></i>Giảm giá</span><span style="color:#4ade80">-${data.discountAmount.toLocaleString('vi-VN')}đ</span></div>`
             : '';
 
         res.innerHTML = `
-            <div class="glass p-4 rounded-4 mb-3">
+            <div class="tx-card p-4 mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-semibold mb-0">Đơn hàng #${data.orderId}</h6>
-                    <span class="text-muted small">${data.createdAt}</span>
+                    <h6 class="fw-semibold mb-0" style="color:var(--text)">Đơn hàng #${data.orderId}</h6>
+                    <span style="color:var(--text-muted);font-size:.82rem">${data.createdAt}</span>
                 </div>
                 ${stepperHtml}
-                <hr class="border-white border-opacity-10 mb-3">
+                <hr style="border-color:var(--border);opacity:1" class="mb-3">
                 ${itemsHtml}
-                <hr class="border-white border-opacity-10 my-3">
+                <hr style="border-color:var(--border);opacity:1" class="my-3">
                 ${discountRow}
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">Tổng cộng</span>
-                    <span class="fw-bold" style="background:linear-gradient(90deg,#a855f7,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+                    <span class="fw-semibold" style="color:var(--text)">Tổng cộng</span>
+                    <span class="fw-bold" style="color:var(--primary)">
                         ${data.totalAmount.toLocaleString('vi-VN')}đ
                     </span>
                 </div>
-                <div class="mt-2 text-muted small">${payIcon}</div>
+                <div class="mt-2" style="color:var(--text-muted);font-size:.82rem">${payIcon}</div>
             </div>`;
     });
 </script>

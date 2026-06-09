@@ -4,15 +4,15 @@
 
 <div class="container py-5" style="max-width:720px">
     <div class="text-center mb-4">
-        <i class="bi bi-shield-check text-purple" style="font-size:3rem"></i>
-        <h2 class="fw-bold mt-2">Tra cứu bảo hành</h2>
-        <p class="text-muted">Nhập số điện thoại hoặc số serial để xem thông tin bảo hành</p>
+        <i class="bi bi-shield-check" style="font-size:3rem;color:var(--primary)"></i>
+        <h4 class="fw-bold mt-2" style="color:var(--text)">Tra cứu bảo hành</h4>
+        <p style="color:var(--text-muted)">Nhập số điện thoại hoặc số serial để xem thông tin bảo hành</p>
     </div>
 
-    <div class="glass p-4 rounded-4">
+    <div class="tx-card p-4">
         <form id="warrantyForm" class="d-flex gap-2">
             @Html.AntiForgeryToken()
-            <input id="warrantyQuery" type="text" class="form-control glass-sm"
+            <input id="warrantyQuery" type="text" class="form-control"
                    placeholder="Số điện thoại hoặc số serial..." maxlength="100" required>
             <button type="submit" class="btn btn-gradient px-4" style="white-space:nowrap">
                 <i class="bi bi-search me-1"></i>Tra cứu
@@ -24,14 +24,13 @@
 </div>
 
 <style>
-    .text-purple { color: #a855f7; }
     .warranty-card { transition: transform .15s; }
     .warranty-card:hover { transform: translateY(-2px); }
     .badge-valid { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
     .badge-expired { background: rgba(239,68,68,.15); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
     .badge-soon { background: rgba(251,146,60,.15); color: #fb923c; border: 1px solid rgba(251,146,60,.3); }
-    .spec-row { display:flex; gap:8px; font-size:.85rem; color:rgba(255,255,255,.65); }
-    .spec-row strong { color: rgba(255,255,255,.9); min-width:130px; }
+    .spec-row { display:flex; gap:8px; font-size:.85rem; color:var(--text-muted); }
+    .spec-row strong { color: var(--text); min-width:130px; }
 </style>
 
 <script>
@@ -44,7 +43,7 @@
         e.preventDefault();
         const q = document.getElementById('warrantyQuery').value.trim();
         const res = document.getElementById('warrantyResult');
-        res.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-purple" role="status"></div></div>';
+        res.innerHTML = `<div class="text-center py-4"><div class="spinner-border" style="color:var(--primary)" role="status"></div></div>`;
 
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
         const resp = await fetch('/Warranty/Check', {
@@ -59,7 +58,7 @@
             return;
         }
         if (!data.found) {
-            res.innerHTML = `<div class="glass p-4 rounded-4 text-center text-muted">
+            res.innerHTML = `<div class="tx-card p-4 text-center" style="color:var(--text-muted)">
                 <i class="bi bi-search" style="font-size:2rem;opacity:.4"></i>
                 <p class="mt-2">Không tìm thấy thông tin bảo hành.<br>
                 Vui lòng kiểm tra lại số điện thoại hoặc liên hệ cửa hàng.</p>
@@ -79,11 +78,11 @@
             }
 
             const imgHtml = r.imageUrl
-                ? `<img src="${r.imageUrl}" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.05)">`
-                : `<div style="width:72px;height:72px;background:rgba(255,255,255,.05);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="bi bi-box-seam" style="font-size:1.6rem;opacity:.3"></i></div>`;
+                ? `<img src="${r.imageUrl}" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:8px;background:var(--surface-2)">`
+                : `<div style="width:72px;height:72px;background:var(--surface-2);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="bi bi-box-seam" style="font-size:1.6rem;opacity:.3;color:var(--text-muted)"></i></div>`;
 
             const orderLink = r.orderId
-                ? `<a href="/Orders/Detail/${r.orderId}" class="btn btn-sm glass-sm px-3 mt-2" style="font-size:.8rem">
+                ? `<a href="/Orders/Detail/${r.orderId}" class="btn btn-sm glass-sm px-3 mt-2" style="font-size:.8rem;color:var(--text)">
                     <i class="bi bi-receipt me-1"></i>Xem đơn hàng
                    </a>`
                 : '';
@@ -92,14 +91,14 @@
                 ? `<div class="spec-row"><strong>Số serial:</strong>${r.serialNumber}</div>`
                 : '';
 
-            return `<div class="glass warranty-card rounded-4 p-3 mb-3">
+            return `<div class="tx-card warranty-card p-3 mb-3">
                 <div class="d-flex gap-3 align-items-start">
                     ${imgHtml}
                     <div class="flex-fill">
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                             <div>
-                                <span class="badge glass-sm text-muted me-1" style="font-size:.7rem">${catLabel[r.category] ?? r.category}</span>
-                                <h6 class="fw-semibold mb-1">${r.productName}</h6>
+                                <span class="badge glass-sm me-1" style="font-size:.7rem;color:var(--text-muted)">${catLabel[r.category] ?? r.category}</span>
+                                <h6 class="fw-semibold mb-1" style="color:var(--text)">${r.productName}</h6>
                             </div>
                             <span class="badge rounded-pill px-3 py-1 ${badge}">${badgeText}</span>
                         </div>
@@ -115,6 +114,6 @@
             </div>`;
         }).join('');
 
-        res.innerHTML = `<p class="text-muted small mb-3">Tìm thấy ${data.records.length} sản phẩm</p>${cards}`;
+        res.innerHTML = `<p class="small mb-3" style="color:var(--text-muted)">Tìm thấy ${data.records.length} sản phẩm</p>${cards}`;
     });
 </script>
