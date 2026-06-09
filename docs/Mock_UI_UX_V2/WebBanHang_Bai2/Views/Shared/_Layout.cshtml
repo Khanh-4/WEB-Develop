@@ -1,0 +1,245 @@
+@inject CartService CartSvc
+@inject WishlistService WishlistSvc
+@inject ICategoryRepository CatRepo
+@{
+    var cart = CartSvc.GetCart();
+    var wishCount = WishlistSvc.Count;
+    var categories = CatRepo.GetAllCategories().ToList();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · TechStore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="tx-header">
+        <div class="top-bar">
+            <div class="container d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-truck"></i> Miễn phí vận chuyển cho đơn hàng từ 500.000đ</span>
+                <span class="d-none d-md-block">
+                    <i class="bi bi-telephone"></i> Hotline: 1900 1234 ·
+                    <i class="bi bi-clock"></i> 8:00 - 22:00
+                </span>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="main-bar">
+                <a class="tx-brand" asp-controller="Home" asp-action="Index">
+                    <span class="logo"><i class="bi bi-lightning-charge-fill"></i></span>
+                    Tech<span class="text-gradient">Store</span>
+                </a>
+
+                <form class="tx-search" asp-controller="Shop" asp-action="Index" method="get" role="search">
+                    <i class="bi bi-search"></i>
+                    <input type="search" name="keyword" placeholder="Tìm sản phẩm, danh mục, thương hiệu..." value="@(Context.Request.Query["keyword"])" />
+                    <button class="search-btn" type="submit">Tìm</button>
+                </form>
+
+                <div class="tx-actions">
+                    <button id="darkToggle" class="btn-icon" title="Đổi giao diện">
+                        <i class="bi bi-moon-stars"></i>
+                    </button>
+
+                    <a asp-controller="Wishlist" asp-action="Index" class="btn-icon icon-badge" title="Yêu thích">
+                        <i class="bi bi-heart"></i>
+                        <span class="count" id="wishlistCount" style="@(wishCount == 0 ? "display:none" : "")">@wishCount</span>
+                    </a>
+
+                    <button class="btn-icon icon-badge" id="cartOpen" title="Giỏ hàng" type="button">
+                        <i class="bi bi-bag"></i>
+                        <span class="count" id="cartCount" style="@(cart.TotalQuantity == 0 ? "display:none" : "")">@cart.TotalQuantity</span>
+                    </button>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <button class="btn btn-link p-0 d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                                <span class="avatar">@(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")</span>
+                                <span class="d-none d-lg-block fw-semibold">@User.Identity.Name</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> Tài khoản</a></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Orders"><i class="bi bi-bag-check"></i> Đơn hàng</a></li>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2"></i> Admin Dashboard</a></li>
+                                }
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-gradient ripple">
+                            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <nav class="tx-nav d-none d-md-flex">
+                <a asp-controller="Home" asp-action="Index" class="@(currentController == "Home" && currentAction == "Index" ? "active" : "")">
+                    <i class="bi bi-house-door"></i> Trang chủ
+                </a>
+                <div class="has-mega">
+                    <a asp-controller="Shop" asp-action="Index" class="@(currentController == "Shop" ? "active" : "")">
+                        <i class="bi bi-grid-3x3-gap"></i> Cửa hàng <i class="bi bi-chevron-down small"></i>
+                    </a>
+                    <div class="mega">
+                        <div class="row g-2">
+                            @foreach (var c in categories)
+                            {
+                                <div class="col-6">
+                                    <a class="mega-item" asp-controller="Shop" asp-action="Index" asp-route-categoryId="@c.Id">
+                                        <i class="bi @c.Icon"></i>
+                                        <div>
+                                            <div class="fw-semibold">@c.Name</div>
+                                            <small class="text-muted">@c.Description</small>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <a asp-controller="Shop" asp-action="Index" asp-route-sort="hot">
+                    <i class="bi bi-fire"></i> Bán chạy
+                </a>
+                <a asp-controller="Shop" asp-action="Index" asp-route-sort="newest">
+                    <i class="bi bi-stars"></i> Hàng mới
+                </a>
+                <a asp-controller="Home" asp-action="About">
+                    <i class="bi bi-info-circle"></i> Giới thiệu
+                </a>
+                <a asp-controller="Home" asp-action="Contact">
+                    <i class="bi bi-envelope"></i> Liên hệ
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container py-2">
+            @if (TempData["Success"] is string ok)
+            {
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <i class="bi bi-check-circle"></i> @ok
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] is string err)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="bi bi-exclamation-octagon"></i> @err
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="tx-footer">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <a class="tx-brand mb-3" asp-controller="Home" asp-action="Index">
+                        <span class="logo"><i class="bi bi-lightning-charge-fill"></i></span>
+                        Tech<span class="text-gradient">Store</span>
+                    </a>
+                    <p class="small">
+                        TechStore — chuỗi bán lẻ thiết bị công nghệ hàng đầu Việt Nam. Cam kết hàng chính hãng, giá tốt, bảo hành nhanh.
+                    </p>
+                    <div class="social mt-3">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <h6>Mua sắm</h6>
+                    <ul class="list-unstyled small">
+                        <li><a asp-controller="Shop" asp-action="Index">Tất cả sản phẩm</a></li>
+                        @foreach (var c in categories.Take(4))
+                        {
+                            <li><a asp-controller="Shop" asp-action="Index" asp-route-categoryId="@c.Id">@c.Name</a></li>
+                        }
+                    </ul>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h6>Hỗ trợ</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Phương thức thanh toán</a></li>
+                        <li><a href="#">Vận chuyển & giao nhận</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">Bảo mật</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6>Đăng ký nhận tin</h6>
+                    <p class="small">Khuyến mãi, sản phẩm mới gửi thẳng vào email của bạn.</p>
+                    <form class="d-flex gap-2" onsubmit="event.preventDefault(); TechStore.toast('Đã đăng ký nhận tin!', 'success');">
+                        <input type="email" class="form-control" placeholder="Email của bạn" required />
+                        <button class="btn btn-gradient" type="submit"><i class="bi bi-send"></i></button>
+                    </form>
+                </div>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between flex-wrap gap-2 small">
+                <span>&copy; 2026 TechStore. All rights reserved.</span>
+                <span><i class="bi bi-shield-check"></i> Bài 2 — ASP.NET Core MVC 8</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== CART DRAWER ===== -->
+    <div class="cart-drawer-backdrop" id="cartBackdrop"></div>
+    <aside class="cart-drawer" id="cartDrawer" aria-label="Giỏ hàng">
+        <header>
+            <h5><i class="bi bi-bag"></i> Giỏ hàng của bạn</h5>
+            <button class="btn-icon" id="cartClose" type="button"><i class="bi bi-x-lg"></i></button>
+        </header>
+        <div class="items" id="cartItems">
+            <!-- nội dung được nạp bằng JS -->
+        </div>
+        <footer>
+            <div class="row-sum"><span>Tạm tính</span><strong id="cartSubtotal">0đ</strong></div>
+            <div class="row-sum"><span>Phí vận chuyển</span><strong id="cartShipping">0đ</strong></div>
+            <div class="row-sum total"><span>Tổng cộng</span><strong id="cartTotal">0đ</strong></div>
+            <a asp-controller="Cart" asp-action="Index" class="btn btn-soft w-100 mt-3">Xem giỏ hàng</a>
+            <a asp-controller="Checkout" asp-action="Index" class="btn btn-gradient w-100 mt-2 ripple">
+                <i class="bi bi-credit-card"></i> Thanh toán ngay
+            </a>
+        </footer>
+    </aside>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="tx-toast-wrap" id="toastWrap"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

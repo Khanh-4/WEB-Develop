@@ -1,12 +1,22 @@
 <!DOCTYPE html>
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TechSpecs</title>
+    <title>@ViewData["Title"] · TechSpecs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <script>
+        // Apply theme before paint — prevents flash
+        (function () {
+            var t = localStorage.getItem('ts.theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
@@ -16,191 +26,164 @@
     var currentUrl = Context.Request.Path + Context.Request.QueryString;
     var targetCulture = currentCulture == "vi" ? "en" : "vi";
     var langLabel = currentCulture == "vi" ? "EN" : "VI";
+    var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 }
-<header class="sticky-header" id="siteHeader">
 
-    <!-- ── Brand Bar: Logo + Search + Hotline + Cart ───────────────── -->
-    <div class="brand-bar px-3">
-        <div class="container-xl d-flex align-items-center gap-3">
+<!-- ══════════════════════════════════════════════
+     HEADER
+     ══════════════════════════════════════════════ -->
+<header class="tx-header" id="siteHeader">
 
-            <!-- Logo -->
-            <a class="d-flex align-items-center gap-2 text-decoration-none flex-shrink-0"
-               asp-controller="Home" asp-action="Index">
-                <span class="gradient-icon">
-                    <i class="bi bi-cpu text-white" style="font-size:1.1rem"></i>
-                </span>
-                <span class="text-white fw-bold fs-5 d-none d-sm-inline" style="letter-spacing:-.3px">TechSpecs</span>
-            </a>
-
-            <!-- Always-visible big search bar -->
-            <div class="flex-grow-1 position-relative" id="navSearchForm" style="max-width:540px">
-                <form action="/Products" method="get" id="navSearchFormEl" onsubmit="return navSearchSubmit(event)">
-                    <div class="search-bar-hero d-flex align-items-center gap-2 px-3">
-                        <i class="bi bi-search flex-shrink-0" style="color:rgba(255,255,255,.45);font-size:.95rem"></i>
-                        <input type="text" name="search" id="navSearchInput"
-                               class="border-0 bg-transparent text-white flex-grow-1"
-                               placeholder="Tìm CPU, GPU, RAM, Mainboard, SSD..."
-                               style="outline:none;box-shadow:none;font-size:.88rem;min-width:0"
-                               autocomplete="off">
-                        <kbd class="d-none d-md-flex flex-shrink-0"
-                             style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
-                                    border-radius:4px;padding:2px 7px;font-size:.7rem;color:rgba(255,255,255,.4)">/</kbd>
-                    </div>
-                </form>
-                <!-- Live search dropdown -->
-                <div id="liveSearchDropdown"
-                     style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:9999;
-                            background:rgba(15,10,30,0.97);border:1px solid rgba(168,85,247,0.25);border-radius:12px;
-                            box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden">
-                </div>
-            </div>
-
-            <!-- Flex spacer (desktop) -->
-            <div class="flex-grow-1 d-none d-xl-block"></div>
-
-            <!-- Hotline (desktop only) -->
-            <div class="d-none d-xl-flex flex-column align-items-center flex-shrink-0">
-                <span style="font-size:.6rem;color:rgba(255,255,255,.4);line-height:1.3;letter-spacing:.3px;text-transform:uppercase">Hotline 24/7</span>
-                <a href="tel:19006969" class="text-decoration-none d-flex align-items-center gap-1"
-                   style="color:#a855f7;font-weight:700;font-size:.9rem;line-height:1.5">
-                    <i class="bi bi-telephone-fill" style="font-size:.75rem"></i>1900 6969
-                </a>
-            </div>
-
-            <!-- Cart icon + mini-cart hover panel -->
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <div class="mini-cart-wrapper flex-shrink-0" id="cartIconWrapper">
-                    <a class="cart-icon-link d-flex align-items-center justify-content-center position-relative text-decoration-none"
-                       href="/cart" id="cartIconLink">
-                        <i class="bi bi-cart3 text-white" style="font-size:1.4rem"></i>
-                        <span class="cart-badge" id="cartCount" style="display:none">0</span>
-                    </a>
-                    <div class="mini-cart-panel" id="miniCartDropdown">
-                        <div id="miniCartContent">
-                            <div class="p-4 text-center" style="color:rgba(255,255,255,.4)">
-                                <i class="bi bi-cart3 d-block mb-2" style="font-size:2rem;opacity:.3"></i>
-                                <span style="font-size:.83rem">Đang tải...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <a asp-controller="Account" asp-action="Login"
-                   class="btn btn-gradient px-3 py-1 flex-shrink-0 d-none d-sm-inline-flex"
-                   style="font-size:.82rem;white-space:nowrap">Đăng nhập</a>
-            }
-
-            <!-- Theme toggle -->
-            <button class="btn glass text-white px-2 py-1 flex-shrink-0" id="themeToggle"
-                    onclick="toggleTheme()" title="Toggle light/dark mode" style="font-size:1rem;line-height:1">
-                <i class="bi bi-sun" id="themeIcon"></i>
-            </button>
-
-            <!-- Language switcher -->
-            <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
-               class="btn glass text-white px-2 py-1 flex-shrink-0 d-none d-sm-flex"
-               style="font-size:.75rem;font-weight:600;text-decoration:none">@langLabel</a>
+    <!-- Top bar -->
+    <div class="top-bar">
+        <div class="container-xl d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-truck me-1"></i> Miễn phí vận chuyển cho đơn từ 500.000đ</span>
+            <span class="d-none d-md-block">
+                <i class="bi bi-telephone me-1"></i> Hotline: 1900 6969 ·
+                <i class="bi bi-clock me-1"></i> 8:00 - 22:00
+            </span>
         </div>
     </div>
 
-    <!-- ── Nav Row: Navigation Links + User Account ──────────────── -->
-    <nav class="navbar navbar-expand-lg nav-row px-3 py-0">
-        <div class="container-xl">
-            <button class="navbar-toggler border-0 py-1" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#navMain">
-                <i class="bi bi-list text-white fs-4"></i>
-            </button>
+    <div class="container-xl">
+        <!-- Main bar: logo + search + actions -->
+        <div class="main-bar">
 
-            <div class="collapse navbar-collapse" id="navMain">
-                <ul class="navbar-nav me-auto align-items-lg-center gap-1">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">@L["Nav.Home"]</a>
-                    </li>
-                    <li class="nav-item dropdown" id="megaMenuLi">
-                        <a class="nav-link dropdown-toggle" href="/Products" id="megaMenuToggle"
-                           data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                           aria-expanded="false" onclick="return megaNavClick(event, this)">
-                            @L["Nav.Products"]
-                        </a>
-                        <div class="dropdown-menu p-0 border-0 mega-menu" aria-labelledby="megaMenuToggle">
-                            @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Dropdown" })
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Build" asp-action="Community">@L["Nav.Community"]</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Warranty" asp-action="Index">
-                            <i class="bi bi-shield-check me-1"></i>Bảo hành
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="OrderTracking" asp-action="Index">
-                            <i class="bi bi-truck me-1"></i>Đơn hàng
-                        </a>
-                    </li>
-                    <li class="nav-item ms-1">
-                        <a class="btn btn-gradient px-3 py-1" asp-controller="Builder" asp-action="Index">
-                            @L["Nav.PCBuilder"]
-                        </a>
-                    </li>
-                </ul>
+            <!-- Logo -->
+            <a class="tx-brand text-decoration-none" asp-controller="Home" asp-action="Index">
+                <span class="logo"><i class="bi bi-cpu" style="font-size:1rem"></i></span>
+                Tech<span class="text-gradient">Specs</span>
+            </a>
 
-                <ul class="navbar-nav align-items-center gap-2">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <!-- Mobile cart (hidden on lg+, brand-bar cart handles desktop) -->
-                        <li class="nav-item d-lg-none">
-                            <a class="nav-link position-relative" href="/cart">
-                                <i class="bi bi-cart3 fs-5 text-white"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle fs-5"></i>
-                                <span>@(User.FindFirst("FullName")?.Value ?? User.Identity!.Name?.Split('@')[0])</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end glass-sm border-0 p-2">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <li><a class="dropdown-item text-white rounded" href="/admin"><i class="bi bi-speedometer2 me-2"></i>@L["Nav.Admin"]</a></li>
-                                    <li><hr class="dropdown-divider divider-white my-1"></li>
-                                }
-                                <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Profile"><i class="bi bi-person me-2"></i>@L["Nav.Profile"]</a></li>
-                                <li><a class="dropdown-item text-white rounded" href="/orders"><i class="bi bi-bag-check me-2"></i>@L["Nav.Orders"]</a></li>
-                                <li><a class="dropdown-item text-white rounded" asp-controller="Build" asp-action="MyBuilds"><i class="bi bi-bookmark me-2"></i>@L["Nav.MyBuilds"]</a></li>
-                                <li><a class="dropdown-item text-white rounded" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart me-2" style="color:#f472b6"></i>@L["Nav.Wishlist"]</a></li>
-                                <li><a class="dropdown-item text-white rounded" asp-controller="Account" asp-action="Warranties"><i class="bi bi-shield-check me-2" style="color:#a855f7"></i>Bảo hành</a></li>
-                                <li>
-                                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                        <button class="dropdown-item text-danger rounded"><i class="bi bi-box-arrow-right me-2"></i>@L["Nav.SignOut"]</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">@L["Nav.Login"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-gradient px-3 py-1" asp-controller="Account" asp-action="Register">@L["Nav.SignUp"]</a>
-                        </li>
-                    }
-                    <!-- Language (mobile only) -->
-                    <li class="nav-item d-sm-none">
-                        <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
-                           class="btn glass text-white px-2 py-1"
-                           style="font-size:.75rem;font-weight:600;text-decoration:none">@langLabel</a>
-                    </li>
-                </ul>
+            <!-- Search -->
+            <div class="tx-search" id="navSearchWrap">
+                <i class="bi bi-search"></i>
+                <input type="search" name="q" id="navSearchInput"
+                       placeholder="Tìm CPU, GPU, RAM, SSD, Mainboard..."
+                       value="@(Context.Request.Query["search"])"
+                       autocomplete="off"
+                       onkeydown="if(event.key==='Enter'){window.location.href='/Products?search='+encodeURIComponent(this.value);}" />
+                <button class="search-btn" type="button"
+                        onclick="window.location.href='/Products?search='+encodeURIComponent(document.getElementById('navSearchInput').value)">
+                    Tìm
+                </button>
+                <!-- Live search dropdown -->
+                <div id="liveSearchDropdown"
+                     style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:9999;
+                            background:var(--surface-solid);border:1px solid var(--border);border-radius:var(--radius);
+                            box-shadow:var(--shadow-lg);overflow:hidden">
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="tx-actions">
+
+                <!-- Dark mode toggle -->
+                <button class="btn-icon" id="darkToggle" title="Đổi giao diện" type="button">
+                    <i class="bi bi-moon-stars" id="themeIcon"></i>
+                </button>
+
+                <!-- Language -->
+                <a href="/Language/Set?culture=@targetCulture&returnUrl=@Uri.EscapeDataString(currentUrl)"
+                   class="btn-icon d-none d-sm-inline-flex"
+                   style="font-size:.72rem;font-weight:700;text-decoration:none;width:auto;padding:0 10px;border-radius:8px">
+                    @langLabel
+                </a>
+
+                <!-- Wishlist -->
+                <a asp-controller="Wishlist" asp-action="Index" class="btn-icon icon-badge d-none d-md-inline-flex" title="Yêu thích">
+                    <i class="bi bi-heart"></i>
+                </a>
+
+                <!-- Cart -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <button class="btn-icon icon-badge" id="cartOpen" type="button" title="Giỏ hàng">
+                        <i class="bi bi-bag"></i>
+                        <span class="count" id="cartCount" style="display:none">0</span>
+                    </button>
+                }
+
+                <!-- User -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="dropdown">
+                        <button class="btn p-0 d-flex align-items-center gap-2" data-bs-toggle="dropdown"
+                                style="background:none;border:none">
+                            <span class="avatar">@(User.FindFirst("FullName")?.Value?.Substring(0, 1).ToUpper() ?? User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")</span>
+                            <span class="d-none d-lg-block fw-semibold" style="color:var(--text);font-size:.88rem">@(User.FindFirst("FullName")?.Value ?? User.Identity!.Name?.Split('@')[0])</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li><a class="dropdown-item" href="/Admin"><i class="bi bi-speedometer2"></i> Admin Dashboard</a></li>
+                                <li><hr class="dropdown-divider" style="border-color:var(--border)" /></li>
+                            }
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person"></i> Tài khoản</a></li>
+                            <li><a class="dropdown-item" href="/orders"><i class="bi bi-bag-check"></i> Đơn hàng</a></li>
+                            <li><a class="dropdown-item" asp-controller="Build" asp-action="MyBuilds"><i class="bi bi-bookmark"></i> Build của tôi</a></li>
+                            <li><a class="dropdown-item" asp-controller="Wishlist" asp-action="Index"><i class="bi bi-heart" style="color:#f472b6"></i> Yêu thích</a></li>
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Warranties"><i class="bi bi-shield-check" style="color:var(--primary)"></i> Bảo hành</a></li>
+                            <li><hr class="dropdown-divider" style="border-color:var(--border)" /></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                    @Html.AntiForgeryToken()
+                                    <button class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-gradient ripple px-3 py-1 d-none d-sm-inline-flex"
+                       style="font-size:.85rem">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                    </a>
+                }
             </div>
         </div>
-    </nav>
+
+        <!-- Navigation row -->
+        <nav class="tx-nav d-none d-md-flex align-items-center">
+            <a asp-controller="Home" asp-action="Index"
+               class="@(currentCtrl == "Home" && currentAction == "Index" ? "active" : "")">
+                <i class="bi bi-house-door me-1"></i>Trang chủ
+            </a>
+
+            <!-- Products mega menu (CSS hover) -->
+            <div class="has-mega">
+                <a href="/Products" class="@(currentCtrl == "Products" ? "active" : "")">
+                    <i class="bi bi-grid-3x3-gap me-1"></i>Sản phẩm <i class="bi bi-chevron-down" style="font-size:.7rem"></i>
+                </a>
+                <div class="mega">
+                    @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Dropdown" })
+                </div>
+            </div>
+
+            <a asp-controller="Builder" asp-action="Index"
+               class="btn btn-gradient px-3 py-1 ripple @(currentCtrl == "Builder" ? "active" : "")"
+               style="font-size:.84rem">
+                <i class="bi bi-cpu me-1"></i>PC Builder
+            </a>
+
+            <a asp-controller="Build" asp-action="Community"
+               class="@(currentCtrl == "Build" && currentAction == "Community" ? "active" : "")">
+                <i class="bi bi-people me-1"></i>Cộng đồng
+            </a>
+
+            <a asp-controller="Warranty" asp-action="Index"
+               class="@(currentCtrl == "Warranty" ? "active" : "")">
+                <i class="bi bi-shield-check me-1"></i>Bảo hành
+            </a>
+
+            <a asp-controller="OrderTracking" asp-action="Index"
+               class="@(currentCtrl == "OrderTracking" ? "active" : "")">
+                <i class="bi bi-truck me-1"></i>Đơn hàng
+            </a>
+        </nav>
+    </div>
 </header>
 
 @if (User.Identity?.IsAuthenticated == true)
@@ -212,441 +195,175 @@
     @RenderBody()
 </main>
 
-<!-- Footer -->
-<footer class="site-footer pt-5 pb-4 mt-auto">
+<!-- ══════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════ -->
+<footer class="tx-footer">
     <div class="container-xl">
         <div class="row g-4 mb-4">
-            <div class="col-lg-4 col-md-6">
-                <a class="navbar-brand d-flex align-items-center gap-2 mb-3 text-decoration-none" asp-controller="Home" asp-action="Index">
-                    <span class="gradient-icon">
-                        <i class="bi bi-cpu text-white" style="font-size:1.1rem"></i>
-                    </span>
-                    <span class="text-white fw-bold fs-5">TechSpecs</span>
+            <div class="col-md-4">
+                <a class="tx-brand mb-3 text-decoration-none d-inline-flex" asp-controller="Home" asp-action="Index">
+                    <span class="logo me-2"><i class="bi bi-cpu" style="font-size:1rem"></i></span>
+                    Tech<span class="text-gradient">Specs</span>
                 </a>
-                <p class="text-muted-white small mb-3">Nền tảng build PC AI thông minh, so sánh giá linh kiện và cộng đồng chia sẻ cấu hình máy tính lớn nhất.</p>
-                <div class="d-flex gap-3">
-                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-facebook fs-5"></i></a>
-                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-youtube fs-5"></i></a>
-                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-tiktok fs-5"></i></a>
-                    <a href="#" class="text-muted-white text-decoration-none"><i class="bi bi-instagram fs-5"></i></a>
+                <p class="small" style="color:var(--text-muted)">Nền tảng build PC AI thông minh, so sánh linh kiện và cộng đồng chia sẻ cấu hình lớn nhất Việt Nam.</p>
+                <div class="social mt-3">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                    <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
-            <div class="col-lg-2 col-md-3 col-6">
-                <h6 class="text-white fw-bold mb-3">Sản phẩm</h6>
-                <ul class="list-unstyled d-flex flex-column gap-2 small">
-                    <li><a href="/Products?category=prebuilt" class="text-muted-white text-decoration-none">PC Dựng sẵn</a></li>
-                    <li><a href="/Products?category=cpu" class="text-muted-white text-decoration-none">Linh kiện PC</a></li>
-                    <li><a href="/Products?category=monitor" class="text-muted-white text-decoration-none">Màn hình</a></li>
-                    <li><a href="/Builder" class="text-muted-white text-decoration-none">PC Builder</a></li>
+            <div class="col-md-2 col-6">
+                <h6>Sản phẩm</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><a href="/Products?category=cpu">CPU</a></li>
+                    <li><a href="/Products?category=gpu">GPU</a></li>
+                    <li><a href="/Products?category=ram">RAM</a></li>
+                    <li><a href="/Builder">PC Builder</a></li>
                 </ul>
             </div>
-            <div class="col-lg-3 col-md-3 col-6">
-                <h6 class="text-white fw-bold mb-3">Chính sách & Hỗ trợ</h6>
-                <ul class="list-unstyled d-flex flex-column gap-2 small">
-                    <li><a href="/Warranty" class="text-muted-white text-decoration-none">Chính sách bảo hành</a></li>
-                    <li><a href="#" class="text-muted-white text-decoration-none">Chính sách đổi trả 1-1</a></li>
-                    <li><a href="#" class="text-muted-white text-decoration-none">Hướng dẫn thanh toán</a></li>
-                    <li><a href="#" class="text-muted-white text-decoration-none">Tra cứu đơn hàng</a></li>
+            <div class="col-md-3 col-6">
+                <h6>Hỗ trợ</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><a href="/Warranty">Chính sách bảo hành</a></li>
+                    <li><a href="#">Đổi trả 7 ngày</a></li>
+                    <li><a href="#">Hướng dẫn thanh toán</a></li>
+                    <li><a href="/OrderTracking">Tra cứu đơn hàng</a></li>
                 </ul>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <h6 class="text-white fw-bold mb-3">Hệ thống cửa hàng</h6>
-                <p class="text-muted-white small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>Showroom HCM: 123 Nguyễn Thị Minh Khai, Q.1</p>
-                <p class="text-muted-white small mb-3"><i class="bi bi-telephone me-2 text-primary"></i>Hotline: 1900 6969 (8:00 - 21:00)</p>
-                
-                <h6 class="text-white fw-bold mb-2 mt-4">Chứng nhận & Thanh toán</h6>
-                <div class="d-flex gap-2 align-items-center flex-wrap mt-2">
-                    <img src="https://placehold.co/120x45/1a1a1a/FFF?text=Bo+Cong+Thuong" alt="Bộ Công Thương" class="rounded" style="height:36px;object-fit:cover">
-                    <img src="https://placehold.co/60x40/1a1a1a/FFF?text=Visa" alt="Visa" class="rounded" style="height:30px;object-fit:cover">
-                    <img src="https://placehold.co/60x40/1a1a1a/FFF?text=Mastercard" alt="Mastercard" class="rounded" style="height:30px;object-fit:cover">
-                    <img src="https://placehold.co/60x40/1a1a1a/FFF?text=VNPAY" alt="VNPAY" class="rounded" style="height:30px;object-fit:cover">
+            <div class="col-md-3">
+                <h6>Đăng ký nhận tin</h6>
+                <p class="small" style="color:var(--text-muted)">Khuyến mãi & sản phẩm mới gửi thẳng vào email.</p>
+                <form class="d-flex gap-2" onsubmit="event.preventDefault();showToast('Đã đăng ký nhận tin!','success');">
+                    <input type="email" class="form-control form-control-sm" placeholder="Email của bạn" required />
+                    <button class="btn btn-gradient btn-sm flex-shrink-0" type="submit"><i class="bi bi-send"></i></button>
+                </form>
+                <div class="mt-3">
+                    <p class="small mb-1" style="color:var(--text-muted)"><i class="bi bi-geo-alt me-1" style="color:var(--primary)"></i>Showroom: 123 Nguyễn Thị Minh Khai, Q.1, HCM</p>
+                    <p class="small mb-0" style="color:var(--text-muted)"><i class="bi bi-telephone me-1" style="color:var(--primary)"></i>Hotline: 1900 6969 (8:00–21:00)</p>
                 </div>
             </div>
         </div>
-        <div class="text-center pt-3 mt-4 border-top" style="border-color:rgba(255,255,255,.05)!important">
-            <p class="text-muted-white small mb-0">&copy; @DateTime.Now.Year TechSpecs. All rights reserved.</p>
+        <hr />
+        <div class="d-flex justify-content-between flex-wrap gap-2 small" style="color:var(--text-muted)">
+            <span>&copy; @DateTime.Now.Year TechSpecs. All rights reserved.</span>
+            <span><i class="bi bi-shield-check me-1" style="color:var(--primary)"></i>ASP.NET Core MVC 8 · PostgreSQL · AI Builder</span>
         </div>
     </div>
 </footer>
 
-<!-- Compare floating tray -->
+<!-- ══════════════════════════════════════════════
+     CART DRAWER
+     ══════════════════════════════════════════════ -->
+<div class="cart-drawer-backdrop" id="cartBackdrop"></div>
+<aside class="cart-drawer" id="cartDrawer" aria-label="Giỏ hàng">
+    <header>
+        <h5><i class="bi bi-bag me-2"></i>Giỏ hàng</h5>
+        <button class="btn-icon" id="cartClose" type="button"><i class="bi bi-x-lg"></i></button>
+    </header>
+    <div class="items" id="cartDrawerItems">
+        <div class="empty-state">
+            <i class="bi bi-bag"></i>
+            <p style="color:var(--text-muted)">Giỏ hàng trống</p>
+        </div>
+    </div>
+    <footer>
+        <div class="row-sum"><span>Tạm tính</span><strong id="drawerSubtotal">0đ</strong></div>
+        <div class="row-sum"><span>Vận chuyển</span><strong id="drawerShipping">Miễn phí</strong></div>
+        <div class="row-sum total" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)">
+            <span style="font-weight:700">Tổng cộng</span>
+            <strong id="drawerTotal" style="color:var(--danger);font-size:1.15rem">0đ</strong>
+        </div>
+        <a href="/cart" class="btn btn-soft w-100 mt-3">Xem giỏ hàng đầy đủ</a>
+        <a href="/orders/checkout" class="btn btn-gradient w-100 mt-2 ripple">
+            <i class="bi bi-credit-card me-1"></i>Thanh toán ngay
+        </a>
+    </footer>
+</aside>
+
+<!-- ══════════════════════════════════════════════
+     TOAST CONTAINER
+     ══════════════════════════════════════════════ -->
+<div class="tx-toast-wrap" id="toastWrap"></div>
+
+<!-- ══════════════════════════════════════════════
+     COMPARE TRAY
+     ══════════════════════════════════════════════ -->
 <div id="compareTray" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1050;
-     background:rgba(10,6,22,0.97);border-top:1px solid rgba(168,85,247,0.3);
-     backdrop-filter:blur(20px);padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,0.5)">
+     background:var(--surface-solid);border-top:1px solid var(--border);
+     backdrop-filter:blur(20px);padding:10px 16px;box-shadow:0 -4px 24px rgba(0,0,0,0.4)">
     <div class="container-xl d-flex align-items-center gap-3 flex-wrap">
-        <span class="text-white fw-semibold" style="font-size:.85rem;white-space:nowrap;opacity:.8">
-            <i class="bi bi-bar-chart-steps me-2" style="color:#a855f7"></i>So sánh:
+        <span style="font-size:.85rem;white-space:nowrap;opacity:.8;color:var(--text)">
+            <i class="bi bi-bar-chart-steps me-2" style="color:var(--primary)"></i>So sánh:
         </span>
         <div id="cmpItems" class="d-flex gap-2 flex-grow-1 overflow-auto"></div>
         <div class="d-flex gap-2 flex-shrink-0 ms-auto">
-            <button onclick="clearCompareList()" class="btn glass text-white px-3 py-1"
-                    style="font-size:.82rem;white-space:nowrap">
+            <button onclick="clearCompareList()" class="btn btn-soft px-3 py-1" style="font-size:.82rem">
                 <i class="bi bi-x-lg me-1"></i>Xóa tất cả
             </button>
-            <button onclick="goCompare()" class="btn btn-gradient px-4 py-1"
-                    id="cmpGoBtn" style="font-size:.82rem;white-space:nowrap">
+            <button onclick="goCompare()" class="btn btn-gradient px-4 py-1" id="cmpGoBtn" style="font-size:.82rem">
                 <i class="bi bi-arrow-right me-1"></i>So sánh ngay
             </button>
         </div>
     </div>
 </div>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-window.i18n = {
-    addedToCart: '@Html.Raw(L["Toast.AddedToCart"].Value.Replace("'", "\\'"))',
-    cannotAdd:   '@Html.Raw(L["Toast.CannotAdd"].Value.Replace("'", "\\'"))'
-};
-</script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-<script>
-// Apply theme before paint to avoid flash
-(function() {
-    if (localStorage.getItem('theme') === 'light') {
-        document.body.classList.add('light-mode');
-        const icon = document.getElementById('themeIcon');
-        if (icon) icon.className = 'bi bi-moon-stars';
-    }
-})();
-// Mega menu: first click opens dropdown, second click navigates to /Products
-function megaNavClick(e, el) {
-    const isOpen = el.closest('.dropdown').classList.contains('show');
-    if (isOpen) { window.location.href = '/Products'; return false; }
-    return true; // let Bootstrap open the dropdown
-}
-function toggleTheme() {
-    const isLight = document.body.classList.toggle('light-mode');
-    localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    document.getElementById('themeIcon').className = isLight ? 'bi bi-moon-stars' : 'bi bi-sun';
-}
-function navSearchSubmit(e) {
-    hideLiveDropdown();
-    return true; // allow normal form submit
-}
-// Keyboard shortcut: / or Ctrl+K focuses the always-visible search bar
-document.addEventListener('keydown', e => {
-    const tag = document.activeElement.tagName;
-    if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && tag !== 'INPUT' && tag !== 'TEXTAREA') {
-        e.preventDefault();
-        const input = document.getElementById('navSearchInput');
-        if (input) { input.focus(); input.select(); }
-    }
-    if (e.key === 'Escape') {
-        hideLiveDropdown();
-        document.getElementById('navSearchInput')?.blur();
-    }
-});
-// Hide live dropdown on outside click
-document.addEventListener('click', e => {
-    const wrap = document.getElementById('navSearchForm');
-    if (wrap && !wrap.contains(e.target)) hideLiveDropdown();
-});
-
-// ── Mini-cart hover ───────────────────────────────────────────────────────────
-let miniCartLoaded = false;
-function invalidateMiniCart() { miniCartLoaded = false; }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const wrapper = document.getElementById('cartIconWrapper');
-    if (!wrapper) return;
-    wrapper.addEventListener('mouseenter', async () => {
-        if (miniCartLoaded) return;
-        const content = document.getElementById('miniCartContent');
-        if (!content) return;
-        content.innerHTML =
-            '<div class="p-3 d-flex flex-column gap-2">' +
-            '<div class="sk-box sk-line" style="height:54px;border-radius:8px"></div>'.repeat(2) +
-            '</div>';
-        try {
-            const r = await fetch('/Cart/MiniCart');
-            if (r.ok) { content.innerHTML = await r.text(); miniCartLoaded = true; }
-        } catch(ex) {}
-    });
-});
-
-// ── Live Search ──────────────────────────────────────────────────────────────
-const catLabels = { cpu:'CPU', motherboard:'Mainboard', memory:'RAM', gpu:'VGA',
-                    storage:'Storage', psu:'PSU', case:'Case', cooler:'Tản nhiệt' };
-const catColors  = { cpu:'#a855f7', motherboard:'#6366f1', memory:'#22c55e',
-                     gpu:'#f59e0b', storage:'#06b6d4', psu:'#ec4899',
-                     case:'#64748b', cooler:'#14b8a6' };
-let liveSearchTimer = null;
-let liveSearchAbort = null;
-
-document.getElementById('navSearchInput').addEventListener('input', function() {
-    clearTimeout(liveSearchTimer);
-    const q = this.value.trim();
-    if (q.length < 2) { hideLiveDropdown(); return; }
-    liveSearchTimer = setTimeout(() => runLiveSearch(q), 250);
-});
-
-async function runLiveSearch(q) {
-    if (liveSearchAbort) liveSearchAbort.abort();
-    liveSearchAbort = new AbortController();
-    const drop = document.getElementById('liveSearchDropdown');
-    drop.innerHTML = '<div class="px-3 py-2" style="color:rgba(255,255,255,.4);font-size:.8rem">Đang tìm…</div>';
-    drop.style.display = 'block';
-    try {
-        const r = await fetch(`/Products/LiveSearch?q=${encodeURIComponent(q)}`, { signal: liveSearchAbort.signal });
-        const items = await r.json();
-        renderLiveResults(items, q);
-    } catch(e) {
-        if (e.name !== 'AbortError') hideLiveDropdown();
-    }
-}
-
-function renderLiveResults(items, q) {
-    const drop = document.getElementById('liveSearchDropdown');
-    if (!items.length) {
-        drop.innerHTML = '<div class="px-3 py-3 text-center" style="color:rgba(255,255,255,.4);font-size:.85rem">Không tìm thấy sản phẩm</div>';
-        return;
-    }
-    const rows = items.map(item => {
-        const img = item.imageUrl
-            ? `<img src="${item.imageUrl}" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.05)">`
-            : `<div style="width:40px;height:40px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center"><i class="bi bi-cpu" style="color:rgba(255,255,255,.3)"></i></div>`;
-        const color = catColors[item.category] || '#a855f7';
-        const label = catLabels[item.category] || item.category;
-        const price = item.price.toLocaleString('vi-VN') + 'đ';
-        const hl = item.name.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'),
-                   m => `<mark style="background:rgba(168,85,247,.35);color:#e9d5ff;border-radius:3px;padding:0 2px">${m}</mark>`);
-        return `<a href="/Products/Detail/${item.category}/${item.id}"
-                   class="d-flex align-items-center gap-3 px-3 py-2 live-result-row"
-                   onclick="toggleNavSearch()"
-                   style="text-decoration:none;transition:background .15s">
-            ${img}
-            <div class="flex-grow-1 overflow-hidden">
-                <div style="font-size:.82rem;color:#fff;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${hl}</div>
-                <div class="d-flex align-items-center gap-2 mt-1">
-                    <span style="font-size:.7rem;background:rgba(${color.slice(1).match(/../g).map(h=>parseInt(h,16)).join(',')},0.2);
-                                 color:${color};border-radius:4px;padding:1px 6px">${label}</span>
-                    <span style="font-size:.78rem;color:#a855f7;font-weight:600">${price}</span>
-                </div>
-            </div>
-        </a>`;
-    });
-
-    const footer = `<a href="/Products?search=${encodeURIComponent(q)}"
-        class="d-block text-center px-3 py-2"
-        style="font-size:.78rem;color:rgba(255,255,255,.4);border-top:1px solid rgba(255,255,255,.06);text-decoration:none;transition:background .15s"
-        onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background=''"
-        onclick="toggleNavSearch()">
-        Xem tất cả kết quả cho "<strong style="color:#c084fc">${q}</strong>"
-    </a>`;
-
-    drop.innerHTML = rows.join('') + footer;
-}
-
-function hideLiveDropdown() {
-    const drop = document.getElementById('liveSearchDropdown');
-    if (drop) drop.style.display = 'none';
-}
-
-// hover effect via CSS-in-JS
-document.getElementById('liveSearchDropdown').addEventListener('mouseover', e => {
-    const row = e.target.closest('.live-result-row');
-    if (row) row.style.background = 'rgba(255,255,255,.06)';
-});
-document.getElementById('liveSearchDropdown').addEventListener('mouseout', e => {
-    const row = e.target.closest('.live-result-row');
-    if (row) row.style.background = '';
-});
-</script>
-@await RenderSectionAsync("Scripts", required: false)
-
-<script>
-// ── Product Compare ───────────────────────────────────────────────────────────
-const CMP_MAX = 3;
-const CMP_KEY = 'cmpList';
-
-function getCmpList() {
-    try { return JSON.parse(localStorage.getItem(CMP_KEY) || '[]'); } catch { return []; }
-}
-function saveCmpList(list) { localStorage.setItem(CMP_KEY, JSON.stringify(list)); }
-
-function toggleCompare(id, category, name, price, imageUrl) {
-    let list = getCmpList();
-    const idx = list.findIndex(x => x.id === id && x.category === category);
-
-    if (idx >= 0) {
-        list.splice(idx, 1);
-    } else {
-        if (list.length > 0 && list[0].category !== category) {
-            showToast(`Chỉ so sánh được sản phẩm cùng loại (${list[0].category.toUpperCase()})`, 'warning');
-            return;
-        }
-        if (list.length >= CMP_MAX) {
-            showToast(`Chỉ so sánh tối đa ${CMP_MAX} sản phẩm`, 'warning');
-            return;
-        }
-        list.push({ id, category, name, price, imageUrl });
-    }
-
-    saveCmpList(list);
-    renderCompareTray();
-    syncCmpButtons();
-}
-
-function clearCompareList() {
-    saveCmpList([]);
-    renderCompareTray();
-    syncCmpButtons();
-}
-
-function goCompare() {
-    const list = getCmpList();
-    if (list.length < 2) { showToast('Chọn ít nhất 2 sản phẩm để so sánh', 'warning'); return; }
-    const ids = list.map(x => x.id).join(',');
-    window.location.href = `/Products/Compare?category=${list[0].category}&ids=${ids}`;
-}
-
-function renderCompareTray() {
-    const list = getCmpList();
-    const tray = document.getElementById('compareTray');
-    const container = document.getElementById('cmpItems');
-    if (!tray || !container) return;
-
-    if (list.length === 0) { tray.style.display = 'none'; return; }
-    tray.style.display = '';
-
-    container.innerHTML = list.map(item => `
-        <div class="d-flex align-items-center gap-2 glass-sm rounded-3 px-2 py-1" style="min-width:160px;max-width:220px">
-            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-2 overflow-hidden"
-                 style="width:36px;height:36px;background:rgba(255,255,255,.08)">
-                ${item.imageUrl
-                    ? `<img src="${item.imageUrl}" style="width:36px;height:36px;object-fit:contain">`
-                    : `<i class="bi bi-cpu" style="color:rgba(255,255,255,.4)"></i>`}
-            </div>
-            <div class="flex-grow-1 overflow-hidden">
-                <div style="font-size:.72rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2">${item.name}</div>
-                <div style="font-size:.7rem;color:#a855f7;font-weight:600">${item.price.toLocaleString('vi-VN')}đ</div>
-            </div>
-            <button onclick="toggleCompare(${item.id},'${item.category}',${JSON.stringify(item.name)},${item.price},'${item.imageUrl || ''}')"
-                    class="btn p-0 border-0" style="color:rgba(255,255,255,.4);font-size:.75rem;line-height:1;background:none;flex-shrink:0"
-                    title="Bỏ khỏi so sánh">
-                <i class="bi bi-x-lg"></i>
-            </button>
-        </div>
-    `).join('');
-
-    // Disable go button if < 2
-    const btn = document.getElementById('cmpGoBtn');
-    if (btn) btn.disabled = list.length < 2;
-}
-
-function syncCmpButtons() {
-    const list = getCmpList();
-    // Reset all compare buttons
-    document.querySelectorAll('.cmp-btn').forEach(btn => {
-        btn.style.background = '';
-        btn.style.borderColor = '';
-        btn.style.color = '';
-        const icon = btn.querySelector('i');
-        if (icon) { icon.style.color = ''; }
-    });
-    // Highlight active ones
-    list.forEach(item => {
-        const btn = document.getElementById(`cmpBtn_${item.category}_${item.id}`);
-        if (btn) {
-            btn.style.background = 'rgba(168,85,247,0.3)';
-            btn.style.borderColor = 'rgba(168,85,247,0.6)';
-            const icon = btn.querySelector('i');
-            if (icon) icon.style.color = '#c084fc';
-        }
-    });
-}
-
-// Init on page load
-document.addEventListener('DOMContentLoaded', () => {
-    renderCompareTray();
-    syncCmpButtons();
-});
-
-// ── Installment Calculator ────────────────────────────────────────────────────
-function showInstallment(price, productName) {
-    document.getElementById('instProductName').textContent = productName || '';
-    document.getElementById('instBasePrice').textContent = Number(price).toLocaleString('vi-VN') + 'đ';
-    const plans = [
-        { months: 3,  fee: 0.00,  label: '3 tháng',  badge: '0% phí',    badgeColor: '#4ade80' },
-        { months: 6,  fee: 0.015, label: '6 tháng',  badge: '1.5%/tháng', badgeColor: '#fb923c' },
-        { months: 9,  fee: 0.015, label: '9 tháng',  badge: '1.5%/tháng', badgeColor: '#fb923c' },
-        { months: 12, fee: 0.020, label: '12 tháng', badge: '2%/tháng',  badgeColor: '#f87171' },
-    ];
-    const cards = plans.map(p => {
-        const monthly = fee => Math.ceil(price * (1 + fee * p.months) / p.months);
-        const mo = monthly(p.fee);
-        return `<div class="col-6">
-            <div class="glass-sm p-3 text-center h-100">
-                <div class="text-white fw-bold mb-1">${p.label}</div>
-                <div class="fs-5 fw-bold" style="color:#a855f7">${mo.toLocaleString('vi-VN')}đ</div>
-                <div class="text-muted-white" style="font-size:.72rem">/tháng</div>
-                <span class="badge mt-2" style="background:rgba(255,255,255,.08);color:${p.badgeColor};font-size:.7rem">${p.badge}</span>
-            </div>
-        </div>`;
-    }).join('');
-    document.getElementById('instCards').innerHTML = cards;
-    new bootstrap.Modal(document.getElementById('installmentModal')).show();
-}
-
-        padding:8px 18px;border-radius:8px;font-size:.83rem;z-index:2000;
-        backdrop-filter:blur(12px);white-space:nowrap`;
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2500);
-}
-</script>
-
-<!-- Installment Calculator Modal (P10) -->
+<!-- ══════════════════════════════════════════════
+     INSTALLMENT MODAL
+     ══════════════════════════════════════════════ -->
 <div class="modal fade" id="installmentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:480px">
-        <div class="modal-content" style="background:rgba(15,10,30,0.98);border:1px solid rgba(168,85,247,.3);border-radius:16px;backdrop-filter:blur(24px)">
+        <div class="modal-content glass" style="border-radius:var(--radius-lg)">
             <div class="modal-header border-0 pb-0">
                 <div>
-                    <h5 class="text-white fw-bold mb-0"><i class="bi bi-calculator me-2" style="color:#a855f7"></i>Tính trả góp</h5>
-                    <div id="instProductName" class="text-muted-white small mt-1"></div>
+                    <h5 class="fw-bold mb-0"><i class="bi bi-calculator me-2" style="color:var(--primary)"></i>Tính trả góp</h5>
+                    <div id="instProductName" class="small mt-1" style="color:var(--text-muted)"></div>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(var(--close-filter,1))"></button>
             </div>
             <div class="modal-body pt-3">
                 <div class="glass p-3 mb-3 text-center">
-                    <div class="text-muted-white small mb-1">Giá gốc</div>
-                    <div class="fs-4 fw-bold text-white" id="instBasePrice">0đ</div>
+                    <div class="small mb-1" style="color:var(--text-muted)">Giá gốc</div>
+                    <div class="fs-4 fw-bold" id="instBasePrice">0đ</div>
                 </div>
                 <div class="row g-2 mb-3" id="instCards"></div>
-                <div class="text-muted-white" style="font-size:.75rem;line-height:1.5">
+                <div style="font-size:.75rem;line-height:1.5;color:var(--text-muted)">
                     * 0% phí: trả góp 3 tháng qua thẻ tín dụng đối tác.<br>
-                    * 1.5% phí/tháng: 6–9 tháng.<br>
-                    * 2% phí/tháng: 12 tháng.<br>
-                    Liên hệ nhân viên để biết thêm điều kiện.
+                    * 1.5% phí/tháng: 6–9 tháng. * 2% phí/tháng: 12 tháng.
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Live Chat floating buttons (Zalo + Messenger) -->
+<!-- Live chat (Zalo + Messenger) -->
 <div style="position:fixed;right:20px;bottom:88px;z-index:1100;display:flex;flex-direction:column;gap:10px;align-items:flex-end">
     <a href="https://zalo.me/0354567080" target="_blank" rel="noopener" title="Chat Zalo"
        style="width:48px;height:48px;border-radius:50%;background:#0068FF;display:flex;align-items:center;justify-content:center;
-              box-shadow:0 4px 18px rgba(0,104,255,.55);text-decoration:none;transition:transform .2s,box-shadow .2s"
-       onmouseover="this.style.transform='scale(1.13)';this.style.boxShadow='0 6px 24px rgba(0,104,255,.7)'"
-       onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(0,104,255,.55)'">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="18" font-family="Arial,sans-serif" font-weight="800">Z</text>
-        </svg>
+              box-shadow:0 4px 18px rgba(0,104,255,.55);text-decoration:none;transition:transform .2s"
+       onmouseover="this.style.transform='scale(1.13)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="18" font-family="Arial,sans-serif" font-weight="800">Z</text></svg>
     </a>
     <a href="https://m.me/shirou.emiya.589100" target="_blank" rel="noopener" title="Chat Messenger"
        style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0695ff 0%,#a134fa 60%,#ff6968 100%);
               display:flex;align-items:center;justify-content:center;
-              box-shadow:0 4px 18px rgba(161,52,250,.5);text-decoration:none;transition:transform .2s,box-shadow .2s"
-       onmouseover="this.style.transform='scale(1.13)';this.style.boxShadow='0 6px 24px rgba(161,52,250,.7)'"
-       onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 18px rgba(161,52,250,.5)'">
+              box-shadow:0 4px 18px rgba(161,52,250,.5);text-decoration:none;transition:transform .2s"
+       onmouseover="this.style.transform='scale(1.13)'" onmouseout="this.style.transform='scale(1)'">
         <i class="bi bi-messenger" style="color:white;font-size:1.3rem"></i>
     </a>
 </div>
 
-<!-- ── P41: Full-screen Search Overlay (mobile) ───────────────────────── -->
+<!-- Purchase toast (social proof) -->
+<div class="purchase-toast" id="purchaseToast" role="status" aria-live="polite">
+    <img class="purchase-toast-img" id="ptImg" src="" alt="">
+    <div>
+        <div class="purchase-toast-text" id="ptText"></div>
+        <div class="purchase-toast-time" id="ptTime"></div>
+    </div>
+</div>
+
+<!-- Search overlay (mobile) -->
 <div class="search-overlay d-lg-none" id="searchOverlay" role="dialog" aria-label="Tìm kiếm">
     <div class="search-overlay-header">
         <input type="search" class="search-overlay-input" id="searchOverlayInput"
@@ -670,93 +387,8 @@ function showInstallment(price, productName) {
         <div id="soResultsList" class="mt-3"></div>
     </div>
 </div>
-<script>
-(function() {
-    var overlay  = document.getElementById('searchOverlay');
-    var ovInput  = document.getElementById('searchOverlayInput');
-    var cancel   = document.getElementById('searchOverlayCancel');
-    var histList = document.getElementById('soHistoryList');
-    var histBlock= document.getElementById('soHistoryBlock');
-    var resList  = document.getElementById('soResultsList');
-    var mainInput= document.getElementById('navSearchInput');
-    if (!overlay || !mainInput) return;
 
-    function getHistory() {
-        try { return JSON.parse(localStorage.getItem('searchHistory') || '[]'); } catch(e) { return []; }
-    }
-    function saveHistory(kw) {
-        var h = getHistory().filter(x => x !== kw);
-        h.unshift(kw);
-        if (h.length > 10) h = h.slice(0, 10);
-        localStorage.setItem('searchHistory', JSON.stringify(h));
-    }
-    function renderHistory() {
-        var h = getHistory();
-        histBlock.style.display = h.length ? '' : 'none';
-        histList.innerHTML = h.map(kw =>
-            `<div class="search-history-item">
-                <i class="bi bi-clock" style="color:rgba(255,255,255,.3)"></i>
-                <span onclick="doOverlaySearch('${kw.replace(/'/g,"\\'")}');">${kw}</span>
-                <button class="search-history-del" onclick="deleteHistory('${kw.replace(/'/g,"\\'")}')">✕</button>
-            </div>`).join('');
-    }
-    window.deleteHistory = function(kw) {
-        var h = getHistory().filter(x => x !== kw);
-        localStorage.setItem('searchHistory', JSON.stringify(h));
-        renderHistory();
-    };
-    window.doOverlaySearch = function(kw) {
-        saveHistory(kw);
-        window.location.href = '/Products?search=' + encodeURIComponent(kw);
-    };
-
-    function openOverlay() {
-        overlay.classList.add('open');
-        setTimeout(function() { ovInput.focus(); }, 100);
-        renderHistory();
-        resList.innerHTML = '';
-    }
-    function closeOverlay() {
-        overlay.classList.remove('open');
-        ovInput.value = '';
-        resList.innerHTML = '';
-    }
-
-    // Only trigger overlay on mobile (lg breakpoint = 992px)
-    mainInput.addEventListener('focus', function() {
-        if (window.innerWidth < 992) { openOverlay(); mainInput.blur(); }
-    });
-    cancel.addEventListener('click', closeOverlay);
-    overlay.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeOverlay(); });
-
-    // Live search in overlay (reuse existing /Products/LiveSearch endpoint)
-    var soTimer;
-    ovInput.addEventListener('input', function() {
-        clearTimeout(soTimer);
-        var q = ovInput.value.trim();
-        if (!q) { resList.innerHTML = ''; return; }
-        soTimer = setTimeout(function() {
-            fetch('/Products/LiveSearch?q=' + encodeURIComponent(q))
-                .then(r => r.ok ? r.json() : [])
-                .then(items => {
-                    if (!items.length) { resList.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:.85rem">Không tìm thấy kết quả</div>'; return; }
-                    resList.innerHTML = '<div class="search-overlay-section-title">Kết quả</div>' +
-                        items.slice(0,8).map(x => `
-                            <div class="search-history-item" onclick="doOverlaySearch('${x.name.replace(/'/g,"\\'")}')">
-                                <img src="${x.imageUrl||''}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:rgba(255,255,255,.05)" alt="">
-                                <span style="flex:1">${x.name}</span>
-                                <span style="color:#c084fc;font-size:.8rem">${Number(x.price).toLocaleString('vi-VN')}đ</span>
-                            </div>`).join('');
-                }).catch(() => {});
-        }, 300);
-    });
-    ovInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') { var q = ovInput.value.trim(); if (q) doOverlaySearch(q); }
-    });
-})();
-</script>
-
-<!-- ── Bottom Navigation Bar (mobile, d-lg-none) ──────────────────────── -->
+<!-- Bottom navigation (mobile) -->
 <nav class="bottom-nav d-lg-none" id="bottomNav" aria-label="Mobile navigation">
     <a href="/" class="bottom-nav-item" id="bnHome">
         <i class="bi bi-house-fill"></i><span>Trang chủ</span>
@@ -764,36 +396,121 @@ function showInstallment(price, productName) {
     <a href="/Products" class="bottom-nav-item" id="bnProducts">
         <i class="bi bi-grid-fill"></i><span>Danh mục</span>
     </a>
-    <a href="/Cart" class="bottom-nav-item position-relative" id="bnCart">
-        <i class="bi bi-cart3"></i>
-        <span class="bottom-cart-badge" id="bottomCartBadge"></span>
-        <span>Giỏ hàng</span>
+    <a href="/Builder" class="bottom-nav-item" id="bnBuilder">
+        <i class="bi bi-cpu-fill"></i><span>PC Builder</span>
     </a>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a href="/Cart" class="bottom-nav-item position-relative" id="bnCart">
+            <i class="bi bi-cart3"></i>
+            <span class="bottom-cart-badge" id="bottomCartBadge"></span>
+            <span>Giỏ hàng</span>
+        </a>
+    }
     <a href="/Account/Profile" class="bottom-nav-item" id="bnAccount">
         <i class="bi bi-person-fill"></i><span>Tài khoản</span>
     </a>
 </nav>
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Bottom nav: set active tab by current pathname
-(function() {
-    var p = window.location.pathname;
-    var map = { '/': 'bnHome', '/Products': 'bnProducts', '/Cart': 'bnCart', '/Account': 'bnAccount' };
-    var key = Object.keys(map).reverse().find(k => p === k || (k !== '/' && p.startsWith(k)));
-    if (key) { var el = document.getElementById(map[key]); if (el) el.classList.add('active'); }
+window.i18n = {
+    addedToCart: '@Html.Raw((L?["Toast.AddedToCart"]?.Value ?? "Đã thêm vào giỏ hàng").Replace("'", "\\'"))',
+    cannotAdd:   '@Html.Raw((L?["Toast.CannotAdd"]?.Value ?? "Không thể thêm").Replace("'", "\\'"))'
+};
+</script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+// ── Theme toggle ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var btn  = document.getElementById('darkToggle');
+    if (!btn) return;
+
+    function applyTheme(t) {
+        root.setAttribute('data-theme', t);
+        if (icon) icon.className = t === 'dark' ? 'bi bi-moon-stars' : 'bi bi-sun';
+    }
+    applyTheme(root.getAttribute('data-theme') || 'dark');
+
+    btn.addEventListener('click', function () {
+        var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ts.theme', next);
+        applyTheme(next);
+    });
+});
+
+// ── Cart drawer ───────────────────────────────────────────────────────────────
+(function () {
+    var openBtn  = document.getElementById('cartOpen');
+    var closeBtn = document.getElementById('cartClose');
+    var backdrop = document.getElementById('cartBackdrop');
+    var drawer   = document.getElementById('cartDrawer');
+    if (!openBtn || !drawer) return;
+
+    function openDrawer() {
+        drawer.classList.add('open');
+        backdrop.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        loadDrawer();
+    }
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    openBtn.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+
+    async function loadDrawer() {
+        try {
+            var r = await fetch('/Cart/Drawer');
+            if (!r.ok) return;
+            var data = await r.json();
+            renderDrawer(data);
+        } catch(e) {}
+    }
+    function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
+    function renderDrawer(data) {
+        var items = data.items || [];
+        var el = document.getElementById('cartDrawerItems');
+        if (!el) return;
+        if (!items.length) {
+            el.innerHTML = '<div class="empty-state"><i class="bi bi-bag"></i><p style="color:var(--text-muted)">Giỏ hàng trống</p></div>';
+        } else {
+            el.innerHTML = items.map(function (i) {
+                return '<div class="cart-line">' +
+                    '<img src="' + (i.imageUrl || '') + '" alt="">' +
+                    '<div class="meta">' +
+                    '  <div class="name">' + i.name + '</div>' +
+                    '  <div class="price">' + fmt(i.price) + '</div>' +
+                    '  <small style="color:var(--text-muted)">x' + i.quantity + '</small>' +
+                    '</div></div>';
+            }).join('');
+        }
+        var sub = document.getElementById('drawerSubtotal');
+        var tot = document.getElementById('drawerTotal');
+        if (sub) sub.textContent = fmt(data.subtotal || 0);
+        if (tot) tot.textContent = fmt(data.total || 0);
+    }
+    window.invalidateDrawer = function() {};
 })();
 
-// Header auto-hide on scroll down, re-appear on scroll up
-(function() {
-    var header = document.querySelector('.sticky-header');
-    if (!header) return;
+// ── Auto-hide header on scroll down ──────────────────────────────────────────
+(function () {
+    var hdr = document.getElementById('siteHeader');
+    if (!hdr) return;
     var lastY = 0, ticking = false;
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         if (!ticking) {
-            requestAnimationFrame(function() {
+            requestAnimationFrame(function () {
                 var y = window.scrollY;
-                if (y > lastY && y > 80) header.style.transform = 'translateY(-100%)';
-                else header.style.transform = '';
+                if (y > lastY && y > 80) hdr.classList.add('hide');
+                else hdr.classList.remove('hide');
                 lastY = y;
                 ticking = false;
             });
@@ -801,34 +518,208 @@ function showInstallment(price, productName) {
         }
     }, { passive: true });
 })();
-</script>
 
-<!-- ── P36: Purchase Toast (Social Proof) ─────────────────────────── -->
-<div class="purchase-toast" id="purchaseToast" role="status" aria-live="polite">
-    <img class="purchase-toast-img" id="ptImg" src="" alt="">
-    <div>
-        <div class="purchase-toast-text" id="ptText"></div>
-        <div class="purchase-toast-time" id="ptTime"></div>
-    </div>
-</div>
-<script>
+// ── Bottom nav active tab ─────────────────────────────────────────────────────
+(function () {
+    var p = window.location.pathname;
+    var map = { '/': 'bnHome', '/Products': 'bnProducts', '/Builder': 'bnBuilder', '/Cart': 'bnCart', '/Account': 'bnAccount' };
+    var key = Object.keys(map).reverse().find(function (k) { return p === k || (k !== '/' && p.startsWith(k)); });
+    if (key) { var el = document.getElementById(map[key]); if (el) el.classList.add('active'); }
+})();
+
+// ── Mega menu: CSS hover handles desktop, click navigates ────────────────────
+function megaNavClick(e, el) {
+    var isOpen = el.closest('.dropdown').classList.contains('show');
+    if (isOpen) { window.location.href = '/Products'; return false; }
+    return true;
+}
+
+// ── Live search ───────────────────────────────────────────────────────────────
+var catLabels = { cpu:'CPU', motherboard:'Mainboard', memory:'RAM', gpu:'VGA', storage:'Storage', psu:'PSU', case:'Case', cooler:'Tản nhiệt' };
+var catColors = { cpu:'#a855f7', motherboard:'#6366f1', memory:'#22c55e', gpu:'#f59e0b', storage:'#06b6d4', psu:'#ec4899', case:'#64748b', cooler:'#14b8a6' };
+var lsTimer = null, lsAbort = null;
+
+var navInput = document.getElementById('navSearchInput');
+if (navInput) {
+    navInput.addEventListener('input', function () {
+        clearTimeout(lsTimer);
+        var q = this.value.trim();
+        if (q.length < 2) { hideLiveDrop(); return; }
+        lsTimer = setTimeout(function () { runLiveSearch(q); }, 250);
+    });
+    navInput.addEventListener('focus', function () {
+        if (window.innerWidth < 992) { openSearchOverlay(); this.blur(); }
+    });
+}
+
+async function runLiveSearch(q) {
+    if (lsAbort) lsAbort.abort();
+    lsAbort = new AbortController();
+    var drop = document.getElementById('liveSearchDropdown');
+    if (!drop) return;
+    drop.innerHTML = '<div class="px-3 py-2" style="color:var(--text-muted);font-size:.8rem">Đang tìm…</div>';
+    drop.style.display = 'block';
+    try {
+        var r = await fetch('/Products/LiveSearch?q=' + encodeURIComponent(q), { signal: lsAbort.signal });
+        renderLiveResults(await r.json(), q);
+    } catch (e) { if (e.name !== 'AbortError') hideLiveDrop(); }
+}
+function renderLiveResults(items, q) {
+    var drop = document.getElementById('liveSearchDropdown');
+    if (!drop) return;
+    if (!items.length) { drop.innerHTML = '<div class="px-3 py-3 text-center" style="color:var(--text-muted);font-size:.85rem">Không tìm thấy sản phẩm</div>'; return; }
+    var rows = items.map(function (item) {
+        var img = item.imageUrl ? '<img src="' + item.imageUrl + '" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:var(--surface-2)">'
+            : '<div style="width:40px;height:40px;border-radius:6px;background:var(--surface-2);display:flex;align-items:center;justify-content:center"><i class="bi bi-cpu" style="color:var(--text-muted)"></i></div>';
+        var color = catColors[item.category] || '#a855f7';
+        var label = catLabels[item.category] || item.category;
+        var price = Number(item.price).toLocaleString('vi-VN') + 'đ';
+        var hl = item.name.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'), function(m) { return '<mark style="background:rgba(139,92,246,.25);color:var(--primary);border-radius:3px;padding:0 2px">' + m + '</mark>'; });
+        return '<a href="/Products/Detail/' + item.category + '/' + item.id + '" onclick="hideLiveDrop()" style="display:flex;align-items:center;gap:12px;padding:10px 14px;text-decoration:none;transition:background .15s;color:var(--text)" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'\'">'
+            + img + '<div style="flex:1;overflow:hidden"><div style="font-size:.82rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + hl + '</div>'
+            + '<div style="display:flex;gap:8px;margin-top:3px"><span style="font-size:.7rem;background:rgba(139,92,246,.15);color:' + color + ';border-radius:4px;padding:1px 6px">' + label + '</span>'
+            + '<span style="font-size:.78rem;color:var(--primary);font-weight:600">' + price + '</span></div></div></a>';
+    });
+    var footer = '<a href="/Products?search=' + encodeURIComponent(q) + '" onclick="hideLiveDrop()" style="display:block;text-align:center;padding:9px;font-size:.78rem;color:var(--text-muted);border-top:1px solid var(--border);text-decoration:none" onmouseover="this.style.background=\'var(--surface-2)\'" onmouseout="this.style.background=\'\'">Xem tất cả kết quả cho "<strong style="color:var(--primary)">' + q + '</strong>"</a>';
+    drop.innerHTML = rows.join('') + footer;
+}
+function hideLiveDrop() { var d = document.getElementById('liveSearchDropdown'); if (d) d.style.display = 'none'; }
+document.addEventListener('click', function (e) { if (!e.target.closest('#navSearchWrap')) hideLiveDrop(); });
+
+// ── Search overlay (mobile) ───────────────────────────────────────────────────
+function openSearchOverlay() {
+    var overlay = document.getElementById('searchOverlay');
+    var input   = document.getElementById('searchOverlayInput');
+    if (!overlay) return;
+    overlay.classList.add('open');
+    setTimeout(function () { if (input) input.focus(); }, 100);
+    renderSoHistory();
+}
+document.getElementById('searchOverlayCancel')?.addEventListener('click', function () {
+    document.getElementById('searchOverlay').classList.remove('open');
+});
+
+function getHistory() { try { return JSON.parse(localStorage.getItem('searchHistory') || '[]'); } catch(e) { return []; } }
+function saveHistory(kw) { var h = getHistory().filter(function(x) { return x !== kw; }); h.unshift(kw); if (h.length > 10) h = h.slice(0, 10); localStorage.setItem('searchHistory', JSON.stringify(h)); }
+function renderSoHistory() {
+    var h = getHistory(); var b = document.getElementById('soHistoryBlock'); var l = document.getElementById('soHistoryList');
+    if (!b || !l) return;
+    b.style.display = h.length ? '' : 'none';
+    l.innerHTML = h.map(function(kw) { return '<div class="search-history-item"><i class="bi bi-clock" style="color:var(--text-muted)"></i><span onclick="doOverlaySearch(\'' + kw.replace(/'/g,"\\'") + '\')">' + kw + '</span><button class="search-history-del" onclick="deleteHistory(\'' + kw.replace(/'/g,"\\'") + '\')">✕</button></div>'; }).join('');
+}
+window.deleteHistory = function(kw) { var h = getHistory().filter(function(x) { return x !== kw; }); localStorage.setItem('searchHistory', JSON.stringify(h)); renderSoHistory(); };
+window.doOverlaySearch = function(kw) { saveHistory(kw); window.location.href = '/Products?search=' + encodeURIComponent(kw); };
+
+(function() {
+    var soInput = document.getElementById('searchOverlayInput');
+    var resList = document.getElementById('soResultsList');
+    if (!soInput || !resList) return;
+    var timer;
+    soInput.addEventListener('input', function() {
+        clearTimeout(timer);
+        var q = this.value.trim();
+        if (!q) { resList.innerHTML = ''; return; }
+        timer = setTimeout(function() {
+            fetch('/Products/LiveSearch?q=' + encodeURIComponent(q)).then(function(r) { return r.ok ? r.json() : []; }).then(function(items) {
+                if (!items.length) { resList.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem">Không tìm thấy kết quả</div>'; return; }
+                resList.innerHTML = '<div class="search-overlay-section-title">Kết quả</div>' + items.slice(0,8).map(function(x) { return '<div class="search-history-item" onclick="doOverlaySearch(\'' + x.name.replace(/'/g,"\\'") + '\')"><img src="' + (x.imageUrl||'') + '" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:var(--surface-2)" alt=""><span style="flex:1">' + x.name + '</span><span style="color:var(--primary);font-size:.8rem">' + Number(x.price).toLocaleString('vi-VN') + 'đ</span></div>'; }).join('');
+            }).catch(function() {});
+        }, 300);
+    });
+    soInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { var q = this.value.trim(); if (q) doOverlaySearch(q); } });
+})();
+
+// Keyboard shortcut: / or Ctrl+K
+document.addEventListener('keydown', function (e) {
+    var tag = document.activeElement.tagName;
+    if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+        var input = document.getElementById('navSearchInput');
+        if (input) { input.focus(); input.select(); }
+    }
+    if (e.key === 'Escape') { hideLiveDrop(); document.getElementById('navSearchInput')?.blur(); }
+});
+
+// ── Compare tray ──────────────────────────────────────────────────────────────
+var CMP_MAX = 3, CMP_KEY = 'cmpList';
+function getCmpList() { try { return JSON.parse(localStorage.getItem(CMP_KEY) || '[]'); } catch { return []; } }
+function saveCmpList(l) { localStorage.setItem(CMP_KEY, JSON.stringify(l)); }
+function toggleCompare(id, category, name, price, imageUrl) {
+    var list = getCmpList();
+    var idx = list.findIndex(function(x) { return x.id === id && x.category === category; });
+    if (idx >= 0) { list.splice(idx, 1); }
+    else {
+        if (list.length > 0 && list[0].category !== category) { showToast('Chỉ so sánh sản phẩm cùng loại (' + list[0].category.toUpperCase() + ')', 'warning'); return; }
+        if (list.length >= CMP_MAX) { showToast('Chỉ so sánh tối đa ' + CMP_MAX + ' sản phẩm', 'warning'); return; }
+        list.push({ id, category, name, price, imageUrl });
+    }
+    saveCmpList(list); renderCompareTray(); syncCmpButtons();
+}
+function clearCompareList() { saveCmpList([]); renderCompareTray(); syncCmpButtons(); }
+function goCompare() {
+    var list = getCmpList();
+    if (list.length < 2) { showToast('Chọn ít nhất 2 sản phẩm để so sánh', 'warning'); return; }
+    window.location.href = '/Products/Compare?category=' + list[0].category + '&ids=' + list.map(function(x) { return x.id; }).join(',');
+}
+function renderCompareTray() {
+    var list = getCmpList();
+    var tray = document.getElementById('compareTray');
+    var container = document.getElementById('cmpItems');
+    if (!tray || !container) return;
+    if (!list.length) { tray.style.display = 'none'; return; }
+    tray.style.display = '';
+    container.innerHTML = list.map(function(item) {
+        return '<div class="glass-sm d-flex align-items-center gap-2 rounded-3 px-2 py-1" style="min-width:160px;max-width:220px">'
+            + '<div style="width:36px;height:36px;border-radius:8px;overflow:hidden;background:var(--surface-2);flex-shrink:0;display:flex;align-items:center;justify-content:center">'
+            + (item.imageUrl ? '<img src="' + item.imageUrl + '" style="width:36px;height:36px;object-fit:contain">' : '<i class="bi bi-cpu" style="color:var(--text-muted)"></i>') + '</div>'
+            + '<div style="flex:1;overflow:hidden"><div style="font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)">' + item.name + '</div>'
+            + '<div style="font-size:.7rem;color:var(--primary);font-weight:600">' + Number(item.price).toLocaleString('vi-VN') + 'đ</div></div>'
+            + '<button onclick="toggleCompare(' + item.id + ',\'' + item.category + '\',' + JSON.stringify(item.name) + ',' + item.price + ',\'' + (item.imageUrl || '') + '\')" class="btn p-0 border-0" style="color:var(--text-muted);font-size:.75rem;background:none;flex-shrink:0"><i class="bi bi-x-lg"></i></button>'
+            + '</div>';
+    }).join('');
+    var btn = document.getElementById('cmpGoBtn');
+    if (btn) btn.disabled = list.length < 2;
+}
+function syncCmpButtons() {
+    var list = getCmpList();
+    document.querySelectorAll('.cmp-btn').forEach(function(btn) { btn.style.background = ''; btn.style.borderColor = ''; var ic = btn.querySelector('i'); if (ic) ic.style.color = ''; });
+    list.forEach(function(item) { var btn = document.getElementById('cmpBtn_' + item.category + '_' + item.id); if (btn) { btn.style.background = 'rgba(var(--primary-rgb),.2)'; btn.style.borderColor = 'rgba(var(--primary-rgb),.5)'; var ic = btn.querySelector('i'); if (ic) ic.style.color = 'var(--primary)'; } });
+}
+document.addEventListener('DOMContentLoaded', function () { renderCompareTray(); syncCmpButtons(); });
+
+// ── Installment calculator ────────────────────────────────────────────────────
+function showInstallment(price, productName) {
+    document.getElementById('instProductName').textContent = productName || '';
+    document.getElementById('instBasePrice').textContent = Number(price).toLocaleString('vi-VN') + 'đ';
+    var plans = [
+        { months:3,  fee:0.00,  label:'3 tháng',  badge:'0% phí',    bc:'#4ade80' },
+        { months:6,  fee:0.015, label:'6 tháng',  badge:'1.5%/tháng',bc:'#fb923c' },
+        { months:9,  fee:0.015, label:'9 tháng',  badge:'1.5%/tháng',bc:'#fb923c' },
+        { months:12, fee:0.020, label:'12 tháng', badge:'2%/tháng',  bc:'#f87171' },
+    ];
+    document.getElementById('instCards').innerHTML = plans.map(function(p) {
+        var mo = Math.ceil(price * (1 + p.fee * p.months) / p.months);
+        return '<div class="col-6"><div class="glass p-3 text-center h-100"><div class="fw-bold mb-1">' + p.label + '</div><div class="fs-5 fw-bold" style="color:var(--primary)">' + mo.toLocaleString('vi-VN') + 'đ</div><div class="small" style="color:var(--text-muted)">/tháng</div><span class="badge mt-2" style="background:var(--surface-2);color:' + p.bc + ';font-size:.7rem">' + p.badge + '</span></div></div>';
+    }).join('');
+    new bootstrap.Modal(document.getElementById('installmentModal')).show();
+}
+
+// ── Purchase toast ────────────────────────────────────────────────────────────
 (function() {
     var data = [
-        { name:"Anh K.", city:"TP.HCM",  product:"RTX 4070 Ti SUPER",        img:"https://placehold.co/44/1e1b4b/c084fc?text=GPU",  mins:2  },
+        { name:"Anh K.", city:"TP.HCM",   product:"RTX 4070 Ti SUPER",       img:"https://placehold.co/44/1e1b4b/c084fc?text=GPU",  mins:2  },
         { name:"Chị L.", city:"Hà Nội",   product:"Intel Core i7-14700K",     img:"https://placehold.co/44/0f172a/60a5fa?text=CPU",  mins:5  },
         { name:"Anh T.", city:"Đà Nẵng",  product:"Corsair DDR5 32GB 6000",   img:"https://placehold.co/44/0f2a1b/4ade80?text=RAM",  mins:8  },
         { name:"Chị M.", city:"Cần Thơ",  product:"ASUS B760M Mainboard",     img:"https://placehold.co/44/0a1f2b/06b6d4?text=MB",   mins:12 },
         { name:"Anh P.", city:"Hải Phòng",product:"Samsung 980 Pro 2TB NVMe", img:"https://placehold.co/44/1a0a2b/a855f7?text=SSD",  mins:15 },
         { name:"Chị H.", city:"Huế",      product:"Lian Li PC-O11 Dynamic",   img:"https://placehold.co/44/2b1a0a/ef4444?text=CASE", mins:18 },
-        { name:"Anh N.", city:"Bình Dương",product:"RTX 4060 Ti 16GB",        img:"https://placehold.co/44/1e1b4b/c084fc?text=GPU",  mins:22 },
-        { name:"Chị V.", city:"Long An",  product:"Be Quiet Dark Rock Pro 5", img:"https://placehold.co/44/1a2b2b/8b5cf6?text=FAN",  mins:25 },
     ];
     var toast = document.getElementById('purchaseToast');
     var ptImg = document.getElementById('ptImg');
     var ptText = document.getElementById('ptText');
     var ptTime = document.getElementById('ptTime');
     var idx = 0;
-    function showToast() {
+    function show() {
         var d = data[idx % data.length]; idx++;
         ptImg.src = d.img;
         ptText.innerHTML = '<strong>' + d.name + '</strong> tại ' + d.city + ' vừa đặt mua <strong>' + d.product + '</strong>';
@@ -836,25 +727,22 @@ function showInstallment(price, productName) {
         toast.classList.add('show');
         setTimeout(function() { toast.classList.remove('show'); }, 5000);
     }
-    // First show after 15s, then every 30-45s
-    setTimeout(function() {
-        showToast();
-        setInterval(showToast, 30000 + Math.random() * 15000);
-    }, 15000);
+    setTimeout(function() { show(); setInterval(show, 32000 + Math.random() * 15000); }, 15000);
 })();
+
+// ── Cart count on load ────────────────────────────────────────────────────────
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <text>
+    (function() {
+        fetch('/Cart/Count').then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(d) { if (d && d.count > 0) updateCartBadge(d.count); }).catch(function(){});
+    })();
+    </text>
+}
 </script>
 
 @await Html.PartialAsync("_ChatWidget")
-@if (User.Identity?.IsAuthenticated == true)
-{
-<script>
-(function() {
-    fetch('/Cart/Count')
-        .then(r => r.ok ? r.json() : null)
-        .then(d => { if (d && d.count > 0) updateCartBadge(d.count); })
-        .catch(() => {});
-})();
-</script>
-}
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

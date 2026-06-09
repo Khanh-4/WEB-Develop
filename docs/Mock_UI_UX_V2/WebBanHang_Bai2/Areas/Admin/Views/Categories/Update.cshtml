@@ -1,0 +1,16 @@
+@model WebBanHang_Bai2.Models.Category
+@{ ViewData["Title"] = "Sửa danh mục"; }
+
+<div class="tx-card" style="max-width:640px;">
+    <div class="tx-card-head"><h5><i class="bi bi-pencil-square"></i> Sửa danh mục #@Model.Id</h5></div>
+    <form asp-action="Update" method="post" class="p-4">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3"><label asp-for="Name" class="form-label fw-semibold"></label><input asp-for="Name" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Icon" class="form-label fw-semibold"></label><input asp-for="Icon" class="form-control" /></div>
+        <div class="mb-3"><label asp-for="Description" class="form-label fw-semibold"></label><textarea asp-for="Description" class="form-control" rows="2"></textarea></div>
+        <button class="btn btn-gradient ripple"><i class="bi bi-save"></i> Lưu</button>
+        <a asp-action="Index" class="btn btn-soft">Huỷ</a>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

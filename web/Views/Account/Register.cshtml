@@ -1,71 +1,117 @@
 @model TechSpecs.ViewModels.RegisterViewModel
-@{ ViewData["Title"] = "Create Account"; }
+@{ ViewData["Title"] = "Tạo tài khoản"; }
 
-<div class="auth-wrapper">
+<div class="auth-wrap">
     <div class="auth-card">
-        <div class="auth-header">
-            <h2>Create Account</h2>
-            <p>Join TechSpecs and start building your PC</p>
+
+        <!-- Left cover panel -->
+        <div class="auth-cover">
+            <div style="position:relative;z-index:1">
+                <div class="mb-3">
+                    <span class="logo d-inline-flex align-items-center justify-content-center"
+                          style="width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:14px;font-size:1.4rem">
+                        <i class="bi bi-person-plus"></i>
+                    </span>
+                </div>
+                <h2 class="fw-bold text-white mb-2">Tham gia TechSpecs!</h2>
+                <p class="mb-4" style="color:rgba(255,255,255,.8)">
+                    Tạo tài khoản miễn phí để trải nghiệm đầy đủ tính năng — từ PC Builder đến theo dõi bảo hành.
+                </p>
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2 d-flex align-items-center gap-2" style="color:rgba(255,255,255,.9)">
+                        <i class="bi bi-cpu"></i> PC Builder với AI tư vấn tương thích
+                    </li>
+                    <li class="mb-2 d-flex align-items-center gap-2" style="color:rgba(255,255,255,.9)">
+                        <i class="bi bi-heart"></i> Danh sách yêu thích & so sánh sản phẩm
+                    </li>
+                    <li class="mb-2 d-flex align-items-center gap-2" style="color:rgba(255,255,255,.9)">
+                        <i class="bi bi-shield-check"></i> Tra cứu bảo hành tức thì
+                    </li>
+                    <li class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,.9)">
+                        <i class="bi bi-gift"></i> Ưu đãi độc quyền thành viên
+                    </li>
+                </ul>
+            </div>
         </div>
 
-        <form asp-action="Register" method="post">
-            <input type="hidden" asp-for="ReturnUrl" />
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <!-- Right form panel -->
+        <div class="auth-form">
+            <h3 class="fw-bold mb-1" style="color:var(--text)">Đăng ký</h3>
+            <p class="mb-4" style="color:var(--text-muted)">
+                Đã có tài khoản? <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl"
+                                     style="color:var(--primary)">Đăng nhập</a>
+            </p>
 
-            <div class="mb-3">
-                <label asp-for="FullName" class="form-label"></label>
-                <input asp-for="FullName" class="form-control" placeholder="Nguyen Van A" />
-                <span asp-validation-for="FullName" class="text-danger small"></span>
+            <form asp-action="Register" method="post">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label fw-semibold small" style="color:var(--text)"></label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--surface-2);border-color:var(--border);color:var(--text-muted)">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
+                    </div>
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-semibold small" style="color:var(--text)"></label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--surface-2);border-color:var(--border);color:var(--text-muted)">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-semibold small" style="color:var(--text)"></label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--surface-2);border-color:var(--border);color:var(--text-muted)">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        <input asp-for="Password" class="form-control" placeholder="Tối thiểu 8 ký tự" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmPassword" class="form-label fw-semibold small" style="color:var(--text)"></label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background:var(--surface-2);border-color:var(--border);color:var(--text-muted)">
+                            <i class="bi bi-key-fill"></i>
+                        </span>
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-gradient w-100 py-2 fw-semibold ripple mb-3">
+                    <i class="bi bi-person-check me-2"></i>Tạo tài khoản
+                </button>
+            </form>
+
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div style="flex:1;height:1px;background:var(--border)"></div>
+                <small style="color:var(--text-muted)">hoặc</small>
+                <div style="flex:1;height:1px;background:var(--border)"></div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" placeholder="you@example.com" />
-                <span asp-validation-for="Email" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" placeholder="Min. 8 characters" />
-                <span asp-validation-for="Password" class="text-danger small"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="ConfirmPassword" class="form-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100 mb-3">Create Account</button>
-        </form>
-
-        <div class="divider"><span>or</span></div>
-
-        <form asp-action="ExternalLogin" method="post">
-            <input type="hidden" name="provider" value="Google" />
-            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-            <button type="submit" class="btn btn-google w-100">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" />
-                Continue with Google
-            </button>
-        </form>
-
-        <p class="text-center mt-3 mb-0">
-            Already have an account? <a asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">Sign in</a>
-        </p>
+            <form asp-action="ExternalLogin" method="post">
+                <input type="hidden" name="provider" value="Google" />
+                <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                <button type="submit" class="btn w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                        style="background:#fff;color:#333;border:1px solid #ddd">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
+                    Đăng ký với Google
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
-@section Styles {
-<style>
-    .auth-wrapper { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
-    .auth-card { width: 100%; max-width: 420px; padding: 2rem; background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; }
-    .auth-header { text-align: center; margin-bottom: 1.5rem; }
-    .auth-header h2 { font-weight: 700; }
-    .auth-header p { color: #aaa; }
-    .divider { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; color: #aaa; }
-    .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid rgba(255,255,255,0.15); }
-    .btn-google { display: flex; align-items: center; justify-content: center; gap: .6rem; background: #fff; color: #333; border: 1px solid #ddd; font-weight: 500; }
-    .btn-google:hover { background: #f5f5f5; }
-</style>
-}
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,43 @@
+@model IEnumerable<WebBanHang_Bai2.Models.ApplicationUser>
+@{ ViewData["Title"] = "Người dùng"; string? kw = ViewBag.Keyword; }
+
+<div class="tx-card">
+    <div class="tx-card-head">
+        <h5><i class="bi bi-people"></i> Người dùng <span class="text-muted small">(@Model.Count())</span></h5>
+    </div>
+    <form method="get" class="p-3 row g-2 align-items-end">
+        <div class="col-md-6"><input name="keyword" class="form-control" value="@kw" placeholder="Tìm theo tên / email / username..." /></div>
+        <div class="col-md-2"><button class="btn btn-gradient w-100"><i class="bi bi-search"></i> Tìm</button></div>
+    </form>
+    <table class="tx-table">
+        <thead><tr><th>#</th><th>Tài khoản</th><th>Email</th><th>Vai trò</th><th>Ngày tạo</th><th class="text-end">Hành động</th></tr></thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td><strong>#@u.Id</strong></td>
+                    <td><div class="d-flex gap-2 align-items-center"><div class="avatar" style="width:32px;height:32px;font-size:.85rem;">@u.FullName.Substring(0,1).ToUpper()</div><div><div class="fw-semibold">@u.FullName</div><small class="text-muted">@u.UserName</small></div></div></td>
+                    <td>@u.Email</td>
+                    <td>@if (u.Role == "Admin") { <span class="badge-pill bg-danger text-white">Admin</span> } else { <span class="badge-pill bg-primary text-white">Customer</span> }</td>
+                    <td>@u.CreatedAt.ToLocalTime().ToString("dd/MM/yy HH:mm")</td>
+                    <td class="text-end">
+                        @if (u.UserName != "admin")
+                        {
+                            <button class="btn btn-soft btn-sm text-danger" data-bs-toggle="modal" data-bs-target="#del-@u.Id"><i class="bi bi-trash"></i></button>
+                            <div class="modal fade" id="del-@u.Id" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="modal-content text-start">
+                                        @Html.AntiForgeryToken()
+                                        <div class="modal-header"><h5 class="modal-title">Xác nhận xoá</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                        <div class="modal-body">Xoá người dùng <strong>@u.UserName</strong>?</div>
+                                        <div class="modal-footer"><button type="button" class="btn btn-soft" data-bs-dismiss="modal">Huỷ</button><button class="btn btn-danger">Xoá</button></div>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

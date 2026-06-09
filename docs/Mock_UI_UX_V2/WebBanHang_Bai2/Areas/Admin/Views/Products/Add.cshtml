@@ -1,0 +1,136 @@
+@model WebBanHang_Bai2.Models.Product
+@{ ViewData["Title"] = "Thêm sản phẩm"; }
+
+<div class="tx-card">
+    <div class="tx-card-head"><h5><i class="bi bi-plus-circle"></i> Thêm sản phẩm</h5>
+        <a asp-action="Index" class="btn btn-soft btn-sm"><i class="bi bi-arrow-left"></i> Quay lại</a>
+    </div>
+    <form asp-action="Add" enctype="multipart/form-data" method="post" class="p-4">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="Name" class="form-label fw-semibold"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="CategoryId" class="form-label fw-semibold">Danh mục</label>
+                <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+                    <option value="">-- Chọn --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Price" class="form-label fw-semibold">Giá bán (đ)</label>
+                <input asp-for="Price" class="form-control" type="number" step="1000" />
+                <span asp-validation-for="Price" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="OldPrice" class="form-label fw-semibold">Giá gốc (đ)</label>
+                <input asp-for="OldPrice" class="form-control" type="number" step="1000" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Stock" class="form-label fw-semibold">Tồn kho</label>
+                <input asp-for="Stock" class="form-control" type="number" />
+            </div>
+            <div class="col-md-12">
+                <label asp-for="ShortDescription" class="form-label fw-semibold"></label>
+                <input asp-for="ShortDescription" class="form-control" placeholder="Câu mô tả ngắn hấp dẫn..." />
+            </div>
+            <div class="col-md-12">
+                <label asp-for="Description" class="form-label fw-semibold"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="col-md-6 d-flex gap-3 align-items-center">
+                <div class="form-check form-switch">
+                    <input asp-for="IsHot" class="form-check-input" /><label asp-for="IsHot" class="form-check-label">HOT</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input asp-for="IsNew" class="form-check-input" /><label asp-for="IsNew" class="form-check-label">NEW</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label fw-semibold"><i class="bi bi-image"></i> Ảnh đại diện</label>
+                <input type="file" name="mainImage" id="mainImage" class="form-control" accept="image/*" />
+                <img id="mainPreview" class="img-thumbnail mt-2 d-none" style="max-height:180px;" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold"><i class="bi bi-images"></i> Bộ sưu tập ảnh (drag & drop)</label>
+                <div class="dropzone" id="dropzone">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <p class="mb-0">Kéo thả ảnh vào đây hoặc <strong>bấm để chọn</strong></p>
+                    <small class="text-muted">PNG, JPG, SVG · nhiều ảnh</small>
+                    <input type="file" name="newImages" id="newImages" multiple accept="image/*" class="d-none" />
+                </div>
+                <div class="gallery-grid" id="extraPreview"></div>
+            </div>
+        </div>
+        <hr />
+        <button type="submit" class="btn btn-gradient ripple"><i class="bi bi-check-circle"></i> Thêm sản phẩm</button>
+        <a asp-action="Index" class="btn btn-soft">Huỷ</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const main = document.getElementById('mainImage'), mp = document.getElementById('mainPreview');
+        main.addEventListener('change', e => {
+            const f = e.target.files[0];
+            if (!f) return;
+            mp.src = URL.createObjectURL(f); mp.classList.remove('d-none');
+        });
+
+        const dz = document.getElementById('dropzone'), input = document.getElementById('newImages'), preview = document.getElementById('extraPreview');
+        dz.addEventListener('click', () => input.click());
+        ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('dragover'); }));
+        ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('dragover'); }));
+        
+        let accumulatedFiles = [];
+
+        dz.addEventListener('drop', e => {
+            if (e.dataTransfer.files.length) {
+                accumulatedFiles.push(...Array.from(e.dataTransfer.files));
+                syncInputFiles();
+                renderExtras();
+            }
+        });
+
+        input.addEventListener('change', () => {
+            if (input.files.length) {
+                accumulatedFiles.push(...Array.from(input.files));
+                syncInputFiles();
+                renderExtras();
+            }
+        });
+
+        function syncInputFiles() {
+            const dt = new DataTransfer();
+            accumulatedFiles.forEach(f => dt.items.add(f));
+            input.files = dt.files;
+        }
+
+        function renderExtras() {
+            preview.innerHTML = '';
+            accumulatedFiles.forEach((f, idx) => {
+                const d = document.createElement('div'); d.className = 'gallery-item';
+                const img = document.createElement('img'); img.src = URL.createObjectURL(f);
+                
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'remove-btn';
+                btn.innerHTML = '&times;';
+                btn.addEventListener('click', () => {
+                    accumulatedFiles.splice(idx, 1);
+                    syncInputFiles();
+                    renderExtras();
+                });
+
+                d.appendChild(img);
+                d.appendChild(btn);
+                preview.appendChild(d);
+            });
+        }
+    </script>
+}

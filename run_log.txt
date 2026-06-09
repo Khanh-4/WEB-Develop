@@ -1,0 +1,33 @@
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (133ms) [Parameters=[@__normalizedName_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."ConcurrencyStamp", a."Name", a."NormalizedName"
+      FROM "AspNetRoles" AS a
+      WHERE a."NormalizedName" = @__normalizedName_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (99ms) [Parameters=[@__normalizedName_0='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."ConcurrencyStamp", a."Name", a."NormalizedName"
+      FROM "AspNetRoles" AS a
+      WHERE a."NormalizedName" = @__normalizedName_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (101ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT max(c."ApproximatePerformance")
+      FROM cpu AS c
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (102ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT max(v."ApproximatePerformance")
+      FROM video_card AS v
+MAX CPU PERF = 999.99, MAX GPU PERF = 999.99
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (122ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT m."Id", m."Chipset", m."FormFactor", m."ImageUrl", m."Manufacturer", m."MaxMemoryCapacity", m."MemoryCompatibility", m."MemorySlots", m."Name", m."Price", m."SocketCompatibility", m."Stock", m."StockStatusOverride", m."VideoUrl"
+      FROM motherboard AS m
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (172ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT m."Id", m."Capacity", m."ImageUrl", m."Manufacturer", m."Modules", m."Name", m."Price", m."Profile", m."Speed", m."Stock", m."StockStatusOverride", m."Type", m."VideoUrl"
+      FROM memory AS m
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (198ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT s."Id", s."Capacity", s."ImageUrl", s."Interface", s."Manufacturer", s."Name", s."Price", s."ReadSpeed", s."Stock", s."StockStatusOverride", s."Type", s."VideoUrl", s."WriteSpeed"
+      FROM storage AS s

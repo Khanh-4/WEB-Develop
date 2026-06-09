@@ -81,42 +81,43 @@
 
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb" style="--bs-breadcrumb-divider-color:rgba(255,255,255,0.4)">
+        <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="/Products" class="text-decoration-none" style="color:rgba(255,255,255,0.6)">Components</a>
+                <a href="/Products" class="text-decoration-none" style="color:var(--text-muted)">Sản phẩm</a>
             </li>
             <li class="breadcrumb-item">
-                <a href="/Products?category=@Model.Category" class="text-decoration-none" style="color:rgba(255,255,255,0.6)">@catLabel</a>
+                <a href="/Products?category=@Model.Category" class="text-decoration-none" style="color:var(--text-muted)">@catLabel</a>
             </li>
-            <li class="breadcrumb-item active text-white" aria-current="page"
-                style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            <li class="breadcrumb-item active" aria-current="page"
+                style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)">
                 @Model.Name
             </li>
         </ol>
     </nav>
 
+    <div class="pd-card mb-4">
     <div class="row g-4">
 
         <!-- Image panel -->
         <div class="col-lg-5">
-            <div class="glass p-3 rounded-4 d-flex align-items-center justify-content-center"
-                 style="min-height:380px">
-                @if (Model.ImageUrl != null)
-                {
-                    <img src="@Model.ImageUrl" alt="@Model.Name"
-                         class="img-fluid rounded-3"
-                         style="max-height:360px;object-fit:contain" />
-                }
-                else
-                {
-                    <i class="bi bi-cpu text-muted-white" style="font-size:6rem;opacity:.35"></i>
-                }
+            <div class="pd-gallery">
+                <div class="main" id="pdMain" style="min-height:320px">
+                    @if (Model.ImageUrl != null)
+                    {
+                        <img id="pdMainImg" src="@Model.ImageUrl" alt="@Model.Name"
+                             style="max-height:340px;max-width:100%;object-fit:contain;transition:transform .3s" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-cpu" style="font-size:6rem;color:var(--text-muted);opacity:.35"></i>
+                    }
+                </div>
             </div>
         </div>
 
         <!-- Info panel -->
         <div class="col-lg-7">
-            <div class="glass p-4 rounded-4 h-100 d-flex flex-column">
+            <div class="d-flex flex-column h-100">
 
                 <!-- Category + stock -->
                 <div class="d-flex align-items-center gap-2 mb-3">
@@ -141,8 +142,8 @@
                 </div>
 
                 <!-- Name + manufacturer -->
-                <p class="mb-1" style="color:rgba(255,255,255,0.5);font-size:.85rem">@Model.Manufacturer</p>
-                <h1 class="text-white fw-bold mb-4" style="font-size:1.4rem;line-height:1.35">@Model.Name</h1>
+                <p class="mb-1" style="color:var(--text-muted);font-size:.85rem">@Model.Manufacturer</p>
+                <h1 class="fw-bold mb-4" style="font-size:1.4rem;line-height:1.35;color:var(--text)">@Model.Name</h1>
 
                 <!-- Price -->
                 <div class="mb-4">
@@ -182,13 +183,13 @@
                             data-pname="@Model.Name" data-pprice="@Model.Price"
                             data-pimg="@Model.ImageUrl"
                             onclick="addToCartFromData(this)">
-                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ
                     </button>
-                    <button class="btn glass text-white px-4 py-2 rounded-3 fw-semibold"
+                    <button class="btn glass px-4 py-2 rounded-3 fw-semibold" style="color:var(--text)"
                             onclick="goBuilder('@Model.Category',@Model.Id)">
-                        <i class="bi bi-tools me-2"></i>Add to Builder
+                        <i class="bi bi-tools me-2"></i>PC Builder
                     </button>
-                    <button class="btn glass text-white px-4 py-2 rounded-3 fw-semibold"
+                    <button class="btn glass px-4 py-2 rounded-3 fw-semibold" style="color:var(--text)"
                             onclick="showInstallment(@Model.Price, '@Html.Raw(Model.Name.Replace("'","\\'"  ))')">
                         <i class="bi bi-calculator me-2"></i>Trả góp
                     </button>
@@ -207,17 +208,16 @@
 
                 <!-- Specs table -->
                 <div class="mt-auto">
-                    <h6 class="text-white mb-3 fw-semibold" style="font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;opacity:.7">
-                        Specifications
+                    <h6 class="mb-3 fw-semibold" style="font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)">
+                        Thông số kỹ thuật
                     </h6>
-                    <div class="rounded-3 overflow-hidden" style="border:1px solid rgba(255,255,255,0.08)">
+                    <div class="rounded-3 overflow-hidden" style="border:1px solid var(--border)">
                         @foreach (var (key, val) in Model.Specs)
                         {
                             var tip = specTips.TryGetValue(key, out var t) ? t : null;
-                            <div class="d-flex" style="border-bottom:1px solid rgba(255,255,255,0.06)">
+                            <div class="d-flex" style="border-bottom:1px solid var(--border)">
                                 <div class="px-3 py-2 flex-shrink-0 d-flex align-items-center gap-1"
-                                     style="width:170px;background:rgba(255,255,255,0.04);
-                                            color:rgba(255,255,255,0.55);font-size:.82rem">
+                                     style="width:170px;background:var(--surface-2);color:var(--text-muted);font-size:.82rem">
                                     @key
                                     @if (tip != null)
                                     {
@@ -227,7 +227,7 @@
                                         </span>
                                     }
                                 </div>
-                                <div class="px-3 py-2 text-white flex-grow-1" style="font-size:.85rem;word-break:break-word">
+                                <div class="px-3 py-2 flex-grow-1" style="font-size:.85rem;word-break:break-word;color:var(--text)">
                                     @val
                                 </div>
                             </div>
@@ -238,6 +238,7 @@
             </div>
         </div>
     </div>
+    </div><!-- /pd-card -->
 
     <!-- Cross-sell: related products -->
     <div id="crossSellSection" class="mt-4" style="display:none">
@@ -466,24 +467,29 @@ async function toggleWishlist(btn) {
         const grid = document.getElementById('crossSellGrid');
         grid.innerHTML = items.map(item => `
             <div class="col-sm-6 col-lg-3">
-                <a href="/Products/Detail/${item.category}/${item.id}"
-                   class="component-card p-0 h-100 overflow-hidden d-flex flex-column text-decoration-none">
-                    <div style="height:120px;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center">
-                        ${item.imageUrl
-                            ? `<img src="${item.imageUrl}" alt="" style="max-height:110px;max-width:100%;object-fit:contain">`
-                            : `<i class="bi bi-cpu" style="font-size:2.5rem;color:rgba(255,255,255,.2)"></i>`}
+                <div class="product-card">
+                    <a href="/Products/Detail/${item.category}/${item.id}" class="text-decoration-none">
+                        <div class="pc-media">
+                            ${item.imageUrl
+                                ? `<img src="${item.imageUrl}" alt="" style="width:100%;height:100%;object-fit:contain">`
+                                : `<i class="bi bi-cpu" style="font-size:2.5rem;color:var(--text-muted)"></i>`}
+                        </div>
+                    </a>
+                    <div class="pc-body">
+                        <div class="pc-cat">${catLabels[item.category] || item.category.toUpperCase()}</div>
+                        <div class="pc-name">${item.name}</div>
+                        <div class="pc-price">
+                            <span class="now">${item.price > 0 ? item.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'}</span>
+                        </div>
+                        ${item.hint ? `<small style="color:var(--text-muted)">${item.hint}</small>` : ''}
                     </div>
-                    <div class="p-3 d-flex flex-column flex-grow-1">
-                        <span class="badge mb-2" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.68rem;width:fit-content">
-                            ${catLabels[item.category] || item.category.toUpperCase()}
-                        </span>
-                        <p class="text-white mb-1 flex-grow-1 lh-sm" style="font-size:.8rem;opacity:.9">${item.name}</p>
-                        <p class="fw-bold mb-0" style="font-size:.9rem;color:#a855f7">
-                            ${item.price > 0 ? item.price.toLocaleString('vi-VN') + 'đ' : 'Liên hệ'}
-                        </p>
-                        ${item.hint ? `<p class="mb-0 mt-1" style="font-size:.68rem;color:rgba(255,255,255,.4)">${item.hint}</p>` : ''}
+                    <div class="px-3 pb-3">
+                        <button class="pc-btn w-100"
+                            onclick="addToCart(${item.id},'${item.category}','${item.name.replace(/'/g,"\\'")}',${item.price},${item.imageUrl?`'${item.imageUrl}'`:'null'},this)">
+                            <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                        </button>
                     </div>
-                </a>
+                </div>
             </div>
         `).join('');
         document.getElementById('crossSellSection').style.display = '';

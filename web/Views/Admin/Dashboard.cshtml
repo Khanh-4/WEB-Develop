@@ -1,5 +1,5 @@
 @model TechSpecs.ViewModels.AdminDashboardViewModel
-@{ ViewData["Title"] = "Admin Dashboard"; }
+@{ ViewData["Title"] = "Dashboard"; }
 
 @{
     string StatusLabel(TechSpecs.Models.OrderStatus s) => s switch {
@@ -10,165 +10,165 @@
         TechSpecs.Models.OrderStatus.Cancelled => "Đã huỷ",
         _ => s.ToString()
     };
-    string StatusClass(TechSpecs.Models.OrderStatus s) => s switch {
-        TechSpecs.Models.OrderStatus.Pending   => "text-warning",
-        TechSpecs.Models.OrderStatus.Confirmed => "text-info",
-        TechSpecs.Models.OrderStatus.Shipped   => "text-primary",
-        TechSpecs.Models.OrderStatus.Delivered => "text-success",
-        TechSpecs.Models.OrderStatus.Cancelled => "text-danger",
-        _ => "text-white"
+    string StatusPill(TechSpecs.Models.OrderStatus s) => s switch {
+        TechSpecs.Models.OrderStatus.Pending   => "pending",
+        TechSpecs.Models.OrderStatus.Confirmed => "confirmed",
+        TechSpecs.Models.OrderStatus.Shipped   => "shipping",
+        TechSpecs.Models.OrderStatus.Delivered => "completed",
+        TechSpecs.Models.OrderStatus.Cancelled => "cancelled",
+        _ => ""
     };
 }
 
-<div class="container-xl py-4 px-3">
-
-    <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h1 class="text-white fw-bold mb-0"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h1>
-        <div class="d-flex gap-2">
-            <a href="/Admin/Products" class="btn glass text-white px-3">
-                <i class="bi bi-box-seam me-1"></i>Products
-            </a>
-            <a href="/Admin/Orders" class="btn glass text-white px-3">
-                <i class="bi bi-bag-check me-1"></i>Orders
-            </a>
-            <a href="/Admin/Warranties" class="btn glass text-white px-3">
-                <i class="bi bi-shield-check me-1"></i>Bảo hành
-            </a>
-            <a href="/Admin/FlashSales" class="btn glass text-white px-3">
-                <i class="bi bi-lightning-charge me-1" style="color:#f59e0b"></i>Flash Sales
-            </a>
-            <a href="/Admin/Coupons" class="btn glass text-white px-3">
-                <i class="bi bi-ticket-perforated me-1" style="color:#a855f7"></i>Coupons
-            </a>
-            <a href="/Admin/Bundles" class="btn glass text-white px-3">
-                <i class="bi bi-boxes me-1" style="color:#4ade80"></i>Bundles
-            </a>
-            <a href="/Admin/Benchmarks" class="btn glass text-white px-3">
-                <i class="bi bi-bar-chart-fill me-1" style="color:#a855f7"></i>Benchmarks
-            </a>
-            <a href="/Admin/Users" class="btn glass text-white px-3">
-                <i class="bi bi-people me-1" style="color:#60a5fa"></i>Users
-            </a>
-            <a href="/Admin/QuoteRequests" class="btn glass text-white px-3">
-                <i class="bi bi-envelope-paper me-1" style="color:#fb923c"></i>Báo giá
-            </a>
-            <a href="/Admin/Scraper" class="btn glass text-white px-3">
-                <i class="bi bi-arrow-repeat me-1"></i>Scraper
-            </a>
-        </div>
-    </div>
+<div class="p-4">
 
     <!-- Stat cards -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="glass p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:rgba(168,85,247,.25)">
-                        <i class="bi bi-people-fill text-purple fs-5"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted-white small">Người dùng</div>
-                        <div class="text-white fw-bold fs-4">@Model.TotalUsers</div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-meta">
+                    <div class="label">Người dùng</div>
+                    <div class="value">@Model.TotalUsers</div>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="glass p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:rgba(234,179,8,.2)">
-                        <i class="bi bi-bag-check-fill fs-5" style="color:#eab308"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted-white small">Đơn hàng</div>
-                        <div class="text-white fw-bold fs-4">@Model.TotalOrders</div>
-                        @if (Model.PendingOrders > 0)
-                        {
-                            <div class="text-warning" style="font-size:.75rem">@Model.PendingOrders chờ xác nhận</div>
-                        }
-                    </div>
+            <div class="stat-card warning">
+                <div class="stat-icon"><i class="bi bi-bag-check-fill"></i></div>
+                <div class="stat-meta">
+                    <div class="label">Đơn hàng</div>
+                    <div class="value">@Model.TotalOrders</div>
+                    @if (Model.PendingOrders > 0)
+                    {
+                        <div class="trend down">@Model.PendingOrders chờ xác nhận</div>
+                    }
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="glass p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:rgba(34,197,94,.2)">
-                        <i class="bi bi-currency-dollar fs-5 text-success"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted-white small">Doanh thu</div>
-                        <div class="text-white fw-bold fs-5">@Model.TotalRevenue.ToString("N0")đ</div>
-                    </div>
+            <div class="stat-card success">
+                <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+                <div class="stat-meta">
+                    <div class="label">Doanh thu</div>
+                    <div class="value" style="font-size:1.2rem">@(Model.TotalRevenue > 0 ? Model.TotalRevenue.ToString("N0") + "đ" : "—")</div>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-xl-3">
-            <div class="glass p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 d-flex align-items-center justify-content-center"
-                         style="width:48px;height:48px;background:rgba(59,130,246,.2)">
-                        <i class="bi bi-cpu-fill fs-5 text-primary"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted-white small">Sản phẩm</div>
-                        <div class="text-white fw-bold fs-4">@Model.TotalProducts</div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-cpu-fill"></i></div>
+                <div class="stat-meta">
+                    <div class="label">Sản phẩm</div>
+                    <div class="value">@Model.TotalProducts</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Quick nav -->
+    <div class="row g-3 mb-4">
+        @foreach (var item in new[] {
+            new { Icon="bi-box-seam",          Label="Sản phẩm",   Url="/Admin/Products",      Color="#8b5cf6" },
+            new { Icon="bi-receipt",            Label="Đơn hàng",   Url="/Admin/Orders",         Color="#f59e0b" },
+            new { Icon="bi-lightning-charge",   Label="Flash Sale", Url="/Admin/FlashSales",     Color="#ef4444" },
+            new { Icon="bi-ticket-perforated",  Label="Coupon",     Url="/Admin/Coupons",         Color="#a855f7" },
+            new { Icon="bi-boxes",              Label="Bundle",     Url="/Admin/Bundles",         Color="#10b981" },
+            new { Icon="bi-bar-chart-fill",     Label="Benchmark",  Url="/Admin/Benchmarks",     Color="#6366f1" },
+            new { Icon="bi-envelope-paper",     Label="Báo giá",    Url="/Admin/QuoteRequests",  Color="#fb923c" },
+            new { Icon="bi-shield-check",       Label="Bảo hành",   Url="/Admin/Warranties",     Color="#22c55e" },
+        })
+        {
+            <div class="col-6 col-md-3 col-xl-2">
+                <a href="@item.Url" class="text-decoration-none">
+                    <div class="stat-card" style="flex-direction:column;align-items:flex-start;gap:.6rem;padding:1.2rem">
+                        <i class="bi @item.Icon" style="font-size:1.4rem;color:@item.Color"></i>
+                        <div style="color:var(--text);font-size:.85rem;font-weight:600">@item.Label</div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
     <div class="row g-4">
+
         <!-- Recent orders -->
         <div class="col-lg-7">
-            <div class="glass p-4 h-100">
-                <div class="d-flex justify-content-between mb-3">
-                    <h6 class="text-white fw-semibold mb-0">Đơn hàng gần đây</h6>
-                    <a href="/Admin/Orders" class="text-muted-white small">Xem tất cả →</a>
+            <div class="tx-card">
+                <div class="tx-card-head">
+                    <h5><i class="bi bi-receipt me-2" style="color:var(--primary)"></i>Đơn hàng gần đây</h5>
+                    <a href="/Admin/Orders" class="btn btn-sm glass px-3" style="color:var(--text);font-size:.8rem">
+                        Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
                 @if (!Model.RecentOrders.Any())
                 {
-                    <p class="text-muted-white small">Chưa có đơn hàng nào.</p>
+                    <p class="p-4 mb-0" style="color:var(--text-muted)">Chưa có đơn hàng nào.</p>
                 }
                 else
                 {
-                    @foreach (var o in Model.RecentOrders)
-                    {
-                        <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom border-white border-opacity-10">
-                            <div class="flex-grow-1">
-                                <span class="text-white fw-semibold">#@o.Id</span>
-                                <span class="@StatusClass(o.Status) ms-2 small">● @StatusLabel(o.Status)</span>
-                                <div class="text-muted-white" style="font-size:.75rem">
-                                    @o.ItemCount sản phẩm · @o.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")
-                                </div>
-                            </div>
-                            <span class="text-white fw-semibold">@o.TotalAmount.ToString("N0")đ</span>
-                        </div>
-                    }
+                    <table class="tx-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Sản phẩm</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày</th>
+                                <th class="text-end">Tổng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">#@o.Id</td>
+                                    <td style="color:var(--text-muted)">@o.ItemCount sản phẩm</td>
+                                    <td>
+                                        <span class="status-pill @StatusPill(o.Status)">@StatusLabel(o.Status)</span>
+                                    </td>
+                                    <td style="color:var(--text-muted);font-size:.82rem">
+                                        @o.CreatedAt.ToLocalTime().ToString("dd/MM HH:mm")
+                                    </td>
+                                    <td class="text-end fw-semibold">@o.TotalAmount.ToString("N0")đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 }
             </div>
         </div>
 
         <!-- Products by category -->
         <div class="col-lg-5">
-            <div class="glass p-4 h-100">
-                <div class="d-flex justify-content-between mb-3">
-                    <h6 class="text-white fw-semibold mb-0">Sản phẩm theo danh mục</h6>
-                    <a href="/Admin/Products" class="text-muted-white small">Quản lý →</a>
+            <div class="tx-card">
+                <div class="tx-card-head">
+                    <h5><i class="bi bi-cpu me-2" style="color:var(--accent)"></i>Sản phẩm theo danh mục</h5>
+                    <a href="/Admin/Products" class="btn btn-sm glass px-3" style="color:var(--text);font-size:.8rem">
+                        Quản lý <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
-                @foreach (var (cat, count) in Model.ProductCountByCategory)
-                {
-                    var catKey = cat switch { "CPU" => "cpu", "Motherboard" => "motherboard", "RAM" => "memory", "GPU" => "gpu", "PSU" => "psu", "Case" => "case", "Storage" => "storage", "Cooler" => "cooler", _ => cat.ToLower() };
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <a href="/Admin/Products?category=@catKey" class="text-muted-white small text-decoration-none">@cat</a>
-                        <span class="badge glass-sm text-white">@count</span>
-                    </div>
-                }
+                <div class="p-3">
+                    @foreach (var (cat, count) in Model.ProductCountByCategory)
+                    {
+                        var catKey = cat switch {
+                            "CPU" => "cpu", "Motherboard" => "motherboard", "RAM" => "memory",
+                            "GPU" => "gpu", "PSU" => "psu", "Case" => "case",
+                            "Storage" => "storage", "Cooler" => "cooler", _ => cat.ToLower()
+                        };
+                        var maxCount = Model.ProductCountByCategory.Max(x => x.Value);
+                        var pct = maxCount > 0 ? (int)(count * 100.0 / maxCount) : 0;
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <a href="/Admin/Products?category=@catKey" class="text-decoration-none"
+                                   style="font-size:.85rem;font-weight:500;color:var(--text)">@cat</a>
+                                <span style="font-size:.82rem;color:var(--text-muted)">@count</span>
+                            </div>
+                            <div style="height:4px;background:var(--surface-2);border-radius:4px">
+                                <div style="width:@(pct)%;height:100%;background:var(--gradient-primary);border-radius:4px;transition:width .6s ease"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>

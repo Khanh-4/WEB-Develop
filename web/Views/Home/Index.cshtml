@@ -1,131 +1,232 @@
 @model TechSpecs.ViewModels.HomeViewModel
 @{ ViewData["Title"] = "Trang chủ"; }
 
-<!-- ── 1. Above the Fold: Asymmetrical Hero ─────────────────────────────────── -->
-<section class="container-xl pt-4 pb-4">
-    <div class="row g-3">
+<!-- ── 1. HERO CAROUSEL ───────────────────────────────────────────────────────── -->
+<div class="container-xl">
+    <section class="tx-hero">
+        <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
 
-        <!-- Left: Vertical Category Menu (25%) -->
-        <div class="col-lg-3 d-none d-lg-block">
-            @await Component.InvokeAsync("CategoryMenu", new { renderAs = "Vertical" })
-        </div>
-
-        <!-- Right: Hero Banner Carousel (75%) -->
-        <div class="col-lg-9 col-md-12">
-            <div id="heroCarousel" class="carousel slide hero-slider glass h-100" data-bs-ride="carousel">
-                <div class="carousel-indicators mb-2">
-                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
-                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
-                </div>
-                <div class="carousel-inner h-100 rounded-4">
-                    <div class="carousel-item active h-100">
-                        <img src="https://placehold.co/1100x420/1e1b4b/a855f7?text=GPU+RTX+5090+Gia+Soc+-+Sale+15%"
-                             class="d-block w-100 h-100" alt="GPU Sale"
-                             style="object-fit:cover;border-radius:1rem"
-                             loading="eager" fetchpriority="high">
-                    </div>
-                    <div class="carousel-item h-100">
-                        <img src="https://placehold.co/1100x420/0f172a/3b82f6?text=Intel+Core+Ultra+2+Series+-+Moi+Ra+Mat"
-                             class="d-block w-100 h-100" alt="Intel Core Ultra"
-                             style="object-fit:cover;border-radius:1rem"
-                             loading="lazy">
-                    </div>
-                    <div class="carousel-item h-100">
-                        <img src="https://placehold.co/1100x420/1e1b4b/ef4444?text=Combo+Build+PC+Gaming+-+Tiet+Kiem+20%"
-                             class="d-block w-100 h-100" alt="Combo PC"
-                             style="object-fit:cover;border-radius:1rem"
-                             loading="lazy">
+                <div class="carousel-item active">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 fade-up">
+                            <span class="badge badge-neon mb-3"><i class="bi bi-stars"></i> PC BUILDER MỚI</span>
+                            <h1>Xây dựng PC Gaming<br/>theo <span class="text-gradient">ý tưởng</span> của bạn</h1>
+                            <p class="lead">Chọn linh kiện thông minh với AI tư vấn tương thích — không lo xung đột phần cứng.</p>
+                            <div class="d-flex gap-3 mt-4 flex-wrap">
+                                <a href="/Builder" class="btn btn-gradient btn-lg fw-semibold ripple">
+                                    <i class="bi bi-tools"></i> Build PC ngay
+                                </a>
+                                <a href="/Products" class="btn btn-soft btn-lg fw-semibold">
+                                    Xem sản phẩm
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center hero-art d-none d-lg-block">
+                            <i class="bi bi-cpu-fill"></i>
+                        </div>
                     </div>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
+
+                <div class="carousel-item">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 fade-up">
+                            <span class="badge badge-neon-pink mb-3"><i class="bi bi-fire"></i> HOT DEAL</span>
+                            <h1>GPU RTX 5090 — Hiệu năng<br/><span class="text-gradient">đỉnh cao 2025</span></h1>
+                            <p class="lead">Card đồ họa thế hệ Blackwell, VRAM 32GB GDDR7 — có hàng tại TechSpecs.</p>
+                            <div class="d-flex gap-3 mt-4 flex-wrap">
+                                <a href="/Products?category=gpu&search=RTX+5090" class="btn btn-gradient btn-lg fw-semibold ripple">
+                                    <i class="bi bi-gpu-card"></i> Mua ngay
+                                </a>
+                                <a href="/Products?category=gpu" class="btn btn-soft btn-lg fw-semibold">
+                                    Xem tất cả GPU
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center hero-art d-none d-lg-block">
+                            <i class="bi bi-gpu-card"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 fade-up">
+                            <span class="badge badge-neon mb-3"><i class="bi bi-truck"></i> FREESHIP TOÀN QUỐC</span>
+                            <h1>Intel Core Ultra 9 285K —<br/>Mới <span class="text-gradient">ra mắt</span></h1>
+                            <p class="lead">Vi xử lý Arrow Lake thế hệ mới, hiệu suất AI 48 TOPS, TDP 125W tối ưu.</p>
+                            <div class="d-flex gap-3 mt-4 flex-wrap">
+                                <a href="/Products?category=cpu&search=Core+Ultra" class="btn btn-gradient btn-lg fw-semibold ripple">
+                                    <i class="bi bi-cpu"></i> Xem CPU mới
+                                </a>
+                                <a href="/Builder" class="btn btn-soft btn-lg fw-semibold">
+                                    Thêm vào Build
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 text-center hero-art d-none d-lg-block">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 
-<!-- ── 2. Core CTA & Quick Quote ────────────────────────────────────────────── -->
-<section class="container-xl pb-5">
+<!-- ── 2. BENEFIT STRIP ──────────────────────────────────────────────────────── -->
+<div class="container-xl mb-5">
+    <div class="row g-3">
+        @foreach (var b in new[] {
+            new { Icon = "bi-truck",           Title = "Freeship 500K+",     Sub = "Giao hàng toàn quốc" },
+            new { Icon = "bi-shield-check",    Title = "Bảo hành 12 tháng", Sub = "Chính hãng nhà phân phối" },
+            new { Icon = "bi-arrow-repeat",    Title = "Đổi trả 7 ngày",    Sub = "Miễn phí, không cần lý do" },
+            new { Icon = "bi-headset",         Title = "Hỗ trợ 24/7",       Sub = "Hotline 1900 1234" },
+        })
+        {
+            <div class="col-6 col-lg-3">
+                <div class="cat-card text-start d-flex align-items-center gap-3">
+                    <div class="cat-icon mb-0" style="width:48px;height:48px;font-size:1.2rem;flex-shrink:0">
+                        <i class="bi @b.Icon"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold" style="color:var(--text)">@b.Title</div>
+                        <small style="color:var(--text-muted)">@b.Sub</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── 3. QUICK ACTIONS + QUOTE ──────────────────────────────────────────────── -->
+<div class="container-xl mb-5">
     <div class="row g-3">
         <div class="col-lg-8">
             <div class="glass p-3 rounded-4 d-flex align-items-center justify-content-between flex-wrap gap-2 h-100">
-                <a href="/Builder" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3" style="background:rgba(168,85,247,0.15);flex:1;min-width:120px">
+                <a href="/Builder" class="d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 flex-fill"
+                   style="background:rgba(139,92,246,.15);min-width:110px;transition:all .2s"
+                   onmouseover="this.style.background='rgba(139,92,246,.25)'"
+                   onmouseout="this.style.background='rgba(139,92,246,.15)'">
                     <i class="bi bi-tools mb-2" style="font-size:2rem;color:#c084fc"></i>
-                    <span class="text-white fw-bold">Build PC</span>
+                    <span class="fw-bold" style="color:var(--text);font-size:.85rem">Build PC</span>
                 </a>
-                <a href="#flashsale" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm" style="flex:1;min-width:120px">
+                <a href="#flashsale" class="d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm flex-fill"
+                   style="min-width:110px">
                     <i class="bi bi-lightning-charge mb-2" style="font-size:1.8rem;color:#facc15"></i>
-                    <span class="text-white fw-semibold">Flash Sale</span>
+                    <span class="fw-semibold" style="color:var(--text);font-size:.85rem">Flash Sale</span>
                 </a>
-                <a href="/Products?category=prebuilt" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm" style="flex:1;min-width:120px">
+                <a href="/Products?category=prebuilt" class="d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm flex-fill"
+                   style="min-width:110px">
                     <i class="bi bi-pc-display mb-2" style="font-size:1.8rem;color:#38bdf8"></i>
-                    <span class="text-white fw-semibold">PC Dựng sẵn</span>
+                    <span class="fw-semibold" style="color:var(--text);font-size:.85rem">PC Dựng sẵn</span>
                 </a>
-                <a href="/Products" class="quick-link-btn d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm" style="flex:1;min-width:120px">
+                <a href="/Warranties/Check" class="d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm flex-fill"
+                   style="min-width:110px">
+                    <i class="bi bi-shield-check mb-2" style="font-size:1.8rem;color:#34d399"></i>
+                    <span class="fw-semibold" style="color:var(--text);font-size:.85rem">Tra bảo hành</span>
+                </a>
+                <a href="/Products" class="d-flex flex-column align-items-center text-decoration-none p-3 rounded-3 glass-sm flex-fill"
+                   style="min-width:110px">
                     <i class="bi bi-grid mb-2" style="font-size:1.8rem;color:#f43f5e"></i>
-                    <span class="text-white fw-semibold">Tất cả SP</span>
+                    <span class="fw-semibold" style="color:var(--text);font-size:.85rem">Tất cả SP</span>
                 </a>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="glass p-3 rounded-4 h-100">
-                <h6 class="text-white fw-bold mb-3"><i class="bi bi-envelope-paper me-2 text-primary"></i>Nhận báo giá nhanh</h6>
+            <div class="glass p-4 rounded-4 h-100">
+                <h6 class="fw-bold mb-3" style="color:var(--text)">
+                    <i class="bi bi-envelope-paper me-2" style="color:var(--primary)"></i>Nhận báo giá nhanh
+                </h6>
                 <form asp-controller="Home" asp-action="QuickQuote" method="post">
                     <input type="text" name="Website" style="display:none" autocomplete="off" tabindex="-1" />
                     <div class="mb-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="Số điện thoại / Email" required>
+                        <input type="text" name="Contact" class="form-control form-control-sm"
+                               placeholder="Số điện thoại / Email" required>
                     </div>
-                    <div class="mb-2">
-                        <input type="text" class="form-control form-control-sm" placeholder="Ngân sách (VD: 20 triệu)">
+                    <div class="mb-3">
+                        <input type="text" name="Budget" class="form-control form-control-sm"
+                               placeholder="Ngân sách (VD: 20 triệu)">
                     </div>
-                    <button type="submit" class="btn btn-gradient btn-sm w-100 fw-bold">Gửi yêu cầu</button>
+                    <button type="submit" class="btn btn-gradient btn-sm w-100 fw-bold">
+                        <i class="bi bi-send me-1"></i>Gửi yêu cầu
+                    </button>
                 </form>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- ── 3. Recently Viewed (localStorage + API) ──────────────────────────────── -->
-<section class="container-xl pb-5" id="recentlyViewedSection" style="display:none">
-    <div class="section-header">
-        <h4 class="section-title">
-            <i class="bi bi-clock-history" style="color:#60a5fa;font-size:1.1rem"></i>
-            Sản phẩm bạn vừa xem
-        </h4>
+<!-- ── 4. CATEGORIES GRID ─────────────────────────────────────────────────────── -->
+<div class="container-xl mb-5">
+    <div class="section-title">
+        <h2><i class="bi bi-grid"></i> Mua sắm theo danh mục</h2>
+    </div>
+    <div class="row g-3">
+        @foreach (var cat in new[] {
+            new { Slug = "cpu",         Icon = "bi-cpu",              Name = "CPU / Bộ xử lý" },
+            new { Slug = "gpu",         Icon = "bi-gpu-card",         Name = "VGA / Card đồ họa" },
+            new { Slug = "memory",      Icon = "bi-memory",           Name = "RAM" },
+            new { Slug = "motherboard", Icon = "bi-motherboard",      Name = "Mainboard" },
+            new { Slug = "storage",     Icon = "bi-device-hdd",       Name = "Ổ cứng / SSD" },
+            new { Slug = "psu",         Icon = "bi-lightning-charge", Name = "Nguồn máy tính" },
+            new { Slug = "case",        Icon = "bi-box-seam",         Name = "Vỏ case" },
+            new { Slug = "cooler",      Icon = "bi-wind",             Name = "Tản nhiệt" },
+        })
+        {
+            <div class="col-6 col-md-3 col-lg-3">
+                <a href="/Products?category=@cat.Slug" class="text-decoration-none">
+                    <div class="cat-card">
+                        <div class="cat-icon"><i class="bi @cat.Icon"></i></div>
+                        <div class="fw-semibold" style="color:var(--text)">@cat.Name</div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── 5. RECENTLY VIEWED ──────────────────────────────────────────────────────── -->
+<div class="container-xl mb-5" id="recentlyViewedSection" style="display:none">
+    <div class="section-title">
+        <h2><i class="bi bi-clock-history" style="color:#60a5fa"></i> Bạn vừa xem</h2>
     </div>
     <div class="product-grid-5" id="recentlyViewedGrid"></div>
-</section>
+</div>
 
-<!-- ── 4. Flash Sale (View Component) ───────────────────────────────────────── -->
+<!-- ── 6. FLASH SALE ─────────────────────────────────────────────────────────── -->
 @await Component.InvokeAsync("FlashSale")
 
-<!-- ── 4. Pre-built PCs ──────────────────────────────────────────────────────── -->
+<!-- ── 7. PRE-BUILT PCs ──────────────────────────────────────────────────────── -->
 @if (Model.PrebuiltPcs != null && Model.PrebuiltPcs.Any())
 {
-    <section class="container-xl pb-5">
-        <div class="section-header">
-            <h3 class="section-title">
-                <i class="bi bi-pc-display" style="color:#34d399;font-size:1.1rem"></i>
-                PC Dựng Sẵn Nổi Bật
-            </h3>
+    <div class="container-xl mb-5">
+        <div class="section-title">
+            <h2><i class="bi bi-pc-display" style="color:#34d399"></i> PC Dựng Sẵn Nổi Bật</h2>
             <ul class="nav nav-pills glass-sm rounded-pill p-1" id="pills-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active rounded-pill px-3 text-white" id="pills-gaming-tab"
+                <li class="nav-item">
+                    <button class="nav-link active rounded-pill px-3" id="pills-gaming-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-gaming" type="button">Gaming</button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill px-3 text-white" id="pills-office-tab"
+                <li class="nav-item">
+                    <button class="nav-link rounded-pill px-3" id="pills-office-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-office" type="button">Văn phòng</button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill px-3 text-white" id="pills-creator-tab"
+                <li class="nav-item">
+                    <button class="nav-link rounded-pill px-3" id="pills-creator-tab"
                             data-bs-toggle="pill" data-bs-target="#pills-creator" type="button">Đồ họa</button>
                 </li>
             </ul>
@@ -136,137 +237,143 @@
             {
                 var (purposeLabel, tabId) = purpose;
                 var pcs = Model.PrebuiltPcs.Where(p => p.Purpose == purposeLabel).ToList();
-                <div class="tab-pane fade @(purposeLabel == "Gaming" ? "show active" : "")" id="@tabId" role="tabpanel">
+                <div class="tab-pane fade @(purposeLabel == "Gaming" ? "show active" : "")" id="@tabId">
                     @if (pcs.Any())
                     {
                         <div class="product-grid-5">
                             @foreach (var item in pcs.Take(10))
                             {
-                                <div class="component-card position-relative" style="overflow:hidden">
-                                    @if (item.OldPrice.HasValue)
-                                    {
-                                        <span class="badge-discount" style="background:rgba(251,146,60,.9);color:#fff">Khuyến mãi</span>
-                                    }
-                                    <a href="/Products/Detail/prebuilt/@item.Id" class="text-decoration-none d-block">
-                                        <div class="card-img-box">
+                                <div class="product-card">
+                                    <div class="pc-badges">
+                                        @if (item.OldPrice.HasValue)
+                                        {
+                                            <span class="badge badge-sale" style="font-size:.7rem;padding:3px 8px;border-radius:6px">
+                                                -@((int)((1 - item.Price / item.OldPrice.Value) * 100))%
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="pc-actions">
+                                        <button type="button" title="So sánh"
+                                                onclick="toggleCompare(0,'prebuilt',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Name)),@item.Price,'@(item.ImageUrl ?? "")')">
+                                            <i class="bi bi-bar-chart-steps"></i>
+                                        </button>
+                                    </div>
+                                    <a href="/Products/Detail/prebuilt/@item.Id" class="text-decoration-none d-flex flex-column h-100">
+                                        <div class="pc-media">
                                             <img src="@item.ImageUrl" alt="@item.Name" loading="lazy">
                                         </div>
-                                        <div class="px-3 pb-3 pt-2">
-                                            <div class="text-white mb-2" style="font-size:.82rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.3rem">
-                                                @item.Name
-                                            </div>
-                                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                        <div class="pc-body">
+                                            <div class="pc-cat">@purposeLabel PC</div>
+                                            <div class="pc-name">@item.Name</div>
+                                            <div class="d-flex flex-wrap gap-1">
                                                 <span class="spec-chip" style="color:#c084fc;border-color:rgba(168,85,247,.25)">@item.CpuBadge</span>
                                                 <span class="spec-chip" style="color:#34d399;border-color:rgba(16,185,129,.25)">@item.GpuBadge</span>
                                                 <span class="spec-chip">@item.RamBadge</span>
                                             </div>
-                                            <div class="mt-auto">
+                                            <div class="pc-price">
+                                                <span class="now">@item.Price.ToString("N0")đ</span>
                                                 @if (item.OldPrice.HasValue)
                                                 {
-                                                    <div class="text-decoration-line-through" style="font-size:.75rem;color:rgba(255,255,255,.4)">@item.OldPrice.Value.ToString("N0")đ</div>
+                                                    <span class="old">@item.OldPrice.Value.ToString("N0")đ</span>
                                                 }
-                                                <div class="fw-bold text-white" style="font-size:.95rem">@item.Price.ToString("N0")đ</div>
                                             </div>
                                         </div>
                                     </a>
+                                    <div class="px-3 pb-3">
+                                        <button class="pc-btn w-100"
+                                                data-pid="@item.Id" data-pcat="prebuilt"
+                                                data-pname="@item.Name" data-pprice="@item.Price"
+                                                data-pimg="@item.ImageUrl"
+                                                onclick="addToCartFromData(this)">
+                                            <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                        </button>
+                                    </div>
                                 </div>
                             }
                         </div>
                     }
                     else
                     {
-                        <div class="text-center py-5 text-muted-white">Chưa có sản phẩm</div>
+                        <div class="text-center py-5" style="color:var(--text-muted)">Chưa có sản phẩm</div>
                     }
                 </div>
             }
         </div>
         <div class="text-center mt-4">
-            <a href="/Products?category=prebuilt" class="btn glass text-white px-5 py-2 fw-semibold">
+            <a href="/Products?category=prebuilt" class="btn glass px-5 py-2 fw-semibold" style="color:var(--text)">
                 Xem tất cả PC Dựng sẵn <i class="bi bi-arrow-right ms-2"></i>
             </a>
         </div>
-    </section>
+    </div>
 }
 
-<!-- ── 5. Featured Products by Category (View Components) ───────────────────── -->
-@await Component.InvokeAsync("FeaturedCategory", new { category = "cpu",         title = "CPU Nổi Bật",          count = 10 })
-@await Component.InvokeAsync("FeaturedCategory", new { category = "gpu",         title = "VGA / Card Đồ Họa",    count = 10 })
-@await Component.InvokeAsync("FeaturedCategory", new { category = "memory",      title = "RAM",                  count = 10 })
-@await Component.InvokeAsync("FeaturedCategory", new { category = "storage",     title = "Ổ Cứng & SSD",         count = 10 })
-@await Component.InvokeAsync("FeaturedCategory", new { category = "motherboard", title = "Mainboard",            count = 10 })
+<!-- ── 8. FEATURED PRODUCTS BY CATEGORY ─────────────────────────────────────── -->
+@await Component.InvokeAsync("FeaturedCategory", new { category = "cpu",         title = "CPU Nổi Bật",        count = 10 })
+@await Component.InvokeAsync("FeaturedCategory", new { category = "gpu",         title = "VGA / Card Đồ Họa",  count = 10 })
+@await Component.InvokeAsync("FeaturedCategory", new { category = "memory",      title = "RAM",                count = 10 })
+@await Component.InvokeAsync("FeaturedCategory", new { category = "storage",     title = "Ổ Cứng & SSD",       count = 10 })
+@await Component.InvokeAsync("FeaturedCategory", new { category = "motherboard", title = "Mainboard",          count = 10 })
 
-<!-- ── 6. Brand Showcase ──────────────────────────────────────────────────────── -->
-<section class="container-xl pb-5">
-    <h4 class="text-center text-white fw-bold mb-4">Thương Hiệu Đồng Hành</h4>
+<!-- ── 9. BRAND SHOWCASE ──────────────────────────────────────────────────────── -->
+<div class="container-xl mb-5">
+    <h5 class="text-center fw-bold mb-4" style="color:var(--text)">Thương Hiệu Đồng Hành</h5>
     <div class="glass p-4 rounded-4">
         <div class="d-flex justify-content-around align-items-center flex-wrap gap-4">
-            <a href="/Products?search=ASUS" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
-                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=ASUS" alt="ASUS" class="img-fluid rounded">
-            </a>
-            <a href="/Products?search=MSI" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
-                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=MSI" alt="MSI" class="img-fluid rounded">
-            </a>
-            <a href="/Products?search=GIGABYTE" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">
-                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=GIGABYTE" alt="GIGABYTE" class="img-fluid rounded">
-            </a>
-            <a href="/Products?search=Corsair" class="text-decoration-none" style="opacity:0.7;transition:all 0.2s" onmouseover="this.style.opacity=1" onmouseover="this.style.opacity=0.7">
-                <img src="https://placehold.co/150x60/1a1a1a/FFF?text=Corsair" alt="Corsair" class="img-fluid rounded">
-            </a>
+            @foreach (var brand in new[] { "ASUS", "MSI", "GIGABYTE", "Corsair", "NZXT", "be quiet!" })
+            {
+                <a href="/Products?search=@brand" class="text-decoration-none" style="color:var(--text-muted);transition:color .2s"
+                   onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">
+                    <span class="fw-bold" style="font-size:1.1rem;letter-spacing:.5px">@brand</span>
+                </a>
+            }
         </div>
     </div>
-</section>
+</div>
 
 @section Scripts {
 <script>
-    // Bootstrap pills tab initialization
-    document.querySelectorAll('#pills-tab button').forEach(btn => {
-        btn.addEventListener('click', e => { e.preventDefault(); new bootstrap.Tab(btn).show(); });
-    });
+document.querySelectorAll('#pills-tab button').forEach(btn => {
+    btn.addEventListener('click', e => { e.preventDefault(); new bootstrap.Tab(btn).show(); });
+});
 
-    // Recently Viewed — load from localStorage, fetch fresh prices from API
-    (function() {
-        var stored = [];
-        try { stored = JSON.parse(localStorage.getItem('recentlyViewed') || '[]'); } catch(e) {}
-        if (!stored.length) return;
+(function() {
+    var stored = [];
+    try { stored = JSON.parse(localStorage.getItem('recentlyViewed') || '[]'); } catch(e) {}
+    if (!stored.length) return;
 
-        fetch('/Products/RecentlyViewed', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(stored.map(x => ({ id: x.id, category: x.category })))
-        })
-        .then(r => r.ok ? r.json() : [])
-        .then(items => {
-            if (!items.length) return;
-            var grid = document.getElementById('recentlyViewedGrid');
-            var section = document.getElementById('recentlyViewedSection');
-            if (!grid || !section) return;
+    fetch('/Products/RecentlyViewed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(stored.map(x => ({ id: x.id, category: x.category })))
+    })
+    .then(r => r.ok ? r.json() : [])
+    .then(items => {
+        if (!items.length) return;
+        var grid    = document.getElementById('recentlyViewedGrid');
+        var section = document.getElementById('recentlyViewedSection');
+        if (!grid || !section) return;
 
-            grid.innerHTML = items.map(p => `
-                <div class="component-card position-relative" style="overflow:hidden">
-                    <a href="/Products/Detail/${p.category}/${p.id}" class="text-decoration-none d-block">
-                        <div class="card-img-box">
-                            <img src="${p.imageUrl || ''}" alt="${p.name}" loading="lazy">
-                        </div>
-                        <div class="px-3 pb-3 pt-2">
-                            <div class="text-white mb-2" style="font-size:.82rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.3rem">
-                                ${p.name}
-                            </div>
-                            <div class="fw-bold text-white" style="font-size:.95rem">${Number(p.price).toLocaleString('vi-VN')}đ</div>
-                        </div>
-                    </a>
-                    <div class="card-action-overlay">
-                        <button class="btn btn-gradient btn-sm flex-grow-1"
-                            data-pid="${p.id}" data-pcat="${p.category}" data-pname="${p.name}"
-                            data-pprice="${p.price}" data-pimg="${p.imageUrl || ''}"
-                            onclick="addToCartFromData(this)"
-                            style="font-size:.75rem;padding:6px 8px;border-radius:7px">
-                            <i class="bi bi-cart-plus me-1"></i>Thêm vào giỏ
-                        </button>
+        grid.innerHTML = items.map(p => `
+            <div class="product-card">
+                <a href="/Products/Detail/${p.category}/${p.id}" class="text-decoration-none d-flex flex-column h-100">
+                    <div class="pc-media"><img src="${p.imageUrl || ''}" alt="${p.name}" loading="lazy"></div>
+                    <div class="pc-body">
+                        <div class="pc-name">${p.name}</div>
+                        <div class="pc-price"><span class="now">${Number(p.price).toLocaleString('vi-VN')}đ</span></div>
                     </div>
-                </div>`).join('');
-            section.style.display = '';
-        })
-        .catch(() => {});
-    })();
+                </a>
+                <div class="px-3 pb-3">
+                    <button class="pc-btn w-100"
+                        data-pid="${p.id}" data-pcat="${p.category}" data-pname="${p.name}"
+                        data-pprice="${p.price}" data-pimg="${p.imageUrl || ''}"
+                        onclick="addToCartFromData(this)">
+                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                    </button>
+                </div>
+            </div>`).join('');
+        section.style.display = '';
+    })
+    .catch(() => {});
+})();
 </script>
 }

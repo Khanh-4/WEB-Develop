@@ -1,0 +1,164 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var featured = (List<WebBanHang_Bai2.Models.Product>)ViewBag.Featured;
+    var newArrivals = (List<WebBanHang_Bai2.Models.Product>)ViewBag.NewArrivals;
+    var topSellers = (List<WebBanHang_Bai2.Models.Product>)ViewBag.TopSellers;
+    var categories = (List<WebBanHang_Bai2.Models.Category>)ViewBag.Categories;
+}
+
+<!-- ===== HERO SLIDER ===== -->
+<section class="tx-hero">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="row align-items-center">
+                    <div class="col-lg-7 fade-up">
+                        <span class="badge badge-pill badge-neon mb-3"><i class="bi bi-stars"></i> ƯU ĐÃI HÔM NAY</span>
+                        <h1>Apple MacBook Air M2 <br/>Giảm tới <span class="text-gradient">15%</span></h1>
+                        <p class="lead">Hiệu năng vượt trội, thiết kế mỏng nhẹ, pin 18 giờ — sẵn hàng tại TechStore.</p>
+                        <div class="d-flex gap-2 mt-4">
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="2" class="btn btn-gradient btn-lg fw-semibold ripple">
+                                <i class="bi bi-cart-plus"></i> Mua ngay
+                            </a>
+                            <a asp-controller="Shop" asp-action="Index" class="btn btn-soft btn-lg fw-semibold">
+                                Xem cửa hàng
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 text-center hero-art d-none d-lg-block">
+                        <i class="bi bi-laptop"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-7 fade-up">
+                        <span class="badge badge-pill badge-neon-pink mb-3"><i class="bi bi-fire"></i> BÁN CHẠY</span>
+                        <h1>Tai nghe Sony WH-1000XM5 <br/>Chống ồn tốt nhất 2026</h1>
+                        <p class="lead">Trải nghiệm âm thanh đỉnh cao với codec LDAC, pin 30 giờ, miễn phí giao hàng.</p>
+                        <div class="d-flex gap-2 mt-4">
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="10" class="btn btn-gradient btn-lg fw-semibold ripple">
+                                <i class="bi bi-headphones"></i> Khám phá ngay
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 text-center hero-art d-none d-lg-block">
+                        <i class="bi bi-headphones"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="row align-items-center">
+                    <div class="col-lg-7 fade-up">
+                        <span class="badge badge-pill badge-neon mb-3"><i class="bi bi-truck"></i> FREESHIP</span>
+                        <h1>Miễn phí vận chuyển <br/>cho đơn hàng từ 500.000đ</h1>
+                        <p class="lead">Áp dụng toàn quốc, giao trong vòng 24h tại nội thành.</p>
+                        <a asp-controller="Shop" asp-action="Index" class="btn btn-gradient btn-lg mt-3 ripple">
+                            <i class="bi bi-bag"></i> Mua sắm ngay
+                        </a>
+                    </div>
+                    <div class="col-lg-5 text-center hero-art d-none d-lg-block">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+        <div class="carousel-indicators mt-3">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== BENEFIT STRIP ===== -->
+<section class="row g-3 mb-4">
+    @{
+        var benefits = new[] {
+            new { Icon = "bi-truck", Title = "Freeship 500K+", Sub = "Toàn quốc" },
+            new { Icon = "bi-shield-check", Title = "Bảo hành 12 tháng", Sub = "Chính hãng" },
+            new { Icon = "bi-arrow-repeat", Title = "Đổi trả 7 ngày", Sub = "Miễn phí" },
+            new { Icon = "bi-headset", Title = "Hỗ trợ 24/7", Sub = "Hotline 1900 1234" }
+        };
+    }
+    @foreach (var b in benefits)
+    {
+        <div class="col-sm-6 col-lg-3">
+            <div class="cat-card text-start d-flex align-items-center gap-3">
+                <div class="cat-icon mb-0" style="width:48px;height:48px;font-size:1.2rem;"><i class="bi @b.Icon"></i></div>
+                <div>
+                    <div class="fw-semibold">@b.Title</div>
+                    <small class="text-muted">@b.Sub</small>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+
+<!-- ===== CATEGORIES ===== -->
+<div class="section-title">
+    <h2><i class="bi bi-grid"></i> Mua sắm theo danh mục</h2>
+</div>
+<div class="row g-3 mb-2">
+    @foreach (var c in categories)
+    {
+        <div class="col-6 col-md-3">
+            <a asp-controller="Shop" asp-action="Index" asp-route-categoryId="@c.Id" class="text-decoration-none">
+                <div class="cat-card">
+                    <div class="cat-icon"><i class="bi @c.Icon"></i></div>
+                    <div class="fw-semibold">@c.Name</div>
+                    <small class="text-muted">@c.Description</small>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+
+<!-- ===== FEATURED (HOT) ===== -->
+<div class="section-title">
+    <h2><i class="bi bi-fire"></i> Sản phẩm nổi bật</h2>
+    <a asp-controller="Shop" asp-action="Index" asp-route-sort="hot" class="btn btn-soft btn-sm">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+</div>
+<div class="row g-4 mb-3">
+    @foreach (var p in featured)
+    {
+        <div class="col-6 col-md-4 col-lg-3">
+            <partial name="_ProductCard" model="p" />
+        </div>
+    }
+</div>
+
+<!-- ===== NEW ARRIVALS ===== -->
+<div class="section-title">
+    <h2><i class="bi bi-stars"></i> Hàng mới về</h2>
+    <a asp-controller="Shop" asp-action="Index" asp-route-sort="newest" class="btn btn-soft btn-sm">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+</div>
+<div class="row g-4 mb-3">
+    @foreach (var p in newArrivals)
+    {
+        <div class="col-6 col-md-4 col-lg-3">
+            <partial name="_ProductCard" model="p" />
+        </div>
+    }
+</div>
+
+<!-- ===== TOP SELLERS ===== -->
+<div class="section-title">
+    <h2><i class="bi bi-trophy"></i> Bán chạy nhất</h2>
+</div>
+<div class="row g-4 mb-3">
+    @foreach (var p in topSellers)
+    {
+        <div class="col-6 col-md-4 col-lg-3">
+            <partial name="_ProductCard" model="p" />
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()

@@ -1,0 +1,31 @@
+@model IEnumerable<WebBanHang_Bai2.Models.Review>
+@{
+    ViewData["Title"] = "Đánh giá";
+    var names = (Dictionary<int, string>)ViewBag.ProductNames;
+}
+
+<div class="tx-card">
+    <div class="tx-card-head"><h5><i class="bi bi-chat-quote"></i> Đánh giá sản phẩm (@Model.Count())</h5></div>
+    <table class="tx-table">
+        <thead><tr><th>#</th><th>Sản phẩm</th><th>Khách hàng</th><th>Số sao</th><th>Nội dung</th><th>Ngày</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td><strong>#@r.Id</strong></td>
+                    <td>@(names.TryGetValue(r.ProductId, out var n) ? n : "Sản phẩm #" + r.ProductId)</td>
+                    <td>@r.CustomerName</td>
+                    <td><span class="stars">@for (var i=1;i<=5;i++) { <i class="bi @(i <= r.Rating ? "bi-star-fill" : "bi-star empty")"></i> }</span></td>
+                    <td class="text-truncate" style="max-width: 320px;">@r.Comment</td>
+                    <td>@r.CreatedAt.ToLocalTime().ToString("dd/MM/yy HH:mm")</td>
+                    <td>
+                        <form asp-action="Delete" asp-route-id="@r.Id" method="post" class="d-inline" onsubmit="return confirm('Xoá đánh giá này?');">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-soft btn-sm text-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

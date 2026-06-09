@@ -1,0 +1,234 @@
+@model WebBanHang_Bai2.Models.ProductDetailViewModel
+@inject WebBanHang_Bai2.Services.WishlistService WishlistSvc
+@{
+    ViewData["Title"] = Model.Product.Name;
+    var p = Model.Product;
+    var images = new List<string>();
+    if (!string.IsNullOrEmpty(p.ImageUrl)) images.Add(p.ImageUrl);
+    if (p.ImageUrls is { Count: > 0 }) images.AddRange(p.ImageUrls);
+    if (images.Count == 0) images.Add("/images/placeholder.svg");
+    var liked = WishlistSvc.Contains(p.Id);
+    var fullStars = (int)Math.Floor(p.Rating);
+}
+
+<nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Shop" asp-action="Index" asp-route-categoryId="@p.CategoryId">@p.Category</a></li>
+        <li class="breadcrumb-item active">@p.Name</li>
+    </ol>
+</nav>
+
+<div class="pd-card">
+    <div class="row g-4">
+        <!-- Gallery -->
+        <div class="col-lg-6">
+            <div class="pd-gallery">
+                <div class="main" id="pdMain">
+                    <img id="pdMainImg" src="@images[0]" alt="@p.Name" style="width:100%;height:100%;object-fit:contain;transition:transform .3s;" />
+                </div>
+                <div class="thumbs">
+                    @for (var i = 0; i < images.Count; i++)
+                    {
+                        <img src="@images[i]" class="@(i == 0 ? "active" : "")" data-src="@images[i]" alt="thumb @i" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="col-lg-6">
+            <div class="d-flex gap-2 mb-2">
+                @if (p.IsHot) { <span class="badge-pill badge-hot">HOT</span> }
+                @if (p.IsNew) { <span class="badge-pill badge-new">NEW</span> }
+                @if (p.DiscountPercent > 0) { <span class="badge-pill badge-sale">-@p.DiscountPercent%</span> }
+            </div>
+            <h2 class="fw-bold mb-2">@p.Name</h2>
+
+            <div class="d-flex gap-3 align-items-center mb-3">
+                <span class="stars">
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        if (i <= fullStars) { <i class="bi bi-star-fill"></i> }
+                        else { <i class="bi bi-star empty"></i> }
+                    }
+                </span>
+                <small class="text-muted">@p.Rating · @p.ReviewCount đánh giá · Đã bán @p.Sold</small>
+            </div>
+
+            <div class="d-flex gap-3 align-items-baseline mb-3">
+                <h3 class="text-danger fw-bold mb-0">@p.Price.ToString("#,##0")đ</h3>
+                @if (p.OldPrice.HasValue && p.OldPrice > p.Price)
+                {
+                    <span class="text-muted text-decoration-line-through">@p.OldPrice.Value.ToString("#,##0")đ</span>
+                    <span class="badge-pill badge-sale">Tiết kiệm @((p.OldPrice.Value - p.Price).ToString("#,##0"))đ</span>
+                }
+            </div>
+
+            <p class="text-muted">@p.ShortDescription</p>
+
+            <div class="d-flex gap-3 align-items-center my-3">
+                <label class="fw-semibold">Số lượng:</label>
+                <div class="qty-stepper d-inline-flex align-items-center" style="border:1px solid var(--border);border-radius:999px;overflow:hidden;">
+                    <button type="button" data-qty-dec class="btn-icon" style="border:none;border-radius:0;background:transparent;"><i class="bi bi-dash"></i></button>
+                    <input id="qtyInput" type="number" value="1" min="1" style="width:60px;text-align:center;border:none;background:transparent;color:var(--text);" />
+                    <button type="button" data-qty-inc class="btn-icon" style="border:none;border-radius:0;background:transparent;"><i class="bi bi-plus"></i></button>
+                </div>
+                <small class="text-muted">Còn @p.Stock sản phẩm</small>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-soft btn-lg ripple"
+                        data-add-to-cart="@p.Id" data-qty-source="#qtyInput"
+                        id="btnAddCart">
+                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                </button>
+                <button class="btn btn-gradient btn-lg ripple"
+                        data-buy-now="@p.Id" data-qty-source="#qtyInput">
+                    <i class="bi bi-credit-card"></i> Mua ngay
+                </button>
+                <button class="btn btn-icon @(liked ? "active" : "")" data-wishlist="@p.Id" title="Yêu thích">
+                    <i class="bi @(liked ? "bi-heart-fill" : "bi-heart")"></i>
+                </button>
+            </div>
+
+            <hr />
+            <div class="row text-center small">
+                <div class="col"><i class="bi bi-truck text-primary"></i><div>Freeship 500K+</div></div>
+                <div class="col"><i class="bi bi-shield-check text-success"></i><div>BH 12 tháng</div></div>
+                <div class="col"><i class="bi bi-arrow-repeat text-warning"></i><div>Đổi trả 7 ngày</div></div>
+                <div class="col"><i class="bi bi-credit-card text-info"></i><div>Trả góp 0%</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="pd-tabs mt-5">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-desc" type="button">Mô tả</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-specs" type="button">Thông số</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reviews" type="button">Đánh giá (@Model.Reviews.Count)</button></li>
+        </ul>
+        <div class="tab-content pt-3">
+            <div class="tab-pane fade show active" id="tab-desc">
+                <p class="lead">@p.ShortDescription</p>
+                <p>@p.Description</p>
+            </div>
+            <div class="tab-pane fade" id="tab-specs">
+                <table class="table">
+                    <tbody>
+                        <tr><th style="width:200px;">Mã sản phẩm</th><td>#@p.Id</td></tr>
+                        <tr><th>Tên sản phẩm</th><td>@p.Name</td></tr>
+                        <tr><th>Danh mục</th><td>@p.Category</td></tr>
+                        <tr><th>Tồn kho</th><td>@p.Stock</td></tr>
+                        <tr><th>Đã bán</th><td>@p.Sold</td></tr>
+                        <tr><th>Đánh giá trung bình</th><td>@p.Rating / 5.0</td></tr>
+                        <tr><th>Slug</th><td><code>@p.Slug</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="tab-reviews">
+                @if (!Model.Reviews.Any())
+                {
+                    <p class="text-muted">Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
+                }
+                else
+                {
+                    foreach (var r in Model.Reviews)
+                    {
+                        <div class="d-flex gap-3 py-3 border-bottom">
+                            <div class="avatar">@(r.CustomerName.Substring(0, 1).ToUpper())</div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <strong>@r.CustomerName</strong>
+                                    <small class="text-muted">@r.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <span class="stars">
+                                    @for (var i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= r.Rating ? "bi-star-fill" : "bi-star empty")"></i>
+                                    }
+                                </span>
+                                <p class="mb-0 mt-1">@r.Comment</p>
+                            </div>
+                        </div>
+                    }
+                }
+
+                <div class="mt-4">
+                    <h6 class="fw-bold">Để lại đánh giá của bạn</h6>
+                    <form asp-controller="Product" asp-action="Review" method="post" class="row g-3">
+                        <input type="hidden" name="ProductId" value="@p.Id" />
+                        <div class="col-md-6">
+                            <label class="form-label">Tên</label>
+                            <input name="CustomerName" class="form-control" required value="@User.Identity?.Name" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Số sao</label>
+                            <div class="rating-input">
+                                @for (var i = 5; i >= 1; i--)
+                                {
+                                    <input type="radio" id="star@(i)" name="Rating" value="@i" @(i == 5 ? "checked" : "") />
+                                    <label for="star@(i)"><i class="bi bi-star-fill"></i></label>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Bình luận</label>
+                            <textarea name="Comment" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-gradient ripple"><i class="bi bi-send"></i> Gửi đánh giá</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related -->
+@if (Model.Related.Any())
+{
+    <div class="section-title mt-4"><h2><i class="bi bi-collection"></i> Sản phẩm liên quan</h2></div>
+    <div class="row g-4">
+        @foreach (var r in Model.Related)
+        {
+            <div class="col-6 col-md-3"><partial name="_ProductCard" model="r" /></div>
+        }
+    </div>
+}
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        // Image zoom + thumb switching
+        const mainImg = document.getElementById('pdMainImg');
+        document.querySelectorAll('.pd-gallery .thumbs img').forEach(t => {
+            t.addEventListener('click', () => {
+                document.querySelectorAll('.pd-gallery .thumbs img').forEach(x => x.classList.remove('active'));
+                t.classList.add('active');
+                mainImg.src = t.dataset.src;
+            });
+        });
+        // Hover zoom
+        const mainBox = document.getElementById('pdMain');
+        mainBox.addEventListener('mousemove', e => {
+            const rect = mainBox.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width * 100;
+            const y = (e.clientY - rect.top) / rect.height * 100;
+            mainImg.style.transformOrigin = `${x}% ${y}%`;
+            mainImg.style.transform = 'scale(1.6)';
+        });
+        mainBox.addEventListener('mouseleave', () => { mainImg.style.transform = 'scale(1)'; });
+
+        // Sync qty on Add to Cart / Buy now
+        document.querySelectorAll('[data-qty-source]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const src = document.querySelector(btn.dataset.qtySource);
+                if (src) btn.dataset.qty = src.value;
+            });
+        });
+    </script>
+}

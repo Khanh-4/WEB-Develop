@@ -1,0 +1,166 @@
+@model WebBanHang_Bai2.Models.DashboardViewModel
+@{ ViewData["Title"] = "Dashboard"; }
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+            <div class="stat-meta">
+                <div class="label">Doanh thu tháng</div>
+                <div class="value">@Model.RevenueMonth.ToString("#,##0")đ</div>
+                <div class="trend up"><i class="bi bi-arrow-up"></i> +12% so với tháng trước</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card success">
+            <div class="stat-icon"><i class="bi bi-receipt-cutoff"></i></div>
+            <div class="stat-meta">
+                <div class="label">Đơn hàng (tất cả)</div>
+                <div class="value">@Model.TotalOrders</div>
+                <div class="trend up"><i class="bi bi-bag-check"></i> @Model.OrdersToday đơn hôm nay</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card warning">
+            <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+            <div class="stat-meta">
+                <div class="label">Sản phẩm</div>
+                <div class="value">@Model.TotalProducts</div>
+                <div class="trend up"><i class="bi bi-tags"></i> @Model.TotalCategories danh mục</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card danger">
+            <div class="stat-icon"><i class="bi bi-people"></i></div>
+            <div class="stat-meta">
+                <div class="label">Người dùng</div>
+                <div class="value">@Model.TotalUsers</div>
+                <div class="trend up"><i class="bi bi-person-plus"></i> Tổng tài khoản</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="tx-card">
+            <div class="tx-card-head">
+                <h5><i class="bi bi-graph-up-arrow text-primary"></i> Doanh thu 14 ngày qua</h5>
+                <span class="badge-pill bg-primary text-white">Tổng: @Model.RevenueAll.ToString("#,##0")đ</span>
+            </div>
+            <div class="p-3"><canvas id="revenueChart" height="120"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="tx-card h-100">
+            <div class="tx-card-head"><h5><i class="bi bi-pie-chart text-primary"></i> Sản phẩm theo danh mục</h5></div>
+            <div class="p-3"><canvas id="categoryChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="tx-card">
+            <div class="tx-card-head">
+                <h5><i class="bi bi-receipt"></i> Đơn hàng gần đây</h5>
+                <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-soft btn-sm">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <table class="tx-table">
+                <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Trạng thái</th><th>Tổng tiền</th></tr></thead>
+                <tbody>
+                @foreach (var o in Model.RecentOrders)
+                {
+                    <tr>
+                        <td><a asp-area="Admin" asp-controller="Orders" asp-action="Detail" asp-route-id="@o.Id"><code>@o.OrderCode</code></a></td>
+                        <td>@o.CustomerName</td>
+                        <td><span class="status-pill @o.Status.ToString().ToLower()">@o.Status</span></td>
+                        <td class="fw-bold">@o.Total.ToString("#,##0")đ</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="tx-card">
+            <div class="tx-card-head"><h5><i class="bi bi-trophy"></i> Top sản phẩm bán chạy</h5></div>
+            <ul class="list-unstyled p-3 mb-0">
+                @{ var rank = 0; }
+                @foreach (var p in Model.TopProducts)
+                {
+                    rank++;
+                    <li class="d-flex align-items-center gap-3 mb-3">
+                        <div class="cat-icon" style="width:40px;height:40px;font-size:.95rem;">#@rank</div>
+                        <img class="thumb" src="@(p.ImageUrl ?? "/images/placeholder.svg")" />
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">@p.Name</div>
+                            <small class="text-muted">@p.Category · Đã bán @p.Sold</small>
+                        </div>
+                        <strong class="text-danger">@p.Price.ToString("#,##0")đ</strong>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const fg = dark ? '#cbd5e1' : '#475569';
+        const grid = dark ? 'rgba(148,163,184,.15)' : 'rgba(15,23,42,.06)';
+
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueLabels));
+        const revSeries = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueSeries));
+        const ordSeries = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.OrderSeries));
+        const catLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryLabels));
+        const catCounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CategoryProductCounts));
+
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Doanh thu (đ)',
+                        data: revSeries,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, .12)',
+                        fill: true, tension: .4, borderWidth: 3, pointRadius: 4,
+                        hoverBorderWidth: 5
+                    },
+                    {
+                        label: 'Số đơn',
+                        data: ordSeries,
+                        borderColor: '#00f0ff',
+                        backgroundColor: 'rgba(0, 240, 255, .1)',
+                        fill: false, tension: .4, borderWidth: 2, pointRadius: 3, yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { labels: { color: fg } } },
+                scales: {
+                    x: { ticks: { color: fg }, grid: { color: grid } },
+                    y: { ticks: { color: fg, callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v.toLocaleString() }, grid: { color: grid } },
+                    y1: { position: 'right', ticks: { color: fg }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: { labels: catLabels, datasets: [{ data: catCounts,
+                backgroundColor: ['#8b5cf6','#00f0ff','#ff007f','#06b6d4','#e2e8f0','#f59e0b'],
+                borderWidth: dark ? 2 : 1, borderColor: dark ? '#0d1122' : '#ffffff' }] },
+            options: { plugins: { legend: { position: 'bottom', labels: { color: fg } } } }
+        });
+    </script>
+}

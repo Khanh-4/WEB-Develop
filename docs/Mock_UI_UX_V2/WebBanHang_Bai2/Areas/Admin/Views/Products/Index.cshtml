@@ -1,0 +1,132 @@
+@model IEnumerable<WebBanHang_Bai2.Models.Product>
+@{
+    ViewData["Title"] = "Sản phẩm";
+    var categories = (List<WebBanHang_Bai2.Models.Category>)ViewBag.Categories;
+    int page = ViewBag.Page, totalPages = ViewBag.TotalPages, total = ViewBag.TotalItems;
+    int? categoryId = ViewBag.CategoryId;
+    string? kw = ViewBag.Keyword; string sort = ViewBag.Sort;
+}
+
+<div class="tx-card">
+    <div class="tx-card-head">
+        <h5><i class="bi bi-box-seam"></i> Quản lý sản phẩm <span class="text-muted small">(@total)</span></h5>
+        <a asp-action="Add" class="btn btn-gradient ripple"><i class="bi bi-plus-lg"></i> Thêm sản phẩm</a>
+    </div>
+
+    <form method="get" class="p-3 row g-2 align-items-end" id="filterForm">
+        <div class="col-md-4">
+            <label class="form-label small fw-semibold">Tìm kiếm</label>
+            <input name="keyword" class="form-control" value="@kw" placeholder="Tên sản phẩm..." />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold">Danh mục</label>
+            <select name="categoryId" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="">-- Tất cả --</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Id" selected="@(categoryId == c.Id)">@c.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold">Sắp xếp</label>
+            <select name="sort" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="newest" selected="@(sort == "newest")">Mới nhất</option>
+                <option value="price_asc" selected="@(sort == "price_asc")">Giá tăng</option>
+                <option value="price_desc" selected="@(sort == "price_desc")">Giá giảm</option>
+                <option value="name_asc" selected="@(sort == "name_asc")">Tên A → Z</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-gradient w-100"><i class="bi bi-search"></i> Lọc</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="tx-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Tồn kho</th>
+                    <th>Đã bán</th>
+                    <th>Đánh giá</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td><strong>#@p.Id</strong></td>
+                        <td>
+                            <div class="d-flex gap-2 align-items-center">
+                                <img class="thumb" src="@(p.ImageUrl ?? "/images/placeholder.svg")" alt="" />
+                                <div>
+                                    <div class="fw-semibold">@p.Name</div>
+                                    <small class="text-muted">@p.Category · @((p.ImageUrls?.Count ?? 0) + 1) ảnh</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-danger fw-bold">@p.Price.ToString("#,##0")đ</div>
+                            @if (p.OldPrice.HasValue && p.OldPrice > p.Price)
+                            {
+                                <small class="text-muted text-decoration-line-through">@p.OldPrice.Value.ToString("#,##0")đ</small>
+                            }
+                        </td>
+                        <td>@p.Stock</td>
+                        <td>@p.Sold</td>
+                        <td><span class="stars">@for (var i = 1; i <= 5; i++) { <i class="bi @(i <= p.Rating ? "bi-star-fill" : "bi-star empty")"></i> } </span> <small class="text-muted">(@p.ReviewCount)</small></td>
+                        <td>
+                            @if (p.IsHot) { <span class="badge-pill badge-hot text-white">HOT</span> }
+                            @if (p.IsNew) { <span class="badge-pill badge-new text-white">NEW</span> }
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a class="btn btn-soft" asp-area="" asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" target="_blank" title="Xem"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-soft" asp-action="Update" asp-route-id="@p.Id" title="Sửa"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-soft text-danger" data-bs-toggle="modal" data-bs-target="#delModal-@p.Id" title="Xoá"><i class="bi bi-trash"></i></button>
+                            </div>
+                            <div class="modal fade" id="delModal-@p.Id" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="modal-content">
+                                        @Html.AntiForgeryToken()
+                                        <div class="modal-header"><h5 class="modal-title">Xác nhận xoá</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                        <div class="modal-body">Bạn có chắc muốn xoá <strong>@p.Name</strong>? Hành động này không thể hoàn tác.</div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Huỷ</button>
+                                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Xoá</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="8" class="text-center py-5 text-muted"><i class="bi bi-inbox" style="font-size:2.5rem;"></i><div>Không có sản phẩm</div></td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <nav class="p-3">
+            <ul class="pagination justify-content-center mb-0">
+                @for (var i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link" asp-action="Index"
+                            asp-route-page="@i" asp-route-keyword="@kw"
+                            asp-route-categoryId="@categoryId" asp-route-sort="@sort">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

@@ -101,6 +101,38 @@ public class CartController : Controller
         return Ok(new { count = 0 });
     }
 
+    // AJAX endpoint for cart drawer sidebar (returns JSON for the new layout)
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> Drawer()
+    {
+        var userId = _users.GetUserId(User);
+        if (userId == null)
+            return Ok(new { items = Array.Empty<object>(), subtotal = 0, total = 0, count = 0 });
+
+        var cart = await _db.Carts
+            .Include(c => c.Items)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (cart == null)
+            return Ok(new { items = Array.Empty<object>(), subtotal = 0, total = 0, count = 0 });
+
+        var items = cart.Items.Select(i => new
+        {
+            cartItemId = i.Id,
+            name       = i.ComponentName,
+            price      = i.Price,
+            quantity   = i.Quantity,
+            imageUrl   = i.ImageUrl,
+            category   = i.Category,
+        }).ToList();
+
+        decimal subtotal = cart.Items.Sum(i => i.Price * i.Quantity);
+        int count = cart.Items.Sum(i => i.Quantity);
+
+        return Ok(new { items, subtotal, total = subtotal, count });
+    }
+
     // AJAX endpoint for mini-cart hover dropdown
     [HttpGet]
     public async Task<IActionResult> MiniCart()

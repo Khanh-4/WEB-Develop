@@ -1,0 +1,24 @@
+@model IEnumerable<WebBanHang_Bai2.Models.Product>
+@{ ViewData["Title"] = "Yêu thích"; }
+
+<h2 class="fw-bold mt-3 mb-3"><i class="bi bi-heart"></i> Danh sách yêu thích</h2>
+
+@if (!Model.Any())
+{
+    <div class="tx-card p-5 text-center">
+        <i class="bi bi-heart" style="font-size:4rem;color:var(--text-muted);opacity:.5;"></i>
+        <h5 class="mt-3">Chưa có sản phẩm yêu thích</h5>
+        <a asp-controller="Shop" asp-action="Index" class="btn btn-gradient mt-2"><i class="bi bi-shop"></i> Khám phá sản phẩm</a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var p in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3"><partial name="_ProductCard" model="p" /></div>
+        }
+    </div>
+}
+
+@Html.AntiForgeryToken()

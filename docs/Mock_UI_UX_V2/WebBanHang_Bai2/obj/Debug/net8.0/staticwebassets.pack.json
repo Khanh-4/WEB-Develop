@@ -1,0 +1,425 @@
+{
+  "Files": [
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/obj/Debug/net8.0/scopedcss/projectbundle/WebBanHang_Bai2.bundle.scp.css",
+      "PackagePath": "staticwebassets/WebBanHang_Bai2.bundle.scp.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/css/site.css",
+      "PackagePath": "staticwebassets/css/site.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/favicon.ico",
+      "PackagePath": "staticwebassets/favicon.ico"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/3040adbdaca2418aae635559b81bd9dd.png",
+      "PackagePath": "staticwebassets/images/3040adbdaca2418aae635559b81bd9dd.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/33bb8f6f3c9f4c38905569cf6224ae26.png",
+      "PackagePath": "staticwebassets/images/33bb8f6f3c9f4c38905569cf6224ae26.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/46bb31d90df547718f6255eb591d85d4.png",
+      "PackagePath": "staticwebassets/images/46bb31d90df547718f6255eb591d85d4.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/6890eb1b002d4b96bdad17b3ebe3f8f0.png",
+      "PackagePath": "staticwebassets/images/6890eb1b002d4b96bdad17b3ebe3f8f0.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/80753c1aeb034af5b0bfec12c37016b2.JPG",
+      "PackagePath": "staticwebassets/images/80753c1aeb034af5b0bfec12c37016b2.JPG"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/8e74d25e9c1340cdba7a0540d24cb96b.PNG",
+      "PackagePath": "staticwebassets/images/8e74d25e9c1340cdba7a0540d24cb96b.PNG"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/90d3ee30f0694fac836773e9ccd59a43.png",
+      "PackagePath": "staticwebassets/images/90d3ee30f0694fac836773e9ccd59a43.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/b5bf4ac4fdcb47109700f63acb91e1a4.png",
+      "PackagePath": "staticwebassets/images/b5bf4ac4fdcb47109700f63acb91e1a4.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/c8ee4f48e2894f27a2f7f8d244af338a.png",
+      "PackagePath": "staticwebassets/images/c8ee4f48e2894f27a2f7f8d244af338a.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/desktop-aio-1.svg",
+      "PackagePath": "staticwebassets/images/desktop-aio-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/desktop-asus-1.svg",
+      "PackagePath": "staticwebassets/images/desktop-asus-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/desktop-asus-2.svg",
+      "PackagePath": "staticwebassets/images/desktop-asus-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/desktop-hp-1.svg",
+      "PackagePath": "staticwebassets/images/desktop-hp-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/desktop-hp-2.svg",
+      "PackagePath": "staticwebassets/images/desktop-hp-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/e13f408c4ed441f0bbd35d5e1d3d604e.png",
+      "PackagePath": "staticwebassets/images/e13f408c4ed441f0bbd35d5e1d3d604e.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/efbd490b6281432fb3ab32c387af4acc.png",
+      "PackagePath": "staticwebassets/images/efbd490b6281432fb3ab32c387af4acc.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/f070f76b207e4d3d9b9617f475a76bb4.png",
+      "PackagePath": "staticwebassets/images/f070f76b207e4d3d9b9617f475a76bb4.png"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/headphone-1.svg",
+      "PackagePath": "staticwebassets/images/headphone-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/headphone-2.svg",
+      "PackagePath": "staticwebassets/images/headphone-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/keyboard-1.svg",
+      "PackagePath": "staticwebassets/images/keyboard-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/keyboard-2.svg",
+      "PackagePath": "staticwebassets/images/keyboard-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-asus-1.svg",
+      "PackagePath": "staticwebassets/images/laptop-asus-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-asus-2.svg",
+      "PackagePath": "staticwebassets/images/laptop-asus-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-dell-1.svg",
+      "PackagePath": "staticwebassets/images/laptop-dell-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-dell-2.svg",
+      "PackagePath": "staticwebassets/images/laptop-dell-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-dell-3.svg",
+      "PackagePath": "staticwebassets/images/laptop-dell-3.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-lenovo-1.svg",
+      "PackagePath": "staticwebassets/images/laptop-lenovo-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-lenovo-2.svg",
+      "PackagePath": "staticwebassets/images/laptop-lenovo-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-mac-1.svg",
+      "PackagePath": "staticwebassets/images/laptop-mac-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-mac-2.svg",
+      "PackagePath": "staticwebassets/images/laptop-mac-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/laptop-mac-3.svg",
+      "PackagePath": "staticwebassets/images/laptop-mac-3.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/monitor-1.svg",
+      "PackagePath": "staticwebassets/images/monitor-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/monitor-2.svg",
+      "PackagePath": "staticwebassets/images/monitor-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/mouse-1.svg",
+      "PackagePath": "staticwebassets/images/mouse-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/mouse-2.svg",
+      "PackagePath": "staticwebassets/images/mouse-2.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/placeholder.svg",
+      "PackagePath": "staticwebassets/images/placeholder.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/sample-accessory.svg",
+      "PackagePath": "staticwebassets/images/sample-accessory.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/sample-desktop.svg",
+      "PackagePath": "staticwebassets/images/sample-desktop.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/sample-laptop.svg",
+      "PackagePath": "staticwebassets/images/sample-laptop.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/images/webcam-1.svg",
+      "PackagePath": "staticwebassets/images/webcam-1.svg"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/js/site.js",
+      "PackagePath": "staticwebassets/js/site.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/LICENSE",
+      "PackagePath": "staticwebassets/lib/bootstrap"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-grid.rtl.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-reboot.rtl.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap-utilities.rtl.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.min.css"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/css/bootstrap.rtl.min.css.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/css/bootstrap.rtl.min.css.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.js.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.js.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.bundle.min.js.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.js",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.js.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.js.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.min.js",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.esm.min.js.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.esm.min.js.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.js",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.js.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.js.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/bootstrap/dist/js/bootstrap.min.js.map",
+      "PackagePath": "staticwebassets/lib/bootstrap/dist/js/bootstrap.min.js.map"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation-unobtrusive/LICENSE.txt",
+      "PackagePath": "staticwebassets/lib/jquery-validation-unobtrusive/LICENSE.txt"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
+      "PackagePath": "staticwebassets/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js",
+      "PackagePath": "staticwebassets/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation/LICENSE.md",
+      "PackagePath": "staticwebassets/lib/jquery-validation/LICENSE.md"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation/dist/additional-methods.js",
+      "PackagePath": "staticwebassets/lib/jquery-validation/dist/additional-methods.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation/dist/additional-methods.min.js",
+      "PackagePath": "staticwebassets/lib/jquery-validation/dist/additional-methods.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation/dist/jquery.validate.js",
+      "PackagePath": "staticwebassets/lib/jquery-validation/dist/jquery.validate.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery-validation/dist/jquery.validate.min.js",
+      "PackagePath": "staticwebassets/lib/jquery-validation/dist/jquery.validate.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery/LICENSE.txt",
+      "PackagePath": "staticwebassets/lib/jquery/LICENSE.txt"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery/dist/jquery.js",
+      "PackagePath": "staticwebassets/lib/jquery/dist/jquery.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery/dist/jquery.min.js",
+      "PackagePath": "staticwebassets/lib/jquery/dist/jquery.min.js"
+    },
+    {
+      "Id": "/home/khanh/TH_LapTrinhWeb/Bài 2/WebBanHang_Bai2/wwwroot/lib/jquery/dist/jquery.min.map",
+      "PackagePath": "staticwebassets/lib/jquery/dist/jquery.min.map"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.WebBanHang_Bai2.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.WebBanHang_Bai2.props",
+      "PackagePath": "build\\WebBanHang_Bai2.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.WebBanHang_Bai2.props",
+      "PackagePath": "buildMultiTargeting\\WebBanHang_Bai2.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.WebBanHang_Bai2.props",
+      "PackagePath": "buildTransitive\\WebBanHang_Bai2.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

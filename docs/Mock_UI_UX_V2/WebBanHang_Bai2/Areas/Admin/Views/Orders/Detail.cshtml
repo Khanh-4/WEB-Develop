@@ -1,0 +1,76 @@
+@model WebBanHang_Bai2.Models.Order
+@{
+    ViewData["Title"] = $"Đơn hàng {Model.OrderCode}";
+    var statuses = Enum.GetValues<WebBanHang_Bai2.Models.OrderStatus>();
+}
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="tx-card">
+            <div class="tx-card-head">
+                <h5><i class="bi bi-receipt"></i> @Model.OrderCode</h5>
+                <span class="status-pill @Model.Status.ToString().ToLower()">@Model.Status</span>
+            </div>
+            <div class="p-3">
+                <table class="tx-table mb-0">
+                    <thead><tr><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
+                    <tbody>
+                        @foreach (var i in Model.Items)
+                        {
+                            <tr>
+                                <td><div class="d-flex gap-2 align-items-center"><img class="thumb" src="@(i.ImageUrl ?? "/images/placeholder.svg")" /><span>@i.ProductName</span></div></td>
+                                <td>@i.Quantity</td>
+                                <td>@i.Price.ToString("#,##0")đ</td>
+                                <td class="fw-bold">@i.LineTotal.ToString("#,##0")đ</td>
+                            </tr>
+                        }
+                        @if (!Model.Items.Any())
+                        {
+                            <tr><td colspan="4" class="text-center text-muted py-3">Đơn này không có chi tiết món hàng (dữ liệu seed).</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-3 border-top">
+                <div class="d-flex justify-content-between"><span class="text-muted">Tạm tính</span><span>@Model.Subtotal.ToString("#,##0")đ</span></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">Vận chuyển</span><span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("#,##0") + "đ")</span></div>
+                <div class="d-flex justify-content-between mt-1"><strong>Tổng cộng</strong><strong class="text-danger fs-5">@Model.Total.ToString("#,##0")đ</strong></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="tx-card mb-3">
+            <div class="tx-card-head"><h5><i class="bi bi-truck"></i> Khách hàng</h5></div>
+            <div class="p-3 small">
+                <div class="fw-semibold">@Model.CustomerName</div>
+                <div class="text-muted">@Model.Phone · @Model.Email</div>
+                <hr />
+                <div><i class="bi bi-geo-alt"></i> @Model.ShippingAddress</div>
+                @if (!string.IsNullOrEmpty(Model.Notes)) { <div class="mt-2"><i class="bi bi-chat-left-text"></i> @Model.Notes</div> }
+                <hr />
+                <div>Thanh toán: <strong>@Model.PaymentMethod</strong></div>
+                <div>Ngày đặt: @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+        </div>
+
+        <div class="tx-card">
+            <div class="tx-card-head"><h5><i class="bi bi-arrow-repeat"></i> Cập nhật trạng thái</h5></div>
+            <form asp-action="UpdateStatus" method="post" class="p-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <select name="status" class="form-select mb-2">
+                    @foreach (var s in statuses)
+                    {
+                        <option value="@((int)s)" selected="@(Model.Status == s)">@s</option>
+                    }
+                </select>
+                <button class="btn btn-gradient w-100 ripple"><i class="bi bi-check-circle"></i> Cập nhật</button>
+            </form>
+            <form asp-action="Delete" method="post" class="p-3 border-top">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button class="btn btn-outline-danger w-100"><i class="bi bi-trash"></i> Xoá đơn</button>
+            </form>
+        </div>
+    </div>
+</div>

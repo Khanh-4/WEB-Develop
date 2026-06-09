@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/WebBanHang_Bai2.props" />
+</Project>

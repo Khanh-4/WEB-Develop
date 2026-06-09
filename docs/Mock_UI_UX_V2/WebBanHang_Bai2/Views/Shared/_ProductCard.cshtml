@@ -1,0 +1,54 @@
+@model WebBanHang_Bai2.Models.Product
+@inject WebBanHang_Bai2.Services.WishlistService WishlistSvc
+@{
+    var liked = WishlistSvc.Contains(Model.Id);
+    var fullStars = (int)Math.Floor(Model.Rating);
+    var hasHalf = Model.Rating - fullStars >= 0.5;
+}
+<div class="product-card" data-anim>
+    <div class="pc-media">
+        <a asp-controller="Product" asp-action="Detail" asp-route-id="@Model.Id">
+            <img src="@(Model.ImageUrl ?? "/images/placeholder.svg")" alt="@Model.Name" loading="lazy" />
+        </a>
+        <div class="pc-badges">
+            @if (Model.IsHot) { <span class="badge-pill badge-hot">HOT</span> }
+            @if (Model.IsNew) { <span class="badge-pill badge-new">NEW</span> }
+            @if (Model.DiscountPercent > 0) { <span class="badge-pill badge-sale">-@Model.DiscountPercent%</span> }
+        </div>
+        <div class="pc-actions">
+            <button type="button" data-wishlist="@Model.Id" class="@(liked ? "active" : "")" title="Yêu thích">
+                <i class="bi @(liked ? "bi-heart-fill" : "bi-heart")"></i>
+            </button>
+            <a asp-controller="Product" asp-action="Detail" asp-route-id="@Model.Id" title="Xem chi tiết">
+                <i class="bi bi-eye"></i>
+            </a>
+        </div>
+    </div>
+    <div class="pc-body">
+        <div class="pc-cat">@Model.Category</div>
+        <a class="pc-name" asp-controller="Product" asp-action="Detail" asp-route-id="@Model.Id">@Model.Name</a>
+        <div class="pc-rating">
+            <span class="stars">
+                @for (var i = 1; i <= 5; i++)
+                {
+                    if (i <= fullStars) { <i class="bi bi-star-fill"></i> }
+                    else if (i == fullStars + 1 && hasHalf) { <i class="bi bi-star-half"></i> }
+                    else { <i class="bi bi-star empty"></i> }
+                }
+            </span>
+            <span class="count">(@Model.ReviewCount)</span>
+        </div>
+        <div class="pc-price">
+            <span class="now">@Model.Price.ToString("#,##0")đ</span>
+            @if (Model.OldPrice.HasValue && Model.OldPrice > Model.Price)
+            {
+                <span class="old">@Model.OldPrice.Value.ToString("#,##0")đ</span>
+                <span class="pct">-@Model.DiscountPercent%</span>
+            }
+        </div>
+        <button class="pc-btn ripple" type="button"
+                data-add-to-cart="@Model.Id" data-open-drawer="1">
+            <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+        </button>
+    </div>
+</div>
