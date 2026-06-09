@@ -504,6 +504,33 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Users));
     }
 
+    // ── Reviews ──────────────────────────────────────────────────
+
+    public async Task<IActionResult> Reviews(int? rating = null, string? category = null, int page = 1)
+    {
+        const int pageSize = 30;
+        var query = _db.ProductReviews.AsNoTracking().OrderByDescending(r => r.CreatedAt).AsQueryable();
+        if (rating.HasValue)   query = query.Where(r => r.Rating == rating.Value);
+        if (!string.IsNullOrWhiteSpace(category)) query = query.Where(r => r.Category == category);
+        var total = await query.CountAsync();
+        var reviews = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        ViewBag.RatingFilter   = rating;
+        ViewBag.CategoryFilter = category;
+        ViewBag.Page           = page;
+        ViewBag.TotalPages     = (int)Math.Ceiling(total / (double)pageSize);
+        ViewBag.Total          = total;
+        return View(reviews);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteReview(int id)
+    {
+        var r = await _db.ProductReviews.FindAsync(id);
+        if (r != null) { _db.ProductReviews.Remove(r); await _db.SaveChangesAsync(); }
+        TempData["Success"] = "Đã xoá đánh giá.";
+        return RedirectToAction(nameof(Reviews));
+    }
+
     // ── Scraper ──────────────────────────────────────────────────
 
     public IActionResult Scraper() => View();

@@ -118,7 +118,7 @@
                         </td>
                         @{
                             var prices = Model.Select(p => p.Price).ToList();
-                            var minPrice = prices.Min();
+                            var minPrice = prices.Count > 0 ? prices.Min() : 0m;
                         }
                         @foreach (var p in Model)
                         {

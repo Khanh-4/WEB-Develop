@@ -47,6 +47,7 @@
         <a href="/Admin/Warranties"><i class="bi bi-shield-check"></i> Bảo hành</a>
 
         <div class="section-label">Hệ thống</div>
+        <a href="/Admin/Reviews"><i class="bi bi-star"></i> Đánh giá</a>
         <a href="/Admin/Users"><i class="bi bi-people"></i> Người dùng</a>
         <a href="/Admin/Scraper"><i class="bi bi-arrow-repeat"></i> Scraper</a>
         <a href="/" asp-area=""><i class="bi bi-box-arrow-left"></i> Về trang chính</a>
@@ -111,6 +112,7 @@
 </div>
 
 <div class="tx-toast-wrap" id="toastWrap"></div>
+<form id="csrfForm" style="display:none">@Html.AntiForgeryToken()</form>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

@@ -108,10 +108,12 @@
                 <!-- User -->
                 @if (User.Identity?.IsAuthenticated == true)
                 {
+                    var _av = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "";
+                    var _avl = _av.Length > 0 ? _av[0].ToString().ToUpper() : "U";
                     <div class="dropdown">
                         <button class="btn p-0 d-flex align-items-center gap-2" data-bs-toggle="dropdown"
                                 style="background:none;border:none">
-                            <span class="avatar">@(User.FindFirst("FullName")?.Value?.Substring(0, 1).ToUpper() ?? User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")</span>
+                            <span class="avatar">@_avl</span>
                             <span class="d-none d-lg-block fw-semibold" style="color:var(--text);font-size:.88rem">@(User.FindFirst("FullName")?.Value ?? User.Identity!.Name?.Split('@')[0])</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">

@@ -1,0 +1,151 @@
+@model List<TechSpecs.Models.ProductReview>
+@{
+    ViewData["Title"] = "Đánh giá sản phẩm";
+    int page        = ViewBag.Page;
+    int totalPages  = ViewBag.TotalPages;
+    int total       = ViewBag.Total;
+    int? rFilter    = ViewBag.RatingFilter;
+    string? cFilter = ViewBag.CategoryFilter;
+
+    var cats = new[] { "cpu","motherboard","memory","gpu","psu","case","storage","cooler" };
+}
+
+<div class="p-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h4 class="fw-bold mb-0" style="color:var(--text)">
+                <i class="bi bi-star me-2" style="color:var(--primary)"></i>Đánh giá sản phẩm
+            </h4>
+            <small style="color:var(--text-muted)">@total.ToString("N0") đánh giá</small>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" class="d-flex flex-wrap gap-2 mb-4">
+        <select name="rating" class="form-select form-select-sm"
+                style="width:auto;background:var(--surface-2);border-color:var(--border);color:var(--text)"
+                onchange="this.form.submit()">
+            <option value="">Tất cả số sao</option>
+            @for (int i = 5; i >= 1; i--)
+            {
+                <option value="@i" selected="@(rFilter == i)">@i sao</option>
+            }
+        </select>
+        <select name="category" class="form-select form-select-sm"
+                style="width:auto;background:var(--surface-2);border-color:var(--border);color:var(--text)"
+                onchange="this.form.submit()">
+            <option value="">Tất cả danh mục</option>
+            @foreach (var c in cats)
+            {
+                <option value="@c" selected="@(cFilter == c)">@c.ToUpper()</option>
+            }
+        </select>
+        @if (rFilter.HasValue || !string.IsNullOrEmpty(cFilter))
+        {
+            <a asp-action="Reviews" class="btn glass px-3" style="color:var(--text)">Xóa bộ lọc</a>
+        }
+    </form>
+
+    <div class="tx-card">
+        <table class="tx-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Người dùng</th>
+                    <th>Sản phẩm</th>
+                    <th class="text-center">Sao</th>
+                    <th>Nội dung</th>
+                    <th>Ảnh</th>
+                    <th>Ngày</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold" style="font-size:.82rem">#@r.Id</td>
+                        <td style="font-size:.83rem;color:var(--text)">@r.UserDisplayName</td>
+                        <td style="font-size:.8rem;color:var(--text-muted)">
+                            <a href="/Products/Detail/@r.Category/@r.ComponentId" target="_blank"
+                               style="color:var(--primary)">@r.Category.ToUpper() #@r.ComponentId</a>
+                        </td>
+                        <td class="text-center">
+                            @for (int s = 1; s <= 5; s++)
+                            {
+                                <i class="bi @(s <= r.Rating ? "bi-star-fill" : "bi-star")"
+                                   style="font-size:.7rem;color:#f59e0b"></i>
+                            }
+                        </td>
+                        <td style="max-width:260px;font-size:.82rem;color:var(--text)">
+                            @if (!string.IsNullOrEmpty(r.Comment))
+                            {
+                                <span class="d-block text-truncate" title="@r.Comment">@r.Comment</span>
+                            }
+                            else
+                            {
+                                <span style="color:var(--text-muted)">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(r.ImageUrl))
+                            {
+                                <a href="@r.ImageUrl" target="_blank">
+                                    <img src="@r.ImageUrl" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px">
+                                </a>
+                            }
+                            else
+                            {
+                                <span style="color:var(--text-muted);font-size:.8rem">—</span>
+                            }
+                        </td>
+                        <td style="font-size:.8rem;color:var(--text-muted)">
+                            @r.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                        </td>
+                        <td>
+                            <form asp-action="DeleteReview" method="post"
+                                  onsubmit="return confirm('Xoá đánh giá này?')">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <button type="submit" class="btn btn-sm px-2 py-1"
+                                        style="color:var(--danger);background:rgba(239,68,68,.12);border:none">
+                                    <i class="bi bi-trash3" style="font-size:.8rem"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5" style="color:var(--text-muted)">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>Không có đánh giá nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="d-flex justify-content-center gap-2 mt-4">
+            @if (page > 1)
+            {
+                <a asp-action="Reviews" asp-route-page="@(page-1)" asp-route-rating="@rFilter" asp-route-category="@cFilter"
+                   class="btn glass px-3" style="color:var(--text)">&laquo;</a>
+            }
+            @for (int i = Math.Max(1, page - 2); i <= Math.Min(totalPages, page + 2); i++)
+            {
+                <a asp-action="Reviews" asp-route-page="@i" asp-route-rating="@rFilter" asp-route-category="@cFilter"
+                   class="btn @(i == page ? "btn-gradient" : "glass") px-3"
+                   style="@(i == page ? "" : "color:var(--text)")">@i</a>
+            }
+            @if (page < totalPages)
+            {
+                <a asp-action="Reviews" asp-route-page="@(page+1)" asp-route-rating="@rFilter" asp-route-category="@cFilter"
+                   class="btn glass px-3" style="color:var(--text)">&raquo;</a>
+            }
+        </div>
+    }
+</div>
