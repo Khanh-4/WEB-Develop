@@ -1,17 +1,19 @@
 @model TechSpecs.ViewModels.ProfileViewModel
 @using TechSpecs.Models
-@{ ViewData["Title"] = "My Profile";
-   var tier = MembershipTier.Resolve(Model.TotalSpend);
-   var (nextThreshold, pct) = MembershipTier.Progress(Model.TotalSpend);
+@{
+    ViewData["Title"] = "Hồ sơ";
+    var tier = MembershipTier.Resolve(Model.TotalSpend);
+    var (nextThreshold, pct) = MembershipTier.Progress(Model.TotalSpend);
 }
 
 <div class="container py-5 px-3" style="max-width:680px">
-    <h1 class="text-white fw-bold mb-4">My Profile</h1>
+    <h4 class="fw-bold mb-4" style="color:var(--text)">
+        <i class="bi bi-person-circle me-2" style="color:var(--primary)"></i>Hồ sơ của tôi
+    </h4>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert border-0 rounded-3 mb-4 d-flex align-items-center gap-2"
-             style="background:rgba(34,197,94,.15);color:#4ade80">
+        <div class="alert glass mb-4 py-2 d-flex align-items-center gap-2" style="color:#4ade80">
             <i class="bi bi-check-circle-fill fs-5"></i>
             <span>@TempData["Success"]</span>
         </div>
@@ -20,125 +22,114 @@
     <form asp-action="Profile" method="post">
         @Html.AntiForgeryToken()
 
-        <!-- Account info card -->
-        <div class="glass p-4 rounded-4 mb-4">
-            <h6 class="text-white fw-semibold mb-4"
-                style="font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;opacity:.7">
-                Account Information
+        <!-- Account info -->
+        <div class="tx-card p-4 mb-4">
+            <h6 class="fw-semibold mb-4" style="color:var(--text-muted);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase">
+                Thông tin tài khoản
             </h6>
 
-            <!-- Avatar placeholder -->
             <div class="d-flex align-items-center gap-4 mb-4">
                 <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                     style="width:72px;height:72px;background:linear-gradient(135deg,#a855f7,#6366f1)">
-                    <span class="text-white fw-bold fs-4">
+                     style="width:72px;height:72px;background:var(--gradient-primary)">
+                    <span class="fw-bold fs-4" style="color:#fff">
                         @(Model.FullName.Length > 0 ? Model.FullName[0].ToString().ToUpper() : "?")
                     </span>
                 </div>
                 <div>
-                    <div class="text-white fw-semibold">@Model.FullName</div>
-                    <div style="color:rgba(255,255,255,.5);font-size:.85rem">@Model.Email</div>
-                    <div class="mt-1">
+                    <div class="fw-semibold" style="color:var(--text)">@Model.FullName</div>
+                    <div style="color:var(--text-muted);font-size:.85rem">@Model.Email</div>
+                    <div class="mt-1 d-flex gap-1 flex-wrap">
                         @if (Model.IsGoogleAccount)
                         {
-                            <span class="badge rounded-pill px-2"
-                                  style="background:rgba(66,133,244,.2);color:#93c5fd;font-size:.7rem">
-                                <i class="bi bi-google me-1"></i>Google Account
+                            <span class="badge glass-sm" style="color:var(--accent);font-size:.7rem">
+                                <i class="bi bi-google me-1"></i>Google
                             </span>
                         }
-                        <span class="badge rounded-pill px-2 ms-1"
-                              style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-size:.7rem">
-                            Member since @Model.CreatedAt.ToString("MMM yyyy")
+                        <span class="badge glass-sm" style="color:var(--text-muted);font-size:.7rem">
+                            Thành viên từ @Model.CreatedAt.ToString("MM/yyyy")
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Full name field -->
             <div class="mb-3">
-                <label asp-for="FullName" class="form-label text-white" style="font-size:.875rem"></label>
-                <input asp-for="FullName" class="form-control" placeholder="Your full name" />
+                <label asp-for="FullName" class="form-label small" style="color:var(--text-muted)"></label>
+                <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
                 <span asp-validation-for="FullName" class="text-danger small"></span>
             </div>
-
-            <!-- Email (read-only) -->
-            <div class="mb-1">
-                <label class="form-label text-white" style="font-size:.875rem">Email</label>
-                <input type="email" class="form-control" value="@Model.Email" disabled
-                       style="opacity:.5;cursor:not-allowed" />
-                <div class="mt-1" style="color:rgba(255,255,255,.4);font-size:.78rem">
-                    Email cannot be changed.
-                </div>
+            <div>
+                <label class="form-label small" style="color:var(--text-muted)">Email</label>
+                <input type="email" class="form-control" value="@Model.Email" disabled style="opacity:.5;cursor:not-allowed" />
+                <div class="mt-1" style="color:var(--text-muted);font-size:.78rem">Email không thể thay đổi.</div>
             </div>
         </div>
 
-        <!-- Change password card (hidden for Google accounts) -->
+        <!-- Change password -->
         @if (!Model.IsGoogleAccount)
         {
-            <div class="glass p-4 rounded-4 mb-4">
-                <h6 class="text-white fw-semibold mb-4"
-                    style="font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;opacity:.7">
-                    Change Password
-                    <span style="color:rgba(255,255,255,.4);font-weight:400;text-transform:none;letter-spacing:0"> — leave blank to keep current</span>
+            <div class="tx-card p-4 mb-4">
+                <h6 class="fw-semibold mb-4" style="color:var(--text-muted);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase">
+                    Đổi mật khẩu
+                    <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;opacity:.6"> — để trống để giữ nguyên</span>
                 </h6>
 
                 <div class="mb-3">
-                    <label asp-for="CurrentPassword" class="form-label text-white" style="font-size:.875rem"></label>
+                    <label asp-for="CurrentPassword" class="form-label small" style="color:var(--text-muted)"></label>
                     <input asp-for="CurrentPassword" class="form-control" placeholder="••••••••" />
                     <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="NewPassword" class="form-label text-white" style="font-size:.875rem"></label>
-                    <input asp-for="NewPassword" class="form-control" placeholder="Min 8 characters" />
+                    <label asp-for="NewPassword" class="form-label small" style="color:var(--text-muted)"></label>
+                    <input asp-for="NewPassword" class="form-control" placeholder="Tối thiểu 8 ký tự" />
                     <span asp-validation-for="NewPassword" class="text-danger small"></span>
                 </div>
-                <div class="mb-1">
-                    <label asp-for="ConfirmPassword" class="form-label text-white" style="font-size:.875rem"></label>
+                <div>
+                    <label asp-for="ConfirmPassword" class="form-label small" style="color:var(--text-muted)"></label>
                     <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" />
                     <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                 </div>
             </div>
         }
 
-        <!-- Membership Tier Card -->
-        <div class="glass p-4 rounded-4 mb-4" style="background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(99,102,241,.08));border:1px solid rgba(168,85,247,.25)">
+        <!-- Membership Tier -->
+        <div class="tx-card p-4 mb-4" style="border-color:@tier.Color;border-width:1px">
             <div class="d-flex align-items-center gap-3 mb-3">
-                <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;border:2px solid @tier.Color">
+                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                     style="width:52px;height:52px;background:var(--surface-2);border:2px solid @tier.Color">
                     <i class="bi @tier.Icon" style="font-size:1.4rem;color:@tier.Color"></i>
                 </div>
                 <div>
-                    <div class="fw-bold" style="color:@tier.Color;font-size:1.1rem">Thành viên @tier.NameVi</div>
-                    <div class="text-muted-white" style="font-size:.82rem">@Model.LoyaltyPoints.ToString("N0") điểm tích lũy</div>
+                    <div class="fw-bold" style="color:@tier.Color;font-size:1.05rem">Thành viên @tier.NameVi</div>
+                    <div style="color:var(--text-muted);font-size:.82rem">@Model.LoyaltyPoints.ToString("N0") điểm tích lũy</div>
                 </div>
                 <div class="ms-auto text-end">
-                    <div class="text-white fw-semibold">@Model.TotalSpend.ToString("N0")đ</div>
-                    <div class="text-muted-white" style="font-size:.75rem">Tổng chi tiêu</div>
+                    <div class="fw-semibold" style="color:var(--text)">@Model.TotalSpend.ToString("N0")đ</div>
+                    <div style="color:var(--text-muted);font-size:.75rem">Tổng chi tiêu</div>
                 </div>
             </div>
             @if (pct < 100)
             {
                 <div class="mb-1 d-flex justify-content-between" style="font-size:.75rem">
-                    <span class="text-muted-white">Tiến độ đến hạng tiếp theo</span>
+                    <span style="color:var(--text-muted)">Tiến độ đến hạng tiếp theo</span>
                     <span style="color:@tier.Color">@nextThreshold.ToString("N0")đ</span>
                 </div>
-                <div style="height:6px;background:rgba(255,255,255,.1);border-radius:3px">
-                    <div style="width:@pct%;height:100%;background:linear-gradient(90deg,@tier.Color,#c084fc);border-radius:3px;transition:width .6s"></div>
+                <div style="height:5px;background:var(--surface-2);border-radius:3px">
+                    <div style="width:@pct%;height:100%;background:@tier.Color;border-radius:3px;transition:width .6s"></div>
                 </div>
             }
             else
             {
-                <div class="text-center" style="font-size:.8rem;color:@tier.Color;opacity:.8">
+                <div class="text-center" style="font-size:.8rem;color:@tier.Color">
                     <i class="bi bi-stars me-1"></i>Bạn đang ở hạng cao nhất!
                 </div>
             }
-            <!-- Tier ladder -->
             <div class="d-flex justify-content-between mt-3">
                 @foreach (var t in MembershipTier.Tiers.Reverse())
                 {
                     var active = t.Name == tier.Name;
                     <div class="text-center" style="flex:1">
-                        <i class="bi @t.Icon" style="color:@(active ? t.Color : "rgba(255,255,255,.2)");font-size:1rem"></i>
-                        <div style="font-size:.65rem;color:@(active ? t.Color : "rgba(255,255,255,.3)")" class="@(active ? "fw-bold" : "")">@t.NameVi</div>
+                        <i class="bi @t.Icon" style="color:@(active ? t.Color : "var(--text-muted)");font-size:1rem;opacity:@(active ? "1" : ".35")"></i>
+                        <div style="font-size:.65rem;color:@(active ? t.Color : "var(--text-muted)");font-weight:@(active ? "700" : "400");opacity:@(active ? "1" : ".5")">@t.NameVi</div>
                     </div>
                 }
             </div>
@@ -147,10 +138,10 @@
         <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
         <div class="d-flex gap-3">
-            <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold rounded-3">
-                <i class="bi bi-check-lg me-2"></i>Save Changes
+            <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold">
+                <i class="bi bi-check-lg me-2"></i>Lưu thay đổi
             </button>
-            <a href="/" class="btn glass text-white px-4 py-2 rounded-3">Cancel</a>
+            <a href="/" class="btn glass px-4 py-2" style="color:var(--text)">Hủy</a>
         </div>
     </form>
 </div>

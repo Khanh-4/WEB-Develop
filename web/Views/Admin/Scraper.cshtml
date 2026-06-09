@@ -1,34 +1,33 @@
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
-@{ ViewData["Title"] = "Admin — Scraper"; }
+@{ ViewData["Title"] = "Scraper"; }
 
-<div class="container py-5 px-3" style="max-width:680px">
+<div class="p-4" style="max-width:720px">
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/Admin/Dashboard" class="btn glass text-white px-2 py-1">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        <h1 class="text-white fw-bold mb-0"><i class="bi bi-arrow-repeat me-2"></i>Scraper</h1>
+        <h4 class="fw-bold mb-0" style="color:var(--text)">
+            <i class="bi bi-arrow-repeat me-2" style="color:var(--accent)"></i>Scraper
+        </h4>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert glass text-success mb-4 py-2">
+        <div class="alert glass mb-4 py-2" style="color:#4ade80">
             <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
         </div>
     }
     @if (TempData["Error"] != null)
     {
-        <div class="alert glass text-danger mb-4 py-2">
+        <div class="alert glass mb-4 py-2" style="color:var(--danger)">
             <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
         </div>
     }
 
     @if (Env.IsProduction())
     {
-        <div class="glass p-4 mb-4">
-            <h6 class="text-white fw-semibold mb-2">
-                <i class="bi bi-cloud me-2"></i>Production — GitHub Actions
+        <div class="tx-card p-4 mb-4">
+            <h6 class="fw-semibold mb-2" style="color:var(--text)">
+                <i class="bi bi-cloud me-2" style="color:var(--accent)"></i>Production — GitHub Actions
             </h6>
-            <p class="text-muted-white small mb-3">
+            <p style="color:var(--text-muted);font-size:.85rem" class="mb-3">
                 Trên Railway không có Python runtime. Scraper chạy tự động qua GitHub Actions cron mỗi 12 giờ
                 (08:00 và 20:00 giờ Việt Nam). Để chạy thủ công:
             </p>
@@ -40,10 +39,10 @@
     }
     else
     {
-        <div class="glass p-4 mb-4">
-            <h6 class="text-white fw-semibold mb-3">Chạy Scraper</h6>
-            <p class="text-muted-white small mb-4">
-                Scraper thu thập dữ liệu linh kiện từ 4 nguồn (~25 phút cho tất cả danh mục).
+        <div class="tx-card p-4 mb-4">
+            <h6 class="fw-semibold mb-3" style="color:var(--text)">Chạy Scraper</h6>
+            <p style="color:var(--text-muted);font-size:.85rem" class="mb-4">
+                Scraper thu thập dữ liệu linh kiện từ các nguồn (~25 phút cho tất cả danh mục).
                 Chạy nền, không block trang web.
             </p>
 
@@ -51,14 +50,14 @@
                 @Html.AntiForgeryToken()
 
                 <div class="mb-4">
-                    <label class="form-label text-muted-white small">Danh mục (để trống = tất cả)</label>
-                    <div class="d-flex flex-wrap gap-2 mb-2">
+                    <label class="form-label small mb-2" style="color:var(--text-muted)">Danh mục (để trống = tất cả)</label>
+                    <div class="d-flex flex-wrap gap-3 mb-2">
                         @foreach (var cat in new[] { "cpu", "gpu", "ram", "motherboard", "psu", "case", "storage", "cooler" })
                         {
                             <label class="d-flex align-items-center gap-1 cursor-pointer">
                                 <input type="checkbox" class="cat-check" value="@cat"
-                                       style="accent-color:#a855f7">
-                                <span class="text-white small">@cat</span>
+                                       style="accent-color:var(--primary)">
+                                <span style="color:var(--text);font-size:.85rem">@cat</span>
                             </label>
                         }
                     </div>
@@ -72,9 +71,9 @@
         </div>
     }
 
-    <div class="glass p-4">
-        <h6 class="text-white fw-semibold mb-3">Chạy thủ công (local)</h6>
-        <pre class="text-muted-white small mb-0" style="background:rgba(0,0,0,.3);padding:12px;border-radius:8px;overflow-x:auto">cd scraper
+    <div class="tx-card p-4">
+        <h6 class="fw-semibold mb-3" style="color:var(--text)">Chạy thủ công (local)</h6>
+        <pre style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text-muted);font-size:.82rem;overflow-x:auto">cd scraper
 source venv/bin/activate
 python main.py                     # tất cả (~25 phút)
 python main.py cpu gpu ram         # chỉ 3 danh mục</pre>

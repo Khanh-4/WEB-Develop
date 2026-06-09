@@ -1,45 +1,44 @@
 @model List<(TechSpecs.Models.ApplicationUser User, IList<string> Roles)>
 @using TechSpecs.Models
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Quản lý người dùng";
+    ViewData["Title"] = "Người dùng";
     int page       = ViewBag.Page;
     int totalPages = ViewBag.TotalPages;
     int total      = ViewBag.Total;
     string? search = ViewBag.Search;
 }
 
-<div class="container-xl py-4">
+<div class="p-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="text-white fw-bold mb-0">Quản lý người dùng</h2>
-            <small class="text-muted-white">@total.ToString("N0") tài khoản</small>
+            <h4 class="fw-bold mb-0" style="color:var(--text)">
+                <i class="bi bi-people me-2" style="color:var(--primary)"></i>Người dùng
+            </h4>
+            <small style="color:var(--text-muted)">@total.ToString("N0") tài khoản</small>
         </div>
-        <a asp-action="Dashboard" class="btn glass text-white px-4">← Dashboard</a>
     </div>
 
-    <!-- Search -->
     <form method="get" class="mb-4 d-flex gap-2">
-        <input name="search" value="@search" class="form-control glass text-white"
-               placeholder="Tìm theo email hoặc tên..." style="max-width:360px">
+        <input name="search" value="@search" class="form-control" style="max-width:360px;background:var(--surface-2);border-color:var(--border);color:var(--text)"
+               placeholder="Tìm theo email hoặc tên...">
         <button type="submit" class="btn btn-gradient px-4">Tìm</button>
         @if (!string.IsNullOrEmpty(search))
         {
-            <a asp-action="Users" class="btn glass text-white px-3">Xóa bộ lọc</a>
+            <a asp-action="Users" class="btn glass px-3" style="color:var(--text)">Xóa bộ lọc</a>
         }
     </form>
 
-    <div class="glass rounded-4 overflow-hidden">
-        <table class="table table-dark table-hover mb-0">
+    <div class="tx-card">
+        <table class="tx-table">
             <thead>
-                <tr style="background:rgba(168,85,247,.15)">
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Người dùng</th>
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Vai trò</th>
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Hạng</th>
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Tổng chi tiêu</th>
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Điểm</th>
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Ngày tạo</th>
-                    <th class="px-3 py-3 text-muted-white" style="font-size:.78rem;font-weight:600;text-transform:uppercase">Thao tác</th>
+                <tr>
+                    <th>Người dùng</th>
+                    <th>Vai trò</th>
+                    <th>Hạng</th>
+                    <th>Tổng chi tiêu</th>
+                    <th>Điểm</th>
+                    <th>Ngày tạo</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -47,46 +46,38 @@
                 {
                     var tier    = MembershipTier.Resolve(user.TotalSpend);
                     bool isAdmin = roles.Contains("Admin");
-                    <tr style="border-top:1px solid rgba(255,255,255,.06)">
-                        <td class="px-3 py-3">
-                            <div class="text-white fw-semibold" style="font-size:.88rem">@(user.FullName ?? "—")</div>
-                            <div class="text-muted-white" style="font-size:.78rem">@user.Email</div>
+                    <tr>
+                        <td>
+                            <div class="fw-semibold" style="color:var(--text);font-size:.88rem">@(user.FullName ?? "—")</div>
+                            <div style="color:var(--text-muted);font-size:.78rem">@user.Email</div>
                         </td>
-                        <td class="px-3 py-3">
+                        <td>
                             @if (isAdmin)
                             {
-                                <span class="badge" style="background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)">Admin</span>
+                                <span class="badge" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)">Admin</span>
                             }
                             else
                             {
-                                <span class="badge" style="background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)">Customer</span>
+                                <span class="badge glass-sm" style="color:var(--primary)">Customer</span>
                             }
                         </td>
-                        <td class="px-3 py-3">
+                        <td>
                             <span style="color:@tier.Color;font-size:.82rem;font-weight:600">
                                 <i class="bi @tier.Icon me-1"></i>@tier.NameVi
                             </span>
                         </td>
-                        <td class="px-3 py-3 text-white" style="font-size:.85rem">
-                            @user.TotalSpend.ToString("N0")đ
-                        </td>
-                        <td class="px-3 py-3 text-white" style="font-size:.85rem">
-                            @user.LoyaltyPoints.ToString("N0")
-                        </td>
-                        <td class="px-3 py-3 text-muted-white" style="font-size:.82rem">
-                            @user.CreatedAt.ToString("dd/MM/yyyy")
-                        </td>
-                        <td class="px-3 py-3">
+                        <td style="color:var(--text);font-size:.85rem">@user.TotalSpend.ToString("N0")đ</td>
+                        <td style="color:var(--text);font-size:.85rem">@user.LoyaltyPoints.ToString("N0")</td>
+                        <td style="color:var(--text-muted);font-size:.82rem">@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>
                             <form method="post" asp-action="SetRole" class="d-inline"
                                   onsubmit="return confirm('Đổi vai trò cho @(user.Email?.Replace("'",""))?')">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="userId" value="@user.Id" />
                                 <input type="hidden" name="role"   value="@(isAdmin ? "Customer" : "Admin")" />
-                                <button type="submit" class="btn btn-sm"
-                                        style="@(isAdmin
-                                            ? "background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)"
-                                            : "background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3)")">
-                                    @(isAdmin ? "Hạ xuống Customer" : "Nâng lên Admin")
+                                <button type="submit" class="btn btn-sm glass px-2 py-1"
+                                        style="@(isAdmin ? "color:#f87171" : "color:var(--primary)")">
+                                    @(isAdmin ? "↓ Customer" : "↑ Admin")
                                 </button>
                             </form>
                         </td>
@@ -95,7 +86,9 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-muted-white py-5">Không tìm thấy người dùng nào.</td>
+                        <td colspan="7" class="text-center py-5" style="color:var(--text-muted)">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>Không tìm thấy người dùng nào.
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -104,12 +97,13 @@
 
     @if (totalPages > 1)
     {
-        <nav class="mt-4 d-flex justify-content-center gap-2">
+        <div class="d-flex justify-content-center gap-2 mt-4">
             @for (int i = 1; i <= totalPages; i++)
             {
                 <a asp-action="Users" asp-route-page="@i" asp-route-search="@search"
-                   class="btn btn-sm @(i == page ? "btn-gradient" : "glass text-white")">@i</a>
+                   class="btn @(i == page ? "btn-gradient" : "glass") px-3"
+                   style="@(i == page ? "" : "color:var(--text)")">@i</a>
             }
-        </nav>
+        </div>
     }
 </div>

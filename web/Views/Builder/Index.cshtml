@@ -2,7 +2,9 @@
 @{ ViewData["Title"] = "PC Builder"; }
 
 <div class="container-xl py-4 px-3">
-    <h1 class="text-white fw-bold mb-4">PC Builder</h1>
+    <h4 class="fw-bold mb-4" style="color:var(--text)">
+        <i class="bi bi-cpu me-2" style="color:var(--primary)"></i>PC Builder
+    </h4>
 
     <div class="row g-4">
 
@@ -10,8 +12,8 @@
         <div class="col-lg-4">
 
             <!-- Step list -->
-            <div class="glass p-4 mb-3">
-                <h5 class="text-white fw-semibold mb-3">Your Build</h5>
+            <div class="tx-card p-4 mb-3">
+                <h5 class="fw-semibold mb-3" style="color:var(--text)">Your Build</h5>
                 <div id="buildSteps" class="d-flex flex-column gap-2">
                     @foreach (var step in new[] {
                         ("cpu",          "Processor",    "bi-cpu"),
@@ -28,70 +30,71 @@
                             <div class="d-flex align-items-center gap-3">
                                 <i class="bi @step.Item3 text-muted-white" style="font-size:1.1rem;width:20px"></i>
                                 <div class="flex-grow-1 overflow-hidden">
-                                    <div class="text-muted-white small">@step.Item2</div>
-                                    <div class="text-white small text-truncate" id="step-name-@step.Item1">Not selected</div>
+                                    <div class="small" style="color:var(--text-muted)">@step.Item2</div>
+                                    <div class="small text-truncate" style="color:var(--text)" id="step-name-@step.Item1">Not selected</div>
                                 </div>
-                                <button class="btn btn-sm text-danger p-0 border-0 d-none"
+                                <button class="btn btn-sm p-0 border-0 d-none"
+                                        style="color:var(--danger)"
                                         id="step-remove-@step.Item1"
                                         onclick="removeComponent('@step.Item1', event)">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </div>
-                            <div class="text-white fw-semibold small mt-1 d-none" id="step-price-@step.Item1"></div>
+                            <div class="fw-semibold small mt-1 d-none" style="color:var(--primary)" id="step-price-@step.Item1"></div>
                         </div>
                     }
                 </div>
             </div>
 
             <!-- Build Stats -->
-            <div class="glass p-4 mb-3">
+            <div class="tx-card p-4 mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted-white">Total Price</span>
-                    <span class="fs-4 fw-bold text-white" id="totalPrice">0đ</span>
+                    <span style="color:var(--text-muted)">Total Price</span>
+                    <span class="fs-5 fw-bold" style="color:var(--text)" id="totalPrice">0đ</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted-white">Performance</span>
+                    <span style="color:var(--text-muted)">Performance</span>
                     <div class="d-flex align-items-center gap-2">
                         <div class="perf-bar-track" style="width:96px">
                             <div class="perf-bar-fill" id="perfBar" style="width:0%"></div>
                         </div>
-                        <span class="text-white fw-semibold small" id="perfScore">0</span>
+                        <span class="fw-semibold small" style="color:var(--text)" id="perfScore">0</span>
                     </div>
                 </div>
                 <!-- P34: Power breakdown panel -->
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="text-muted-white">Power Draw</span>
-                        <span class="text-white fw-semibold" id="totalTdp">0W</span>
+                        <span style="color:var(--text-muted)">Power Draw</span>
+                        <span class="fw-semibold" style="color:var(--text)" id="totalTdp">0W</span>
                     </div>
-                    <div id="powerBreakdown" class="rounded-3 p-2 mb-2" style="background:rgba(255,255,255,.04);display:none">
+                    <div id="powerBreakdown" class="rounded-3 p-2 mb-2" style="background:var(--surface-2);display:none">
                         <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
-                            <span class="text-muted-white"><i class="bi bi-cpu me-1"></i>CPU</span>
-                            <span class="text-white" id="cpuTdpLabel">0W</span>
+                            <span style="color:var(--text-muted)"><i class="bi bi-cpu me-1"></i>CPU</span>
+                            <span style="color:var(--text)" id="cpuTdpLabel">0W</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
-                            <span class="text-muted-white"><i class="bi bi-gpu-card me-1"></i>GPU</span>
-                            <span class="text-white" id="gpuTdpLabel">0W</span>
+                            <span style="color:var(--text-muted)"><i class="bi bi-gpu-card me-1"></i>GPU</span>
+                            <span style="color:var(--text)" id="gpuTdpLabel">0W</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
-                            <span class="text-muted-white"><i class="bi bi-motherboard me-1"></i>Overhead</span>
-                            <span class="text-white">50W</span>
+                            <span style="color:var(--text-muted)"><i class="bi bi-motherboard me-1"></i>Overhead</span>
+                            <span style="color:var(--text)">50W</span>
                         </div>
                         <hr class="divider-white my-1">
                         <div class="d-flex justify-content-between" style="font-size:.78rem">
-                            <span class="text-white fw-semibold">Tổng ước tính</span>
-                            <span class="text-white fw-semibold" id="totalTdpBreakdown">50W</span>
+                            <span class="fw-semibold" style="color:var(--text)">Tổng ước tính</span>
+                            <span class="fw-semibold" style="color:var(--text)" id="totalTdpBreakdown">50W</span>
                         </div>
                     </div>
-                    <button id="filterPsuBtn" class="btn btn-sm glass text-white w-100 d-none" style="font-size:.75rem"
+                    <button id="filterPsuBtn" class="btn btn-sm glass w-100 d-none" style="font-size:.75rem;color:var(--text)"
                             onclick="jumpToPsuFilter()">
-                        <i class="bi bi-funnel me-1" style="color:#a855f7"></i>Lọc PSU phù hợp
+                        <i class="bi bi-funnel me-1" style="color:var(--primary)"></i>Lọc PSU phù hợp
                     </button>
                 </div>
                 <hr class="divider-white my-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted-white small">Recommended PSU</span>
-                    <span class="text-white small" id="recPsu">—</span>
+                    <span class="small" style="color:var(--text-muted)">Recommended PSU</span>
+                    <span class="small" style="color:var(--text)" id="recPsu">—</span>
                 </div>
             </div>
 
@@ -115,10 +118,10 @@
             <!-- Save partial build (always visible when ≥1 component) -->
             <div id="partialSaveBar" class="d-none mb-3">
                 <div class="d-flex gap-2 mb-2">
-                    <button class="btn glass text-white flex-grow-1 btn-sm" onclick="openSaveModal()">
+                    <button class="btn glass flex-grow-1 btn-sm" style="color:var(--text)" onclick="openSaveModal()">
                         <i class="bi bi-bookmark me-2"></i>Lưu / Chia sẻ
                     </button>
-                    <button class="btn glass text-white flex-grow-1 btn-sm" id="exportPdfBtnPartial" onclick="exportPdf()">
+                    <button class="btn glass flex-grow-1 btn-sm" style="color:var(--text)" id="exportPdfBtnPartial" onclick="exportPdf()">
                         <i class="bi bi-file-earmark-pdf me-2"></i>Xuất PDF
                     </button>
                 </div>
@@ -139,8 +142,8 @@
             </div>
 
             <!-- Budget filter -->
-            <div class="glass p-3">
-                <label class="text-muted-white small mb-2 d-block">Budget Filter</label>
+            <div class="tx-card p-3">
+                <label class="small mb-2 d-block" style="color:var(--text-muted)">Budget Filter</label>
                 <div class="input-group">
                     <input type="number" id="budgetInput" class="form-control"
                            placeholder="Max price (VNĐ)" oninput="debounceFilter()">
@@ -153,7 +156,7 @@
 
         <!-- ── RIGHT: Component Selection ─────────────────── -->
         <div class="col-lg-8">
-            <div class="glass p-4">
+            <div class="tx-card p-4">
 
                 <!-- Category tabs -->
                 <div class="d-flex flex-wrap gap-2 mb-4" id="categoryTabs">
@@ -179,11 +182,11 @@
                 <!-- Search + sort bar -->
                 <div class="d-flex gap-2 mb-4">
                     <div class="flex-grow-1 position-relative">
-                        <i class="bi bi-search position-absolute text-muted-white" style="left:12px;top:50%;transform:translateY(-50%)"></i>
+                        <i class="bi bi-search position-absolute" style="left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
                         <input type="text" id="searchInput" class="form-control ps-5"
                                placeholder="Search components..." oninput="debounceFilter()">
                     </div>
-                    <select class="form-select" style="width:auto" id="sortSelect" onchange="sortProducts()">
+                    <select class="form-select" style="width:auto;background:var(--surface-2);border-color:var(--border);color:var(--text)" id="sortSelect" onchange="sortProducts()">
                         <option value="pp">Best Value</option>
                         <option value="price-asc">Price ↑</option>
                         <option value="price-desc">Price ↓</option>
@@ -204,16 +207,16 @@
 </div>
 
 <!-- Compare Panel (slide-in from right) -->
-<div id="comparePanel" style="display:none;position:fixed;right:0;top:0;bottom:0;width:440px;z-index:1055;background:rgba(10,8,24,.97);border-left:1px solid rgba(168,85,247,.35);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.5)">
-    <div class="d-flex align-items-center justify-content-between p-3 border-bottom" style="border-color:rgba(168,85,247,.25)!important">
+<div id="comparePanel" style="display:none;position:fixed;right:0;top:0;bottom:0;width:440px;z-index:1055;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.5)">
+    <div class="d-flex align-items-center justify-content-between p-3" style="border-bottom:1px solid var(--border)">
         <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-bar-chart-line" style="color:#a855f7;font-size:1.1rem"></i>
-            <span class="text-white fw-semibold">So sánh Build</span>
+            <i class="bi bi-bar-chart-line" style="color:var(--primary);font-size:1.1rem"></i>
+            <span class="fw-semibold" style="color:var(--text)">So sánh Build</span>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-sm" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:.75rem"
+            <button class="btn btn-sm" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--danger);font-size:.75rem"
                     onclick="clearSnapshot()"><i class="bi bi-x-lg me-1"></i>Xóa snapshot</button>
-            <button class="btn btn-sm glass text-muted-white" onclick="document.getElementById('comparePanel').style.display='none'">
+            <button class="btn btn-sm glass" style="color:var(--text-muted)" onclick="document.getElementById('comparePanel').style.display='none'">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -230,16 +233,16 @@
     </div>
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs px-3" style="border-color:rgba(168,85,247,.2)">
+    <ul class="nav nav-tabs px-3" style="border-color:var(--border)">
         <li class="nav-item">
             <button class="nav-link active compare-tab" data-tab="radar" onclick="switchCompareTab('radar')"
-                    style="background:transparent;border:none;color:#c084fc;font-size:.82rem">
+                    style="background:transparent;border:none;color:var(--primary);font-size:.82rem">
                 <i class="bi bi-pentagon me-1"></i>Tổng quan
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link compare-tab" data-tab="detail" onclick="switchCompareTab('detail')"
-                    style="background:transparent;border:none;color:rgba(255,255,255,.5);font-size:.82rem">
+                    style="background:transparent;border:none;color:var(--text-muted);font-size:.82rem">
                 <i class="bi bi-list-ul me-1"></i>Chi tiết
             </button>
         </li>
@@ -254,13 +257,13 @@
         <div id="comparePrices" class="d-none mb-3">
             <div class="d-flex justify-content-around text-center">
                 <div>
-                    <div style="font-size:.7rem;color:rgba(255,255,255,.5)">Build A</div>
-                    <div class="text-white fw-bold" id="cmpPriceA">—</div>
+                    <div style="font-size:.7rem;color:var(--text-muted)">Build A</div>
+                    <div class="fw-bold" style="color:var(--text)" id="cmpPriceA">—</div>
                 </div>
-                <div style="color:rgba(255,255,255,.3);padding-top:12px">vs</div>
+                <div style="color:var(--text-muted);padding-top:12px">vs</div>
                 <div>
-                    <div style="font-size:.7rem;color:rgba(255,255,255,.5)">Build B</div>
-                    <div class="text-white fw-bold" id="cmpPriceB">—</div>
+                    <div style="font-size:.7rem;color:var(--text-muted)">Build B</div>
+                    <div class="fw-bold" style="color:var(--text)" id="cmpPriceB">—</div>
                 </div>
             </div>
         </div>
@@ -497,25 +500,25 @@ function renderGrid(products) {
     grid.innerHTML = sorted.map(p => {
         const isSelected = sel && sel.id === p.id;
         const specs = Object.entries(p.specs || {}).slice(0, 3)
-            .map(([k, v]) => `<span class="badge glass-sm text-white small">${k}: ${v}</span>`)
+            .map(([k, v]) => `<span class="badge glass-sm small" style="color:var(--text-muted)">${k}: ${v}</span>`)
             .join(' ');
-            
-        const badges = (p.badges || []).map(b => `<span class="badge bg-secondary mb-1 me-1">${b}</span>`).join('');
-        
+
+        const badges = (p.badges || []).map(b => `<span class="badge glass-sm mb-1 me-1" style="color:var(--primary)">${b}</span>`).join('');
+
         const ppDisplay = p.ppScore > 0 ? p.ppScore.toFixed(1) : '—';
         const imgHtml = p.imageUrl
             ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-100 h-100 object-fit-cover">`
-            : `<i class="bi bi-cpu text-muted-white" style="font-size:2.5rem"></i>`;
+            : `<i class="bi bi-cpu" style="font-size:2.5rem;color:var(--text-muted)"></i>`;
 
-        const incompatibleAlert = !p.isCompatible 
-            ? `<div class="text-danger small mt-2 fw-semibold"><i class="bi bi-x-circle me-1"></i>${p.incompatibleReason}</div>` 
+        const incompatibleAlert = !p.isCompatible
+            ? `<div class="small mt-2 fw-semibold" style="color:var(--danger)"><i class="bi bi-x-circle me-1"></i>${p.incompatibleReason}</div>`
             : '';
-            
+
         const recommendedBadge = p.isRecommended
-            ? `<div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark shadow-sm z-1"><i class="bi bi-star-fill me-1"></i>Recommended</div>`
+            ? `<div class="position-absolute top-0 end-0 m-2 badge shadow-sm z-1" style="background:var(--accent);color:#000"><i class="bi bi-star-fill me-1"></i>Best</div>`
             : '';
-            
-        const cardStyle = !p.isCompatible ? 'opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed;' : 'cursor: pointer;';
+
+        const cardStyle = !p.isCompatible ? 'opacity: 0.55; filter: grayscale(0.6); cursor: not-allowed;' : 'cursor: pointer;';
         const safeImg = p.imageUrl ? `'${escHtml(p.imageUrl)}'` : 'null';
         const onClick = p.isCompatible ? `onclick="selectComponent(${p.id}, '${escHtml(p.name)}', ${p.price}, ${p.ppScore}, ${safeImg})"` : '';
 
@@ -525,16 +528,16 @@ function renderGrid(products) {
                  style="${cardStyle}" ${onClick}>
                 ${recommendedBadge}
                 <div class="rounded-2 overflow-hidden d-flex align-items-center justify-content-center mb-2"
-                     style="height:120px;background:rgba(255,255,255,0.05)">
+                     style="height:120px;background:var(--surface-2)">
                     ${imgHtml}
                 </div>
                 <div class="mb-2">${badges}</div>
-                <h6 class="text-white mb-2 lh-sm" style="font-size:.85rem">${escHtml(p.name)}</h6>
+                <h6 class="mb-2 lh-sm" style="font-size:.85rem;color:var(--text)">${escHtml(p.name)}</h6>
                 <div class="mb-2 d-flex flex-wrap gap-1">${specs}</div>
                 <div class="d-flex justify-content-between align-items-center mt-auto">
-                    <span class="text-white fw-bold">${fmtPrice(p.price)}</span>
+                    <span class="fw-bold" style="color:var(--primary)">${fmtPrice(p.price)}</span>
                     <div class="d-flex align-items-center gap-1">
-                        <i class="bi bi-graph-up text-purple" style="color:#c084fc"></i>
+                        <i class="bi bi-graph-up text-purple"></i>
                         <span class="text-muted-white small">${ppDisplay}</span>
                     </div>
                 </div>

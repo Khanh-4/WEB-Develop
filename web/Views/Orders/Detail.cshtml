@@ -14,20 +14,18 @@
         TechSpecs.Models.OrderStatus.Cancelled    => L["Order.Status.Cancelled"].Value,
         _ => s.ToString()
     };
-
-    string StatusClass(TechSpecs.Models.OrderStatus s) => s switch
+    string StatusPillClass(TechSpecs.Models.OrderStatus s) => s switch
     {
-        TechSpecs.Models.OrderStatus.Pending      => "text-warning",
-        TechSpecs.Models.OrderStatus.Confirmed    => "text-info",
-        TechSpecs.Models.OrderStatus.Assembling   => "text-info",
-        TechSpecs.Models.OrderStatus.InstallingOS => "text-info",
-        TechSpecs.Models.OrderStatus.Shipped      => "text-primary",
-        TechSpecs.Models.OrderStatus.Delivered    => "text-success",
-        TechSpecs.Models.OrderStatus.Cancelled    => "text-danger",
-        _ => "text-white"
+        TechSpecs.Models.OrderStatus.Pending      => "pending",
+        TechSpecs.Models.OrderStatus.Confirmed    => "confirmed",
+        TechSpecs.Models.OrderStatus.Assembling   => "confirmed",
+        TechSpecs.Models.OrderStatus.InstallingOS => "confirmed",
+        TechSpecs.Models.OrderStatus.Shipped      => "shipping",
+        TechSpecs.Models.OrderStatus.Delivered    => "completed",
+        TechSpecs.Models.OrderStatus.Cancelled    => "cancelled",
+        _ => ""
     };
 
-    // Ordered pipeline steps (Cancelled handled separately)
     var steps = new[]
     {
         (TechSpecs.Models.OrderStatus.Pending,      "bi-clock",            L["Order.Status.Pending"].Value),
@@ -53,43 +51,41 @@
 
 <div class="container py-5 px-3" style="max-width:760px">
     <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="/Orders" class="btn glass text-white px-3 py-1">
+        <a href="/Orders" class="btn glass px-3 py-1" style="color:var(--text)">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <h1 class="text-white fw-bold mb-0">#@Model.Id</h1>
-        <span class="@StatusClass(Model.Status) fw-semibold ms-auto">● @StatusLabel(Model.Status)</span>
+        <h4 class="fw-bold mb-0" style="color:var(--text)">#@Model.Id</h4>
+        <span class="status-pill @StatusPillClass(Model.Status) ms-auto">@StatusLabel(Model.Status)</span>
     </div>
 
     <!-- Progress stepper -->
     @if (isCancelled)
     {
-        <div class="glass p-4 mb-4 d-flex align-items-center gap-3"
-             style="border-left:4px solid #ef4444">
-            <i class="bi bi-x-circle-fill text-danger fs-4"></i>
+        <div class="tx-card p-4 mb-4 d-flex align-items-center gap-3"
+             style="border-left:3px solid var(--danger)">
+            <i class="bi bi-x-circle-fill fs-4" style="color:var(--danger)"></i>
             <div>
-                <p class="text-white fw-semibold mb-0">@L["Order.Status.Cancelled"]</p>
-                <p class="text-muted-white mb-0" style="font-size:.82rem">Đơn hàng đã bị huỷ.</p>
+                <p class="fw-semibold mb-0" style="color:var(--text)">@L["Order.Status.Cancelled"]</p>
+                <p class="mb-0" style="color:var(--text-muted);font-size:.82rem">Đơn hàng đã bị huỷ.</p>
             </div>
         </div>
     }
     else
     {
-        <div class="glass p-4 mb-4">
+        <div class="tx-card p-4 mb-4">
             <div class="d-flex align-items-start" style="overflow-x:auto;gap:0">
                 @for (int i = 0; i < steps.Length; i++)
                 {
                     var (stepStatus, icon, label) = steps[i];
                     bool done    = currentStep > i;
                     bool active  = currentStep == i;
-                    bool pending = currentStep < i;
-                    string dotColor  = done || active ? "#a855f7" : "rgba(255,255,255,0.15)";
-                    string iconColor = done ? "#a855f7" : active ? "#ffffff" : "rgba(255,255,255,0.3)";
-                    string textColor = done || active ? "#ffffff" : "rgba(255,255,255,0.35)";
-                    string lineColor = done ? "#a855f7" : "rgba(255,255,255,0.1)";
+                    string dotBg    = done || active ? "var(--primary)" : "var(--surface-2)";
+                    string iconColor = done ? "#fff" : active ? "#fff" : "var(--text-muted)";
+                    string textColor = done || active ? "var(--text)" : "var(--text-muted)";
+                    string lineColor = done ? "var(--primary)" : "var(--border)";
                     bool isLast = i == steps.Length - 1;
-                    <div class="d-flex flex-column align-items-center flex-shrink-0" style="min-width:90px">
+                    <div class="d-flex flex-column align-items-center flex-shrink-0" style="min-width:88px">
                         <div class="d-flex align-items-center w-100">
-                            <!-- Left connector -->
                             @if (i > 0)
                             {
                                 <div style="height:2px;flex:1;background:@lineColor;margin-top:-2px"></div>
@@ -98,31 +94,29 @@
                             {
                                 <div style="flex:0.5"></div>
                             }
-                            <!-- Dot -->
                             <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                                 style="width:36px;height:36px;background:@dotColor;
-                                        @(active ? "box-shadow:0 0 0 4px rgba(168,85,247,0.25)" : "")
+                                 style="width:34px;height:34px;background:@dotBg;
+                                        @(active ? "box-shadow:0 0 0 4px rgba(139,92,246,.25)" : "")
                                         transition:all .3s">
                                 @if (done)
                                 {
-                                    <i class="bi bi-check-lg" style="color:#fff;font-size:.9rem"></i>
+                                    <i class="bi bi-check-lg" style="color:#fff;font-size:.85rem"></i>
                                 }
                                 else
                                 {
-                                    <i class="bi @icon" style="color:@iconColor;font-size:.85rem"></i>
+                                    <i class="bi @icon" style="color:@iconColor;font-size:.8rem"></i>
                                 }
                             </div>
-                            <!-- Right connector -->
                             @if (!isLast)
                             {
-                                <div style="height:2px;flex:1;background:@(done ? "#a855f7" : "rgba(255,255,255,0.1)");margin-top:-2px"></div>
+                                <div style="height:2px;flex:1;background:@(done ? "var(--primary)" : "var(--border)");margin-top:-2px"></div>
                             }
                             else
                             {
                                 <div style="flex:0.5"></div>
                             }
                         </div>
-                        <p class="text-center mt-2 mb-0 lh-sm" style="font-size:.72rem;color:@textColor;font-weight:@(active?"600":"400")">
+                        <p class="text-center mt-2 mb-0 lh-sm" style="font-size:.7rem;color:@textColor;font-weight:@(active?"600":"400")">
                             @label
                         </p>
                     </div>
@@ -132,38 +126,38 @@
     }
 
     <!-- Items -->
-    <div class="glass p-4 mb-4">
-        <h6 class="text-white fw-semibold mb-3">@L["Order.Products"]</h6>
+    <div class="tx-card p-4 mb-4">
+        <h6 class="fw-semibold mb-3" style="color:var(--text)">@L["Order.Products"]</h6>
         @foreach (var item in Model.Items)
         {
             <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded overflow-hidden"
-                     style="width:56px;height:56px;background:rgba(255,255,255,.06)">
+                     style="width:54px;height:54px;background:var(--surface-2)">
                     @if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
                         <img src="@item.ImageUrl" alt="" class="w-100 h-100 object-fit-cover">
                     }
                     else
                     {
-                        <i class="bi bi-cpu text-muted-white"></i>
+                        <i class="bi bi-cpu" style="color:var(--text-muted)"></i>
                     }
                 </div>
                 <div class="flex-grow-1">
-                    <span class="badge mb-1" style="background:rgba(168,85,247,.2);color:#c084fc;font-size:.66rem">
+                    <span class="badge glass-sm mb-1" style="color:var(--primary);font-size:.66rem">
                         @item.Category.ToUpper()
                     </span>
-                    <p class="text-white mb-0 lh-sm" style="font-size:.85rem">@item.ComponentName</p>
-                    <span class="text-muted-white" style="font-size:.78rem">
+                    <p class="mb-0 lh-sm" style="color:var(--text);font-size:.85rem">@item.ComponentName</p>
+                    <span style="color:var(--text-muted);font-size:.78rem">
                         @item.Price.ToString("N0")đ × @item.Quantity
                     </span>
                 </div>
-                <span class="text-white fw-semibold">@item.Subtotal.ToString("N0")đ</span>
+                <span class="fw-semibold" style="color:var(--text)">@item.Subtotal.ToString("N0")đ</span>
             </div>
         }
-        <hr class="border-white border-opacity-20">
+        <hr style="border-color:var(--border)">
         <div class="d-flex justify-content-between">
-            <span class="text-white fw-semibold">@L["Label.Total"]</span>
-            <span class="text-white fw-bold fs-5">@Model.TotalAmount.ToString("N0")đ</span>
+            <span class="fw-semibold" style="color:var(--text)">@L["Label.Total"]</span>
+            <span class="fw-bold fs-5" style="color:var(--primary)">@Model.TotalAmount.ToString("N0")đ</span>
         </div>
     </div>
 
@@ -173,27 +167,29 @@
         <div class="mb-4">
             @if (TempData["Error"] != null)
             {
-                <div class="alert alert-danger py-2">@TempData["Error"]</div>
+                <div class="alert glass py-2 mb-3" style="color:var(--danger)">@TempData["Error"]</div>
             }
-            <button class="btn btn-danger px-4" data-bs-toggle="modal" data-bs-target="#cancelModal">
+            <button class="btn px-4" style="background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)"
+                    data-bs-toggle="modal" data-bs-target="#cancelModal">
                 <i class="bi bi-x-circle me-1"></i>@L["Order.Cancel"]
             </button>
         </div>
 
-        <!-- Confirm modal -->
         <div class="modal fade" id="cancelModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content glass border-0">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title text-white">@L["Order.CancelConfirmTitle"]</h5>
+                <div class="modal-content" style="background:var(--surface);border:1px solid var(--border)">
+                    <div class="modal-header" style="border-color:var(--border)">
+                        <h5 class="modal-title" style="color:var(--text)">@L["Order.CancelConfirmTitle"]</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body text-muted-white">@L["Order.CancelConfirmBody"]</div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn glass text-white" data-bs-dismiss="modal">@L["Label.No"]</button>
+                    <div class="modal-body" style="color:var(--text-muted)">@L["Order.CancelConfirmBody"]</div>
+                    <div class="modal-footer" style="border-color:var(--border)">
+                        <button type="button" class="btn glass" style="color:var(--text)" data-bs-dismiss="modal">@L["Label.No"]</button>
                         <form asp-controller="Orders" asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-danger">@L["Label.YesCancel"]</button>
+                            <button type="submit" class="btn" style="background:rgba(239,68,68,.2);color:var(--danger);border:1px solid rgba(239,68,68,.3)">
+                                @L["Label.YesCancel"]
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -202,28 +198,28 @@
     }
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success py-2 mb-4">@TempData["Success"]</div>
+        <div class="alert glass py-2 mb-4" style="color:#4ade80">@TempData["Success"]</div>
     }
 
     <!-- Shipping info -->
-    <div class="glass p-4 mb-4">
-        <h6 class="text-white fw-semibold mb-3">@L["Order.ShippingInfo"]</h6>
-        <div class="row g-2 text-muted-white small">
-            <div class="col-5">@L["Order.Recipient"]</div>
-            <div class="col-7 text-white">@Model.RecipientName</div>
-            <div class="col-5">@L["Order.Phone"]</div>
-            <div class="col-7 text-white">@Model.Phone</div>
-            <div class="col-5">@L["Order.Address"]</div>
-            <div class="col-7 text-white">@Model.ShippingAddress</div>
-            <div class="col-5">@L["Order.PlacedDate"]</div>
-            <div class="col-7 text-white">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+    <div class="tx-card p-4">
+        <h6 class="fw-semibold mb-3" style="color:var(--text)">@L["Order.ShippingInfo"]</h6>
+        <div class="row g-2">
+            <div class="col-5 small" style="color:var(--text-muted)">@L["Order.Recipient"]</div>
+            <div class="col-7 small" style="color:var(--text)">@Model.RecipientName</div>
+            <div class="col-5 small" style="color:var(--text-muted)">@L["Order.Phone"]</div>
+            <div class="col-7 small" style="color:var(--text)">@Model.Phone</div>
+            <div class="col-5 small" style="color:var(--text-muted)">@L["Order.Address"]</div>
+            <div class="col-7 small" style="color:var(--text)">@Model.ShippingAddress</div>
+            <div class="col-5 small" style="color:var(--text-muted)">@L["Order.PlacedDate"]</div>
+            <div class="col-7 small" style="color:var(--text)">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
             @if (!string.IsNullOrEmpty(Model.Note))
             {
-                <div class="col-5">@L["Order.Note"]</div>
-                <div class="col-7 text-white">@Model.Note</div>
+                <div class="col-5 small" style="color:var(--text-muted)">@L["Order.Note"]</div>
+                <div class="col-7 small" style="color:var(--text)">@Model.Note</div>
             }
-            <div class="col-5">Thanh toán</div>
-            <div class="col-7 text-white">
+            <div class="col-5 small" style="color:var(--text-muted)">Thanh toán</div>
+            <div class="col-7 small" style="color:var(--text)">
                 @if (Model.PaymentMethod == PaymentMethod.BankTransfer)
                 {
                     <i class="bi bi-bank me-1" style="color:#60a5fa"></i><text>Chuyển khoản ngân hàng</text>
@@ -235,8 +231,8 @@
             </div>
             @if (Model.DiscountAmount > 0)
             {
-                <div class="col-5">Giảm giá</div>
-                <div class="col-7" style="color:#4ade80">-@Model.DiscountAmount.ToString("N0")đ</div>
+                <div class="col-5 small" style="color:var(--text-muted)">Giảm giá</div>
+                <div class="col-7 small" style="color:#4ade80">-@Model.DiscountAmount.ToString("N0")đ</div>
             }
         </div>
     </div>

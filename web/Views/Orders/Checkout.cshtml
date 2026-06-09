@@ -4,26 +4,26 @@
 
 <style>
     .step-header { display:flex; align-items:center; gap:12px; margin-bottom:1.2rem; }
-    .step-num { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#a855f7,#6366f1);
-                display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; flex-shrink:0; }
-    .step-title { font-weight:600; font-size:1.05rem; }
-    .pay-card { border:2px solid rgba(255,255,255,.1); border-radius:12px; padding:1rem 1.2rem;
-                cursor:pointer; transition:.2s; }
-    .pay-card:hover { border-color:rgba(168,85,247,.5); background:rgba(168,85,247,.05); }
-    .pay-card.selected { border-color:#a855f7; background:rgba(168,85,247,.1); }
+    .step-num { width:32px; height:32px; border-radius:50%; background:var(--gradient-primary);
+                display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; flex-shrink:0; color:#fff; }
+    .step-title { font-weight:600; font-size:1.05rem; color:var(--text); }
+    .pay-card { border:2px solid var(--border); border-radius:12px; padding:1rem 1.2rem;
+                cursor:pointer; transition:.2s; color:var(--text); }
+    .pay-card:hover { border-color:rgba(139,92,246,.5); background:rgba(139,92,246,.05); }
+    .pay-card.selected { border-color:var(--primary); background:rgba(139,92,246,.1); }
     .coupon-badge { background:rgba(34,197,94,.15); color:#4ade80; border:1px solid rgba(34,197,94,.3);
                     border-radius:6px; padding:2px 10px; font-size:.8rem; }
-    .coupon-err { color:#f87171; font-size:.8rem; }
+    .coupon-err { color:var(--danger); font-size:.8rem; }
     .summary-sticky { position:sticky; top:80px; }
     .order-item-img { width:44px; height:44px; object-fit:contain; border-radius:6px;
-                      background:rgba(255,255,255,.06); }
+                      background:var(--surface-2); }
     .discount-row { color:#4ade80; }
 </style>
 
 <div class="container-xl py-5 px-3">
-    <h1 class="fw-bold mb-5">
-        <i class="bi bi-bag-check me-2"></i>Thanh toán
-    </h1>
+    <h4 class="fw-bold mb-5" style="color:var(--text)">
+        <i class="bi bi-bag-check me-2" style="color:var(--primary)"></i>Thanh toán
+    </h4>
 
     <div id="checkoutErrors" class="alert alert-danger mb-4 d-none"></div>
 
@@ -36,14 +36,14 @@
             <div class="col-lg-7">
 
                 <!-- Section 1: Shipping info -->
-                <div class="glass p-4 rounded-4 mb-4">
+                <div class="tx-card p-4 mb-4">
                     <div class="step-header">
                         <div class="step-num">1</div>
                         <div class="step-title">Thông tin giao hàng</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small text-muted">Họ và tên *</label>
+                        <label class="form-label small" style="color:var(--text-muted)">Họ và tên *</label>
                         <input name="RecipientName" id="recipientName" class="form-control"
                                placeholder="Nguyễn Văn A" maxlength="200" required
                                value="@Model.RecipientName">
@@ -52,7 +52,7 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small text-muted">Số điện thoại *</label>
+                            <label class="form-label small" style="color:var(--text-muted)">Số điện thoại *</label>
                             <input name="Phone" id="phone" class="form-control"
                                    placeholder="0912 345 678" maxlength="20" required
                                    value="@Model.Phone">
@@ -61,7 +61,7 @@
                     </div>
 
                     <div class="mt-3">
-                        <label class="form-label small text-muted">Địa chỉ giao hàng *</label>
+                        <label class="form-label small" style="color:var(--text-muted)">Địa chỉ giao hàng *</label>
                         <textarea name="ShippingAddress" id="shippingAddress" class="form-control" rows="2"
                                   placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
                                   maxlength="500" required>@Model.ShippingAddress</textarea>
@@ -69,14 +69,14 @@
                     </div>
 
                     <div class="mt-3">
-                        <label class="form-label small text-muted">Ghi chú (tuỳ chọn)</label>
+                        <label class="form-label small" style="color:var(--text-muted)">Ghi chú (tuỳ chọn)</label>
                         <textarea name="Note" class="form-control" rows="2"
                                   placeholder="Giao giờ hành chính, để ở cổng...">@Model.Note</textarea>
                     </div>
                 </div>
 
                 <!-- Section 2: Payment method -->
-                <div class="glass p-4 rounded-4 mb-4">
+                <div class="tx-card p-4 mb-4">
                     <div class="step-header">
                         <div class="step-num">2</div>
                         <div class="step-title">Phương thức thanh toán</div>
@@ -136,23 +136,23 @@
                     </div>
 
                     <!-- QR Payment Notice -->
-                    <div id="qrNotice" class="mt-3 p-3 rounded-3 d-none" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3)">
+                    <div id="qrNotice" class="mt-3 p-3 rounded-3 d-none" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25)">
                         <div class="d-flex align-items-center gap-2 mb-2">
-                            <i class="bi bi-qr-code" style="color:#a78bfa;font-size:1.2rem"></i>
-                            <span class="text-white fw-semibold" id="qrProviderName"></span>
+                            <i class="bi bi-qr-code" style="color:var(--primary);font-size:1.2rem"></i>
+                            <span class="fw-semibold" style="color:var(--text)" id="qrProviderName"></span>
                         </div>
-                        <p class="text-muted-white mb-2" style="font-size:.82rem">
+                        <p class="mb-2" style="font-size:.82rem;color:var(--text-muted)">
                             Sau khi nhấn "Đặt hàng", bạn sẽ thấy mã QR để quét thanh toán.<br>
                             Đơn hàng xác nhận ngay sau khi hệ thống ghi nhận giao dịch.
                         </p>
-                        <div style="font-size:.78rem;color:rgba(255,255,255,.4)">
+                        <div style="font-size:.78rem;color:var(--text-muted);opacity:.6">
                             <i class="bi bi-info-circle me-1"></i>Demo mode — không thực sự tính tiền.
                         </div>
                     </div>
                 </div>
 
                 <!-- Section 3: Coupon -->
-                <div class="glass p-4 rounded-4">
+                <div class="tx-card p-4">
                     <div class="step-header">
                         <div class="step-num">3</div>
                         <div class="step-title">Mã giảm giá</div>
@@ -174,8 +174,8 @@
             <!-- Right: order summary -->
             <div class="col-lg-5">
                 <div class="summary-sticky">
-                    <div class="glass p-4 rounded-4">
-                        <h5 class="fw-semibold mb-4">Đơn hàng của bạn</h5>
+                    <div class="tx-card p-4">
+                        <h5 class="fw-semibold mb-4" style="color:var(--text)">Đơn hàng của bạn</h5>
 
                         <div id="orderItemsList">
                             @foreach (var item in Model.Cart.Items)
@@ -202,36 +202,35 @@
                             }
                         </div>
 
-                        <hr class="border-white border-opacity-20">
+                        <hr style="border-color:var(--border)">
 
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Tạm tính</span>
-                            <span>@Model.Cart.Total.ToString("N0")đ</span>
+                            <span style="color:var(--text-muted)">Tạm tính</span>
+                            <span style="color:var(--text)">@Model.Cart.Total.ToString("N0")đ</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted">Vận chuyển</span>
-                            <span class="text-success">Miễn phí</span>
+                            <span style="color:var(--text-muted)">Vận chuyển</span>
+                            <span style="color:#4ade80">Miễn phí</span>
                         </div>
                         <div id="discountRow" class="d-flex justify-content-between mb-1 d-none discount-row">
-                            <span><i class="bi bi-tag-fill me-1"></i>Giảm giá</span>
+                            <span style="color:var(--text)"><i class="bi bi-tag-fill me-1"></i>Giảm giá</span>
                             <span id="discountAmt"></span>
                         </div>
-                        <hr class="border-white border-opacity-20">
+                        <hr style="border-color:var(--border)">
                         <div class="d-flex justify-content-between mb-4">
-                            <span class="fw-semibold fs-6">Tổng cộng</span>
-                            <span class="fw-bold fs-5" id="totalDisplay"
-                                  style="background:linear-gradient(90deg,#a855f7,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+                            <span class="fw-semibold" style="color:var(--text)">Tổng cộng</span>
+                            <span class="fw-bold fs-5 text-gradient" id="totalDisplay">
                                 @Model.Cart.Total.ToString("N0")đ
                             </span>
                         </div>
 
-                        <button type="button" class="btn glass text-white w-100 mb-3"
+                        <button type="button" class="btn glass w-100 mb-3" style="color:var(--text)"
                                 onclick="showInstallment(@Model.Cart.Total, 'Đơn hàng của bạn')">
                             <i class="bi bi-calculator me-2"></i>Xem tùy chọn trả góp
                         </button>
 
                         <div class="d-flex gap-2">
-                            <a href="/Cart" class="btn glass flex-shrink-0 px-3">
+                            <a href="/Cart" class="btn glass flex-shrink-0 px-3" style="color:var(--text)">
                                 <i class="bi bi-arrow-left"></i>
                             </a>
                             <button type="submit" id="placeOrderBtn" class="btn btn-gradient flex-grow-1 py-2 fw-semibold">

@@ -1,20 +1,24 @@
 @model List<TechSpecs.Models.Bundle>
 @{
     ViewData["Title"] = "Combo / Bundle";
-    Layout = "_Layout";
 }
 
-<div class="container py-4">
+<div class="p-4">
     <div class="d-flex align-items-center gap-3 mb-4">
-        <h3 class="text-white fw-bold mb-0"><i class="bi bi-boxes me-2" style="color:#4ade80"></i>Combo / Bundle</h3>
+        <h4 class="fw-bold mb-0" style="color:var(--text)">
+            <i class="bi bi-boxes me-2" style="color:#10b981"></i>Combo / Bundle
+        </h4>
+        <span class="badge glass-sm ms-1 px-2 py-1" style="color:var(--text-muted);font-size:.75rem">@Model.Count</span>
         <a href="/Admin/CreateBundle" class="btn btn-gradient ms-auto">
-            <i class="bi bi-plus-lg me-2"></i>Tạo Combo
+            <i class="bi bi-plus-lg me-1"></i>Tạo Combo
         </a>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="glass p-4 text-center text-muted-white">Chưa có combo nào.</div>
+        <div class="tx-card p-5 text-center" style="color:var(--text-muted)">
+            <i class="bi bi-boxes fs-1 d-block mb-2 opacity-30"></i>Chưa có combo nào.
+        </div>
     }
     else
     {
@@ -22,51 +26,55 @@
         @foreach (var b in Model)
         {
             <div class="col-12 col-lg-6">
-                <div class="glass p-4 h-100">
-                    <div class="d-flex align-items-start gap-2 mb-3">
-                        <div>
-                            <div class="text-white fw-bold">@b.Name</div>
-                            @if (!string.IsNullOrEmpty(b.Description))
-                            {
-                                <div class="text-muted-white" style="font-size:.8rem">@b.Description</div>
-                            }
-                        </div>
-                        <div class="ms-auto d-flex gap-2 flex-shrink-0">
-                            <span class="badge bg-danger">-@b.DiscountPercent%</span>
-                            @if (!b.IsActive) { <span class="badge bg-secondary">Tắt</span> }
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        @foreach (var item in b.Items)
-                        {
-                            <div class="d-flex justify-content-between py-1 border-bottom" style="border-color:rgba(255,255,255,.08)!important;font-size:.82rem">
-                                <span class="text-white">@item.ProductName</span>
-                                <span class="text-muted-white">@item.Price.ToString("N0")đ</span>
+                <div class="tx-card h-100">
+                    <div class="p-4">
+                        <div class="d-flex align-items-start gap-2 mb-3">
+                            <div>
+                                <div class="fw-bold" style="color:var(--text)">@b.Name</div>
+                                @if (!string.IsNullOrEmpty(b.Description))
+                                {
+                                    <div style="color:var(--text-muted);font-size:.8rem">@b.Description</div>
+                                }
                             </div>
-                        }
-                        <div class="d-flex justify-content-between pt-2" style="font-size:.85rem">
-                            <span class="text-muted-white">Tổng gốc</span>
-                            <span class="text-muted-white line-through">@b.Items.Sum(i => i.Price).ToString("N0")đ</span>
+                            <div class="ms-auto d-flex gap-2 flex-shrink-0">
+                                <span class="badge" style="background:rgba(239,68,68,.15);color:#f87171">-@b.DiscountPercent%</span>
+                                @if (!b.IsActive) { <span class="status-pill cancelled">Tắt</span> }
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between" style="font-size:.9rem">
-                            <span class="text-white fw-semibold">Giá combo</span>
-                            <span class="fw-bold" style="color:#4ade80">
-                                @(b.Items.Sum(i => i.Price) * (1 - b.DiscountPercent / 100m)).ToString("N0")đ
-                            </span>
+                        <div class="mb-3">
+                            @foreach (var item in b.Items)
+                            {
+                                <div class="d-flex justify-content-between py-1" style="border-bottom:1px solid var(--border);font-size:.82rem">
+                                    <span style="color:var(--text)">@item.ProductName</span>
+                                    <span style="color:var(--text-muted)">@item.Price.ToString("N0")đ</span>
+                                </div>
+                            }
+                            <div class="d-flex justify-content-between pt-2" style="font-size:.83rem">
+                                <span style="color:var(--text-muted)">Tổng gốc</span>
+                                <span style="color:var(--text-muted);text-decoration:line-through">@b.Items.Sum(i => i.Price).ToString("N0")đ</span>
+                            </div>
+                            <div class="d-flex justify-content-between" style="font-size:.9rem">
+                                <span class="fw-semibold" style="color:var(--text)">Giá combo</span>
+                                <span class="fw-bold" style="color:#10b981">
+                                    @(b.Items.Sum(i => i.Price) * (1 - b.DiscountPercent / 100m)).ToString("N0")đ
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <form method="post" action="/Admin/ToggleBundle/@b.Id" class="flex-grow-1">
-                            @Html.AntiForgeryToken()
-                            <button class="btn glass text-white w-100 btn-sm">
-                                <i class="bi @(b.IsActive ? "bi-toggle-on text-success" : "bi-toggle-off text-muted") me-1"></i>
-                                @(b.IsActive ? "Đang hoạt động" : "Đã tắt")
-                            </button>
-                        </form>
-                        <form method="post" action="/Admin/DeleteBundle/@b.Id" onsubmit="return confirm('Xoá combo này?')">
-                            @Html.AntiForgeryToken()
-                            <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
-                        </form>
+                        <div class="d-flex gap-2">
+                            <form method="post" action="/Admin/ToggleBundle/@b.Id" class="flex-grow-1">
+                                @Html.AntiForgeryToken()
+                                <button class="btn glass w-100 btn-sm" style="color:@(b.IsActive ? "var(--accent)" : "var(--text-muted)")">
+                                    <i class="bi @(b.IsActive ? "bi-toggle-on" : "bi-toggle-off") me-1"></i>
+                                    @(b.IsActive ? "Đang hoạt động" : "Đã tắt")
+                                </button>
+                            </form>
+                            <form method="post" action="/Admin/DeleteBundle/@b.Id" onsubmit="return confirm('Xoá combo này?')">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm px-2" style="color:var(--danger);background:rgba(239,68,68,.12);border:none">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
