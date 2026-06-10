@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "So sánh sản phẩm";
     var allKeys = Model.SelectMany(p => p.Specs.Keys).Distinct().ToList();
-    int cols = Model.Count;
+    int cols = 3; // Always show 3 slots
 }
 
 <div class="container-xl py-4 px-3">
@@ -79,6 +79,16 @@
                                 </div>
                             </th>
                         }
+                        @for (int i = Model.Count; i < 3; i++)
+                        {
+                            <th style="padding:20px 16px;background:var(--surface);vertical-align:top;min-width:240px;border-left:1px dashed var(--border)">
+                                <div class="d-flex flex-column align-items-center justify-content-center rounded-3 mb-3"
+                                     style="height:140px;border:2px dashed var(--border);background:var(--surface-2)">
+                                     <i class="bi bi-plus-circle text-muted mb-2" style="font-size:2rem"></i>
+                                     <a href="/Products?category=@Model[0].Category" class="btn btn-sm glass" style="color:var(--text)">Thêm sản phẩm</a>
+                                </div>
+                            </th>
+                        }
                     </tr>
                 </thead>
 
@@ -108,6 +118,10 @@
                                     @val
                                 </td>
                             }
+                            @for (int i = Model.Count; i < 3; i++)
+                            {
+                                <td style="padding:12px 16px;vertical-align:middle;color:var(--text-muted);border-left:1px dashed var(--border)">—</td>
+                            }
                         </tr>
                     }
 
@@ -132,6 +146,10 @@
                                     <span class="badge ms-2" style="background:rgba(34,197,94,.2);color:#4ade80;font-size:.68rem">Rẻ nhất</span>
                                 }
                             </td>
+                        }
+                        @for (int i = Model.Count; i < 3; i++)
+                        {
+                            <td style="padding:14px 16px;vertical-align:middle;border-left:1px dashed var(--border)"></td>
                         }
                     </tr>
                 </tbody>

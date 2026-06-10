@@ -16,7 +16,7 @@
 {
     <div class="row g-0">
         <!-- Left: categories -->
-        <div class="col-7 p-3">
+        <div class="col-6 p-3">
             <p class="text-uppercase mb-2" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Linh kiện PC</p>
             <div class="row g-1">
                 @foreach (var (cat, icon, label) in megaCats)
@@ -52,7 +52,7 @@
             </a>
         </div>
         <!-- Right: CTA -->
-        <div class="col-5 p-3 d-flex flex-column gap-3"
+        <div class="col-6 p-3 d-flex flex-column gap-3"
              style="border-left:1px solid rgba(255,255,255,.06)">
             <p class="text-uppercase mb-0" style="font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em">Công cụ</p>
             <a href="/Builder" class="glass rounded-3 p-3 text-decoration-none d-block"
@@ -60,7 +60,7 @@
                onmouseover="this.style.background='rgba(168,85,247,0.15)'"
                onmouseout="this.style.background=''">
                 <i class="bi bi-tools" style="font-size:1.4rem;color:#a855f7"></i>
-                <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">PC Builder</p>
+                <p class="fw-semibold mb-1 mt-2" style="font-size:.85rem;color:var(--text)">PC Builder</p>
                 <p class="text-muted-white mb-0" style="font-size:.75rem">Tự ráp cấu hình, AI gợi ý linh kiện tương thích</p>
             </a>
             <a href="/Build/Community" class="glass rounded-3 p-3 text-decoration-none d-block"
@@ -68,7 +68,7 @@
                onmouseover="this.style.background='rgba(99,102,241,0.15)'"
                onmouseout="this.style.background=''">
                 <i class="bi bi-people" style="font-size:1.4rem;color:#6366f1"></i>
-                <p class="text-white fw-semibold mb-1 mt-2" style="font-size:.85rem">Cộng đồng</p>
+                <p class="fw-semibold mb-1 mt-2" style="font-size:.85rem;color:var(--text)">Cộng đồng</p>
                 <p class="text-muted-white mb-0" style="font-size:.75rem">Xem cấu hình từ cộng đồng, chia sẻ build của bạn</p>
             </a>
         </div>

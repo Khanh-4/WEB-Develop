@@ -305,7 +305,7 @@ public class ProductsController : Controller
             .Select(x => int.TryParse(x.Trim(), out var n) ? n : 0)
             .Where(x => x > 0).Distinct().Take(3).ToList();
 
-        if (idList.Count < 2) return RedirectToAction("Index");
+        if (idList.Count < 1) return RedirectToAction("Index");
 
         var products = new List<ProductDetailViewModel>();
         foreach (var id in idList)
@@ -325,7 +325,7 @@ public class ProductsController : Controller
             if (vm != null) products.Add(vm);
         }
 
-        if (products.Count < 2) return RedirectToAction("Index");
+        if (products.Count < 1) return RedirectToAction("Index");
         return View(products);
     }
 

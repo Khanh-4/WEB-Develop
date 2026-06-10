@@ -670,7 +670,7 @@ function toggleCompare(id, category, name, price, imageUrl) {
 function clearCompareList() { saveCmpList([]); renderCompareTray(); syncCmpButtons(); }
 function goCompare() {
     var list = getCmpList();
-    if (list.length < 2) { showToast('Chọn ít nhất 2 sản phẩm để so sánh', 'warning'); return; }
+    if (list.length < 1) { showToast('Chọn sản phẩm để so sánh', 'warning'); return; }
     window.location.href = '/Products/Compare?category=' + list[0].category + '&ids=' + list.map(function(x) { return x.id; }).join(',');
 }
 function renderCompareTray() {
@@ -690,7 +690,7 @@ function renderCompareTray() {
             + '</div>';
     }).join('');
     var btn = document.getElementById('cmpGoBtn');
-    if (btn) btn.disabled = list.length < 2;
+    if (btn) btn.disabled = list.length < 1;
 }
 function syncCmpButtons() {
     var list = getCmpList();
