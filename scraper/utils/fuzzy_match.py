@@ -11,13 +11,13 @@ CATEGORY_TABLE = {
 
 # Regex to pull short model identifier from product/article title
 _MODEL_PATTERNS: dict[str, str] = {
-    "gpu":         r'(RTX\s+\d[\d\s\w]*|RX\s+\d[\d\s\w]*|GTX\s+\d[\d\s\w]*|Arc\s+[A-Z]\d+)',
+    "gpu":         r'(RTX\s+\d[\d\w]*(?:\s+\w+){0,3}|RX\s+\d[\d\w]*(?:\s+\w+){0,3}|GTX\s+\d[\d\w]*(?:\s+\w+){0,3}|Arc\s+[A-Z]\d+)',
     "cpu":         r'(i[3579]-\d+\w*|Ryzen\s+[3579]\s+\d+\w*)',
     "ram":         r'(DDR[45][-\s]?\d{3,4}\w*)',
     "motherboard": r'([ZBH]\d{3}[A-Z0-9\-]*)',
     "storage":     r'(\d+\s?[GT]B\s+(?:NVMe|SSD|M\.2)|(?:NVMe|SSD|M\.2)\s+\d+\s?[GT]B)',
     "psu":         r'(\d{3,4}\s?W)',
-    "cooler":      r'(NH-|AIO|[A-Z]\d{3})',
+    "cooler":      r'(NH-\w+|[A-Z]{2,4}-?\d{2,4}\w*)',
     "case":        r'(Mid Tower|Full Tower|Mini ITX|ATX)',
 }
 
