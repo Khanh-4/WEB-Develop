@@ -22,6 +22,7 @@ class Cpu(Base):
     ApproximatePerformance = Column(Numeric(10, 2), nullable=False, default=0)
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class Motherboard(Base):
@@ -39,6 +40,7 @@ class Motherboard(Base):
     Chipset = Column(String(20), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class Memory(Base):
@@ -55,6 +57,7 @@ class Memory(Base):
     Profile = Column(String(30), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class VideoCard(Base):
@@ -70,6 +73,7 @@ class VideoCard(Base):
     ApproximatePerformance = Column(Numeric(10, 2), nullable=False, default=0)
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class PowerSupply(Base):
@@ -85,6 +89,7 @@ class PowerSupply(Base):
     PsuFormFactor = Column(String(10), nullable=False, default="ATX")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class CaseEnclosure(Base):
@@ -101,6 +106,7 @@ class CaseEnclosure(Base):
     RadiatorSupport = Column(String(50), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class Storage(Base):
@@ -117,6 +123,7 @@ class Storage(Base):
     WriteSpeed = Column(Integer, nullable=False, default=0)
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)
 
 
 class CpuCooler(Base):
@@ -132,3 +139,4 @@ class CpuCooler(Base):
     Type = Column(String(30), nullable=False, default="")
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
+    SourceUrl = Column(String, nullable=True)

@@ -46,16 +46,16 @@ _TABLE_CAT = {
 # Strategy: only write if the DB value is currently empty/zero ("fill-in-the-gaps").
 _SPEC_FIELDS: dict[str, list[str]] = {
     "motherboard":    ["Chipset", "SocketCompatibility", "FormFactor", "MemoryCompatibility",
-                       "MemorySlots", "MaxMemoryCapacity", "ImageUrl"],
+                       "MemorySlots", "MaxMemoryCapacity", "ImageUrl", "SourceUrl"],
     "cpu":            ["Socket", "CoreCount", "ThreadCount", "BaseClock", "BoostClock",
-                       "TDP", "ApproximatePerformance", "ImageUrl"],
-    "video_card":     ["VRAM", "Length", "TDP", "ApproximatePerformance", "ImageUrl"],
-    "memory":         ["Type", "Capacity", "Modules", "Speed", "Profile", "ImageUrl"],
-    "storage":        ["Type", "Capacity", "Interface", "ReadSpeed", "WriteSpeed", "ImageUrl"],
-    "power_supply":   ["Wattage", "Efficiency", "Modular", "PsuFormFactor", "ImageUrl"],
+                       "TDP", "ApproximatePerformance", "ImageUrl", "SourceUrl"],
+    "video_card":     ["VRAM", "Length", "TDP", "ApproximatePerformance", "ImageUrl", "SourceUrl"],
+    "memory":         ["Type", "Capacity", "Modules", "Speed", "Profile", "ImageUrl", "SourceUrl"],
+    "storage":        ["Type", "Capacity", "Interface", "ReadSpeed", "WriteSpeed", "ImageUrl", "SourceUrl"],
+    "power_supply":   ["Wattage", "Efficiency", "Modular", "PsuFormFactor", "ImageUrl", "SourceUrl"],
     "case_enclosure": ["FormFactorSupport", "MaxVGALength", "Color", "CaseType",
-                       "RadiatorSupport", "ImageUrl"],
-    "cpu_cooler":     ["SocketCompatibility", "MaxTDP", "Height", "Type", "ImageUrl"],
+                       "RadiatorSupport", "ImageUrl", "SourceUrl"],
+    "cpu_cooler":     ["SocketCompatibility", "MaxTDP", "Height", "Type", "ImageUrl", "SourceUrl"],
 }
 
 
