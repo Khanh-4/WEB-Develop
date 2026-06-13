@@ -162,6 +162,7 @@ def scrape_cpus(max_pages: int = 10) -> list[Cpu]:
                 ApproximatePerformance=score_cpu(cores, base_c, boost_c, tdp),
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} CPUs")
     return results
@@ -182,11 +183,11 @@ def scrape_motherboards(max_pages: int = 10) -> list[Motherboard]:
             time.sleep(0.3)
             name   = basic["name"]
 
-            socket  = normalize_socket(_find(specs, "socket", "loại socket", "cpu socket"))
-            ff      = normalize_form_factor(_find(specs, "form factor", "kích thước", "chuẩn"))
+            socket  = normalize_socket(_find(specs, "socket", "loại socket", "socket cpu", "cpu socket", "socket tương thích"))
+            ff      = normalize_form_factor(_find(specs, "form factor", "kích thước", "chuẩn", "chuẩn board", "kích thước bo mạch"))
             memtype = normalize_memory_type(_find(specs, "loại ram", "memory type", "chuẩn ram") or name)
             slots   = _int(_find(specs, "số khe ram", "memory slots", "khe cắm ram")) or 4
-            chipset = normalize_chipset(_find(specs, "chipset", "chip", "vi điều khiển"), name)
+            chipset = normalize_chipset(_find(specs, "chipset", "chip", "vi điều khiển", "loại chipset", "chip set", "nhà sản xuất chip"), name)
 
             if not socket:
                 socket = _mb_socket_from_name(name)
@@ -203,6 +204,7 @@ def scrape_motherboards(max_pages: int = 10) -> list[Motherboard]:
                 Chipset=chipset,
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} Motherboards")
     return results
@@ -240,6 +242,7 @@ def scrape_memory(max_pages: int = 10) -> list[Memory]:
                 Profile=profile,
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} Memory")
     return results
@@ -262,8 +265,8 @@ def scrape_video_cards(max_pages: int = 10) -> list[VideoCard]:
 
             vram_spec = _find(specs, "bộ nhớ", "vram", "memory")
             vram   = parse_capacity_gb(vram_spec) if vram_spec else _vram_from_name(name)
-            length = parse_length_mm(_find(specs, "chiều dài", "card length", "length"))
-            tdp    = parse_tdp_watts(_find(specs, "tdp", "công suất", "power consumption"))
+            length = parse_length_mm(_find(specs, "chiều dài", "card length", "length", "độ dài card", "kích thước card"))
+            tdp    = parse_tdp_watts(_find(specs, "tdp", "công suất", "power consumption", "tiêu thụ điện", "mức tiêu thụ"))
 
             results.append(VideoCard(
                 Name=name,
@@ -275,6 +278,7 @@ def scrape_video_cards(max_pages: int = 10) -> list[VideoCard]:
                 ApproximatePerformance=score_gpu(name, vram, tdp),
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} GPUs")
     return results
@@ -310,6 +314,7 @@ def scrape_power_supplies(max_pages: int = 10) -> list[PowerSupply]:
                 PsuFormFactor=psu_ff,
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} PSUs")
     return results
@@ -332,7 +337,7 @@ def scrape_cases(max_pages: int = 10) -> list[CaseEnclosure]:
 
             ff_raw  = _find(specs, "mainboard support", "hỗ trợ mainboard", "form factor", "kích thước mainboard")
             ff      = normalize_form_factor(ff_raw or "ATX")
-            max_vga = parse_length_mm(_find(specs, "chiều dài vga tối đa", "max gpu length", "gpu length"))
+            max_vga = parse_length_mm(_find(specs, "chiều dài vga tối đa", "max gpu length", "gpu length", "max vga length", "độ dài vga tối đa", "hỗ trợ vga", "vga tối đa"))
             color   = (_find(specs, "màu sắc", "color") or "")[:30] or None
             case_type = normalize_case_type(_find(specs, "loại case", "kiểu case", "tower") or "", name)
             radiator  = parse_radiator_support(specs, name)
@@ -348,6 +353,7 @@ def scrape_cases(max_pages: int = 10) -> list[CaseEnclosure]:
                 RadiatorSupport=radiator,
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} Cases")
     return results
@@ -391,6 +397,7 @@ def scrape_storage(max_pages: int = 10) -> list[Storage]:
                     WriteSpeed=write_speed,
                     ImageUrl=basic["image"],
                     Stock=1,
+                    SourceUrl=basic["url"],
                 ))
     print(f"  → {len(results)} Storage")
     return results
@@ -411,7 +418,7 @@ def scrape_cpu_coolers(max_pages: int = 10) -> list[CpuCooler]:
             time.sleep(0.3)
             name   = basic["name"]
 
-            socket_raw = _find(specs, "socket hỗ trợ", "compatible sockets", "socket", "tương thích socket")
+            socket_raw = _find(specs, "socket support", "socket hỗ trợ", "compatible sockets", "socket tương thích", "tương thích socket", "loại socket", "socket")
             max_tdp    = parse_tdp_watts(_find(specs, "tdp tối đa", "max tdp", "tdp"))
             height     = parse_length_mm(_find(specs, "chiều cao", "height", "độ cao"))
             name_l     = name.lower()
@@ -427,6 +434,7 @@ def scrape_cpu_coolers(max_pages: int = 10) -> list[CpuCooler]:
                 Type=cooler_type,
                 ImageUrl=basic["image"],
                 Stock=1,
+                SourceUrl=basic["url"],
             ))
     print(f"  → {len(results)} Coolers")
     return results
