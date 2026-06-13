@@ -190,6 +190,7 @@ def scrape_cpus() -> list[Cpu]:
             ApproximatePerformance=score_cpu(cores, base_c, boost_c, tdp),
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} CPUs")
     return results
@@ -224,6 +225,7 @@ def scrape_video_cards() -> list[VideoCard]:
             ApproximatePerformance=score_gpu(name, vram, tdp),
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} GPUs")
     return results
@@ -259,6 +261,7 @@ def scrape_memory() -> list[Memory]:
             Profile=profile,
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} Memory")
     return results
@@ -301,6 +304,7 @@ def scrape_motherboards() -> list[Motherboard]:
             Chipset=chipset,
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} Motherboards")
     return results
@@ -333,6 +337,7 @@ def scrape_power_supplies() -> list[PowerSupply]:
             PsuFormFactor=psu_ff,
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} PSUs")
     return results
@@ -368,6 +373,7 @@ def scrape_cases() -> list[CaseEnclosure]:
             RadiatorSupport=radiator,
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} Cases")
     return results
@@ -416,6 +422,7 @@ def scrape_storage() -> list[Storage]:
                 WriteSpeed=write_speed,
                 ImageUrl=_image(item),
                 Stock=1,
+                SourceUrl=BASE + item.get("productUrl", ""),
             ))
     print(f"  → {len(results)} Storage")
     return results
@@ -453,6 +460,7 @@ def scrape_cpu_coolers() -> list[CpuCooler]:
             Type=cooler_type,
             ImageUrl=_image(item),
             Stock=1,
+            SourceUrl=BASE + item.get("productUrl", ""),
         ))
     print(f"  → {len(results)} Coolers")
     return results

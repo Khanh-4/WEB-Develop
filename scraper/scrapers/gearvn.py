@@ -193,6 +193,7 @@ def scrape_cpus(all_urls: list[str]) -> list[Cpu]:
             ApproximatePerformance=score_cpu(cores, base_c, boost_c, tdp),
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} CPUs")
     return results
@@ -229,6 +230,7 @@ def scrape_motherboards(all_urls: list[str]) -> list[Motherboard]:
             Chipset=chipset,
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} Motherboards")
     return results
@@ -262,6 +264,7 @@ def scrape_memory(all_urls: list[str]) -> list[Memory]:
             Profile=profile,
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} Memory")
     return results
@@ -293,6 +296,7 @@ def scrape_video_cards(all_urls: list[str]) -> list[VideoCard]:
             ApproximatePerformance=score_gpu(name, vram, tdp),
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} GPUs")
     return results
@@ -324,6 +328,7 @@ def scrape_power_supplies(all_urls: list[str]) -> list[PowerSupply]:
             PsuFormFactor=psu_ff,
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} PSUs")
     return results
@@ -358,6 +363,7 @@ def scrape_cases(all_urls: list[str]) -> list[CaseEnclosure]:
             RadiatorSupport=radiator,
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} Cases")
     return results
@@ -398,6 +404,7 @@ def scrape_storage(all_urls: list[str]) -> list[Storage]:
                 WriteSpeed=write_speed,
                 ImageUrl=image,
                 Stock=1,
+                SourceUrl=url,
             ))
     print(f"  → {len(results)} Storage")
     return results
@@ -430,6 +437,7 @@ def scrape_cpu_coolers(all_urls: list[str]) -> list[CpuCooler]:
             Type=cooler_type,
             ImageUrl=image,
             Stock=1,
+            SourceUrl=url,
         ))
     print(f"  → {len(results)} Coolers")
     return results
