@@ -464,6 +464,29 @@ public class ProductsController : Controller
         return Json(results.Take(4));
     }
 
+    // GET /Products/Articles?category=cpu&id=123
+    [HttpGet]
+    public async Task<IActionResult> Articles(string category, int id)
+    {
+        var articles = await _db.ProductArticles
+            .Where(a => a.ProductCategory == category && a.ProductId == id)
+            .OrderByDescending(a => a.PublishedAt)
+            .Take(10)
+            .Select(a => new ProductArticleDto
+            {
+                Id            = a.Id,
+                Source        = a.Source,
+                Url           = a.Url,
+                Title         = a.Title,
+                Content       = a.Content,
+                ThumbnailUrl  = a.ThumbnailUrl,
+                PublishedAt   = a.PublishedAt,
+            })
+            .ToListAsync();
+
+        return Json(articles);
+    }
+
     // Returns filter option values for category-specific dropdowns
     [HttpGet]
     public async Task<IActionResult> FilterOptions(string category)
