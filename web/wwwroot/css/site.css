@@ -40,6 +40,26 @@
     --gradient-hero: linear-gradient(135deg, #070913 0%, #1a0630 50%, #070913 100%);
     --glow-cyan: 0 0 15px rgba(0, 240, 255, 0.35);
     --glow-pink: 0 0 15px rgba(255, 0, 127, 0.35);
+
+    /* Hero section tokens */
+    --hero-bg-start:         #090d16;
+    --hero-bg-end:           #0f172a;
+    --hero-text:             #ffffff;
+    --hero-text-muted:       rgba(255,255,255,.75);
+    --hero-outline-border:   rgba(255,255,255,.25);
+    --hero-outline-hover:    rgba(255,255,255,.08);
+    --spotlight-flash-bg:    rgba(245,158,11,.08);
+    --spotlight-flash-bd:    rgba(245,158,11,.30);
+    --spotlight-flash-icon:  rgba(245,158,11,.20);
+    --spotlight-flash-color: #fbbf24;
+    --spotlight-new-bg:      rgba(56,189,248,.07);
+    --spotlight-new-bd:      rgba(56,189,248,.25);
+    --spotlight-new-icon:    rgba(56,189,248,.15);
+    --spotlight-new-color:   #38bdf8;
+    --spotlight-hot-bg:      rgba(52,211,153,.07);
+    --spotlight-hot-bd:      rgba(52,211,153,.25);
+    --spotlight-hot-icon:    rgba(52,211,153,.15);
+    --spotlight-hot-color:   #34d399;
 }
 
 [data-theme="light"] {
@@ -54,6 +74,26 @@
     --shadow: 0 8px 30px rgba(139, 92, 246, 0.08);
     --shadow-lg: 0 20px 50px rgba(139, 92, 246, 0.15);
     --gradient-hero: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #e0e7ff 100%);
+
+    /* Hero section tokens — light overrides */
+    --hero-bg-start:         #f0f4ff;
+    --hero-bg-end:           #f0f9ff;
+    --hero-text:             #0f172a;
+    --hero-text-muted:       #475569;
+    --hero-outline-border:   rgba(15,23,42,.2);
+    --hero-outline-hover:    rgba(15,23,42,.06);
+    --spotlight-flash-bg:    rgba(245,158,11,.06);
+    --spotlight-flash-bd:    rgba(245,158,11,.25);
+    --spotlight-flash-icon:  rgba(245,158,11,.15);
+    --spotlight-flash-color: #b45309;
+    --spotlight-new-bg:      rgba(37,99,235,.05);
+    --spotlight-new-bd:      rgba(37,99,235,.20);
+    --spotlight-new-icon:    rgba(37,99,235,.10);
+    --spotlight-new-color:   #1d4ed8;
+    --spotlight-hot-bg:      rgba(5,150,105,.05);
+    --spotlight-hot-bd:      rgba(5,150,105,.20);
+    --spotlight-hot-icon:    rgba(5,150,105,.10);
+    --spotlight-hot-color:   #065f46;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -644,8 +684,8 @@ img { max-width: 100%; display: block; }
    ═══════════════════════════════════════════════════ */
 .tx-hero {
     border-radius: var(--radius-lg); overflow: hidden;
-    background: #090d16;
-    color: #fff;
+    background: linear-gradient(135deg, var(--hero-bg-start) 0%, var(--hero-bg-end) 100%);
+    color: var(--hero-text);
     padding: 4rem 3rem;
     margin: 1.5rem 0 2.5rem;
     position: relative;
@@ -674,12 +714,12 @@ img { max-width: 100%; display: block; }
     font-family: 'Outfit', sans-serif;
     font-size: clamp(1.9rem, 4.5vw, 3.2rem);
     font-weight: 800; line-height: 1.1; margin-bottom: 1rem;
-    letter-spacing: -1px; text-shadow: 0 2px 10px rgba(0,0,0,.5);
+    letter-spacing: -1px; color: var(--hero-text); text-shadow: none;
     position: relative; z-index: 2;
 }
 .tx-hero .lead {
-    font-size: 1.1rem; opacity: .95;
-    text-shadow: 0 2px 5px rgba(0,0,0,.5);
+    font-size: 1.1rem; color: var(--hero-text-muted);
+    text-shadow: none;
     position: relative; z-index: 2;
 }
 .tx-hero .hero-art {
@@ -692,6 +732,73 @@ img { max-width: 100%; display: block; }
 }
 .tx-hero .d-flex { position: relative; z-index: 2; }
 .tx-hero .badge { position: relative; z-index: 2; }
+
+/* Hero badge pill */
+.hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(var(--primary-rgb), .15);
+    border: 1px solid rgba(var(--primary-rgb), .35);
+    border-radius: 20px; padding: 4px 12px;
+    color: var(--primary); font-size: .7rem; font-weight: 700; letter-spacing: 1.5px;
+    position: relative; z-index: 2;
+}
+
+/* Hero outline secondary CTA button */
+.btn-outline-hero {
+    background: transparent !important;
+    color: var(--hero-text) !important;
+    border: 1px solid var(--hero-outline-border) !important;
+    font-weight: 600;
+}
+.btn-outline-hero:hover {
+    background: var(--hero-outline-hover) !important;
+}
+
+/* Hero left + spotlight columns */
+.hero-left, .hero-spotlight { position: relative; z-index: 2; }
+
+/* Spotlight cards */
+.spotlight-card {
+    border-radius: 12px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none;
+    transition: transform .15s, opacity .15s;
+}
+.spotlight-card:hover { transform: translateY(-2px); opacity: .9; }
+
+.spotlight-icon {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.spotlight-body { flex: 1; min-width: 0; }
+.spotlight-label { font-size: .65rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 2px; }
+.spotlight-name  { font-size: .85rem; font-weight: 700; color: var(--hero-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spotlight-price { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+.spotlight-price-now  { font-weight: 800; font-size: .9rem; }
+.spotlight-price-old  { text-decoration: line-through; font-size: .75rem; color: var(--hero-text-muted); }
+.spotlight-badge-sale { background: #ef4444; color: #fff; padding: 1px 6px; border-radius: 4px; font-size: .62rem; font-weight: 700; }
+.spotlight-badge-cat  { padding: 1px 6px; border-radius: 4px; font-size: .62rem; font-weight: 600; }
+
+/* Flash spotlight */
+.spotlight-flash { background: var(--spotlight-flash-bg); border: 1px solid var(--spotlight-flash-bd); }
+.spotlight-flash .spotlight-icon  { background: var(--spotlight-flash-icon); }
+.spotlight-flash .spotlight-label { color: var(--spotlight-flash-color); }
+.spotlight-flash .spotlight-price-now  { color: var(--spotlight-flash-color); }
+.spotlight-flash .spotlight-badge-cat  { background: var(--spotlight-flash-icon); color: var(--spotlight-flash-color); }
+
+/* New-arrival spotlight */
+.spotlight-new { background: var(--spotlight-new-bg); border: 1px solid var(--spotlight-new-bd); }
+.spotlight-new .spotlight-icon  { background: var(--spotlight-new-icon); }
+.spotlight-new .spotlight-label { color: var(--spotlight-new-color); }
+.spotlight-new .spotlight-price-now  { color: var(--spotlight-new-color); }
+.spotlight-new .spotlight-badge-cat  { background: var(--spotlight-new-icon); color: var(--spotlight-new-color); }
+
+/* Hot-pick spotlight */
+.spotlight-hot { background: var(--spotlight-hot-bg); border: 1px solid var(--spotlight-hot-bd); }
+.spotlight-hot .spotlight-icon  { background: var(--spotlight-hot-icon); }
+.spotlight-hot .spotlight-label { color: var(--spotlight-hot-color); }
+.spotlight-hot .spotlight-price-now  { color: var(--spotlight-hot-color); }
+.spotlight-hot .spotlight-badge-cat  { background: var(--spotlight-hot-icon); color: var(--spotlight-hot-color); }
 
 /* Hero slider (legacy, used in Home/Index) */
 .hero-slider .carousel-item img {
@@ -1430,10 +1537,8 @@ input[type="radio"], input[type="checkbox"], .form-check-input { accent-color: v
 [data-theme="light"] .compat-ok    { color: #065f46; }
 [data-theme="light"] .purchase-toast-text { color: var(--text); }
 
-/* Hero section — swap dark card for light palette */
+/* Hero section — light palette handled by CSS tokens in :root / [data-theme="light"] */
 [data-theme="light"] .tx-hero {
-    background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 50%, #e0e7ff 100%);
-    color: #0f172a;
     border-color: rgba(139,92,246,.25);
     box-shadow: 0 8px 30px rgba(139,92,246,.12);
 }
@@ -1443,8 +1548,6 @@ input[type="radio"], input[type="checkbox"], .form-check-input { accent-color: v
         radial-gradient(circle at 80% 20%, rgba(139,92,246,.08), transparent 45%),
         radial-gradient(circle at 20% 80%, rgba(99,102,241,.08), transparent 45%);
 }
-[data-theme="light"] .tx-hero h1 { text-shadow: none; }
-[data-theme="light"] .tx-hero .lead { text-shadow: none; opacity: .85; }
 
 /* Neon badges — cyan is invisible on white */
 [data-theme="light"] .badge-neon {
