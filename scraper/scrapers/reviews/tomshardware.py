@@ -9,6 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from .base_review import BaseReviewScraper, RawArticle
+from utils.html_clean import clean_article_html
 
 BASE = "https://www.tomshardware.com"
 HEADERS = {
@@ -27,17 +28,6 @@ def _get(url: str) -> BeautifulSoup | None:
         print(f"  [tomshardware] GET failed {url}: {e}")
         return None
 
-
-def _clean_html(soup: BeautifulSoup, base_url: str) -> str:
-    for tag in soup(["script", "style", "iframe", "aside", "nav",
-                     "div.ad-unit", "div.newsletter", "div.related-articles"]):
-        tag.decompose()
-    for img in soup.find_all("img"):
-        src = img.get("src") or img.get("data-src") or ""
-        if src:
-            img["src"] = urljoin(base_url, src)
-            img["loading"] = "lazy"
-    return str(soup)
 
 
 def _parse_date(text: str) -> datetime | None:
@@ -93,7 +83,7 @@ class TomsHardwareReviewScraper(BaseReviewScraper):
             articles.append(RawArticle(
                 url=article_url,
                 title=title,
-                content=_clean_html(body, article_url),
+                content=clean_article_html(body, article_url),
                 source=SOURCE,
                 thumbnail_url=thumb,
                 published_at=pub_date,

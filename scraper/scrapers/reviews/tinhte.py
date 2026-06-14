@@ -6,11 +6,12 @@ Article pages: https://tinhte.vn/thread/{slug}.{id}/
 import time
 import re
 from datetime import datetime, timezone
-from urllib.parse import urljoin, quote_plus
+from urllib.parse import quote_plus
 import requests
 from bs4 import BeautifulSoup
 
 from .base_review import BaseReviewScraper, RawArticle
+from utils.html_clean import clean_article_html
 
 BASE = "https://tinhte.vn"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
@@ -26,19 +27,6 @@ def _get(url: str) -> BeautifulSoup | None:
         print(f"  [tinhte] GET failed {url}: {e}")
         return None
 
-
-def _clean_html(soup: BeautifulSoup, base_url: str) -> str:
-    """Strip scripts/ads; rewrite img src to absolute URLs."""
-    for tag in soup(["script", "style", "iframe", "aside", "nav", "footer"]):
-        tag.decompose()
-    for img in soup.find_all("img"):
-        src = img.get("src") or img.get("data-src") or ""
-        if src:
-            img["src"] = urljoin(base_url, src)
-            img["loading"] = "lazy"
-        if not img.get("src"):
-            img.decompose()
-    return str(soup)
 
 
 def _parse_date(text: str) -> datetime | None:
@@ -94,7 +82,7 @@ class TinhteReviewScraper(BaseReviewScraper):
             if og:
                 thumb = og.get("content")
 
-            content_html = _clean_html(body, article_url)
+            content_html = clean_article_html(body, article_url)
             articles.append(RawArticle(
                 url=article_url,
                 title=title,

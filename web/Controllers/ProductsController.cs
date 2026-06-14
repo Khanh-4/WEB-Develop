@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,6 +13,7 @@ public class ProductsController : Controller
     private readonly AppDbContext _db;
     private readonly IMemoryCache _cache;
     private const int PageSize = 24;
+    private static readonly HtmlSanitizer _articleSanitizer = new();
 
     public ProductsController(AppDbContext db, IMemoryCache cache) { _db = db; _cache = cache; }
 
@@ -468,21 +470,22 @@ public class ProductsController : Controller
     [HttpGet]
     public async Task<IActionResult> Articles(string category, int id)
     {
-        var articles = await _db.ProductArticles
+        var rows = await _db.ProductArticles
             .Where(a => a.ProductCategory == category && a.ProductId == id)
             .OrderByDescending(a => a.PublishedAt)
             .Take(10)
-            .Select(a => new ProductArticleDto
-            {
-                Id            = a.Id,
-                Source        = a.Source,
-                Url           = a.Url,
-                Title         = a.Title,
-                Content       = a.Content,
-                ThumbnailUrl  = a.ThumbnailUrl,
-                PublishedAt   = a.PublishedAt,
-            })
             .ToListAsync();
+
+        var articles = rows.Select(a => new ProductArticleDto
+        {
+            Id           = a.Id,
+            Source       = a.Source,
+            Url          = a.Url,
+            Title        = a.Title,
+            Content      = a.Content is not null ? _articleSanitizer.Sanitize(a.Content) : null,
+            ThumbnailUrl = a.ThumbnailUrl,
+            PublishedAt  = a.PublishedAt,
+        }).ToList();
 
         return Json(articles);
     }
