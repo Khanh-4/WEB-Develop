@@ -199,7 +199,10 @@
                                     </div>
                                     <div class="pc-actions">
                                         <button type="button" title="So sánh"
-                                                onclick="toggleCompare(0,'prebuilt',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Name)),@item.Price,'@(item.ImageUrl ?? "")')">
+                                                data-pname="@item.Name"
+                                                data-pprice="@item.Price"
+                                                data-pimg="@(item.ImageUrl ?? "")"
+                                                onclick="toggleCompare(0,'prebuilt',this.dataset.pname,this.dataset.pprice,this.dataset.pimg)">
                                             <i class="bi bi-bar-chart-steps"></i>
                                         </button>
                                     </div>
