@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TechSpecs.Data;
 using TechSpecs.Models;
 using TechSpecs.Services;
@@ -29,13 +30,51 @@ public class HomeController : Controller
         _config = config;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        // Category product sections are rendered by FeaturedCategoryViewComponent (each handles its own DB query)
-        // Flash Sale section is rendered by FlashSaleViewComponent
+        var now = DateTime.UtcNow;
+
+        // Spotlight 1: soonest-expiring active flash sale
+        var spotlightFlash = await _db.FlashSales
+            .Where(f => f.IsActive && f.StartsAt <= now && f.EndsAt > now)
+            .OrderBy(f => f.EndsAt)
+            .FirstOrDefaultAsync();
+
+        // Spotlight 2: newest product by highest Id across CPU and GPU tables
+        var newestCpu = await _db.Cpus
+            .OrderByDescending(x => x.Id)
+            .Select(x => new SpotlightProductDto(x.Id, "cpu", x.Name, x.Price, x.ImageUrl))
+            .FirstOrDefaultAsync();
+        var newestGpu = await _db.VideoCards
+            .OrderByDescending(x => x.Id)
+            .Select(x => new SpotlightProductDto(x.Id, "gpu", x.Name, x.Price, x.ImageUrl))
+            .FirstOrDefaultAsync();
+        var spotlightNew = (newestCpu, newestGpu) switch
+        {
+            (null, var g) => g,
+            (var c, null) => c,
+            (var c, var g) => c.Id > g.Id ? c : g,
+        };
+
+        // Spotlight 3: best-value GPU by ApproximatePerformance/Price; fallback to CPU
+        // GPU and CPU scores use different scales so we don't cross-compare — GPU wins by default
+        var spotlightHot = await _db.VideoCards
+            .Where(x => x.Price > 0 && x.ApproximatePerformance > 0)
+            .OrderByDescending(x => x.ApproximatePerformance / x.Price)
+            .Select(x => new SpotlightProductDto(x.Id, "gpu", x.Name, x.Price, x.ImageUrl))
+            .FirstOrDefaultAsync()
+            ?? await _db.Cpus
+                .Where(x => x.Price > 0 && x.ApproximatePerformance > 0)
+                .OrderByDescending(x => x.ApproximatePerformance / x.Price)
+                .Select(x => new SpotlightProductDto(x.Id, "cpu", x.Name, x.Price, x.ImageUrl))
+                .FirstOrDefaultAsync();
+
         var vm = new HomeViewModel
         {
-            PrebuiltPcs = _mockDataService.GetPrebuiltPcs()
+            PrebuiltPcs    = _mockDataService.GetPrebuiltPcs(),
+            SpotlightFlash = spotlightFlash,
+            SpotlightNew   = spotlightNew,
+            SpotlightHot   = spotlightHot,
         };
         return View(vm);
     }
