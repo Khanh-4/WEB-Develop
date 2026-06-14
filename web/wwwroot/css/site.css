@@ -1478,3 +1478,9 @@ input[type="radio"], input[type="checkbox"], .form-check-input { accent-color: v
 .quick-link-btn:hover { transform: translateY(-3px); }
 .right-banner img { height: 184px; object-fit: cover; border-radius: 1rem; width: 100%; }
 .filter-sidebar { background: var(--surface) !important; }
+
+/* ── Article content (Bài đánh giá tab) ── */
+.article-content img { max-width: 100%; height: auto; border-radius: 6px; margin: .5rem 0; }
+.article-content h2, .article-content h3 { font-size: 1.1rem; margin-top: 1.25rem; }
+.article-content p { line-height: 1.7; }
+.article-content table { font-size: .875rem; width: 100%; }

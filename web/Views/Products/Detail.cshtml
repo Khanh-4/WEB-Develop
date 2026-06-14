@@ -340,6 +340,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Bài đánh giá tab section -->
+    <div class="mt-4">
+        <ul class="nav nav-tabs" id="articleTabNav" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="articles-tab" data-bs-toggle="tab"
+                        data-bs-target="#articles-pane" type="button" role="tab"
+                        aria-controls="articles-pane" aria-selected="true">
+                    Bài đánh giá
+                    <span class="badge bg-secondary ms-1 d-none" id="articleCount"></span>
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content" id="articleTabContent">
+            <div class="tab-pane fade show active" id="articles-pane" role="tabpanel" aria-labelledby="articles-tab">
+                <div id="articlesList" class="mt-3">
+                    <div class="text-center py-4 text-muted">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        Đang tải bài đánh giá...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -756,5 +780,70 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
         localStorage.setItem('recentlyViewed', JSON.stringify(list));
     } catch(e) {}
 })();
+
+// Load review articles on tab click (lazy, once)
+(function () {
+    const tab = document.getElementById('articles-tab');
+    if (!tab) return;
+    const category = '@Model.Category';
+    const id = '@Model.Id';
+    const list = document.getElementById('articlesList');
+    const sourceLabels = { tinhte: 'Tinhte', genk: 'GenK', tomshardware: "Tom's HW" };
+    const sourceColors = { tinhte: 'primary', genk: 'warning', tomshardware: 'danger' };
+
+    function loadArticles() {
+        tab.removeEventListener('shown.bs.tab', loadArticles);
+        fetch(`/Products/Articles?category=${encodeURIComponent(category)}&id=${encodeURIComponent(id)}`)
+            .then(r => r.json())
+            .then(function (data) {
+                if (!data.length) {
+                    list.innerHTML = '<p class="text-muted py-3 px-1">Chưa có bài đánh giá cho sản phẩm này.</p>';
+                    return;
+                }
+                const badge = document.getElementById('articleCount');
+                if (badge) { badge.textContent = data.length; badge.classList.remove('d-none'); }
+
+                list.innerHTML = data.map(function (a, i) {
+                    const date = a.publishedAt
+                        ? new Date(a.publishedAt).toLocaleDateString('vi-VN')
+                        : '';
+                    const thumbHtml = a.thumbnailUrl
+                        ? `<img src="${a.thumbnailUrl}" width="80" height="60" style="object-fit:cover;border-radius:6px;flex-shrink:0" loading="lazy" alt="">`
+                        : '';
+                    return `<div class="card mb-3 glass-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start gap-3">
+                                ${thumbHtml}
+                                <div class="flex-grow-1 min-w-0">
+                                    <span class="badge bg-${sourceColors[a.source] || 'secondary'} mb-1">
+                                        ${sourceLabels[a.source] || a.source}
+                                    </span>
+                                    <h6 class="mb-1 text-truncate">${a.title}</h6>
+                                    <small class="text-muted">${date}</small>
+                                    <div>
+                                        <button class="btn btn-link btn-sm px-0 mt-1 text-decoration-none"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#art-${i}">
+                                            Đọc bài đầy đủ ↓
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse mt-2" id="art-${i}">
+                                <div class="article-content border-top pt-3">${a.content || ''}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            })
+            .catch(function () {
+                list.innerHTML = '<p class="text-danger py-3">Lỗi tải bài đánh giá.</p>';
+            });
+    }
+
+    // Since the tab is shown by default (active), load immediately
+    loadArticles();
+}());
 </script>
 }
