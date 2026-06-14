@@ -2,11 +2,15 @@ import { test, expect } from '@playwright/test';
 import { registerAndLogin, getCartCount } from './helpers';
 
 test.describe('PC Builder', () => {
+    test.setTimeout(60_000);
+
     test.beforeEach(async ({ page }) => {
         await registerAndLogin(page);
         await page.goto('/Builder');
-        await page.waitForLoadState('networkidle');
-        await page.waitForTimeout(1500);
+        // Wait for the product grid to be populated instead of networkidle —
+        // networkidle is unreliable with Supabase latency + SourceUrl payload growth
+        await page.waitForSelector('#productGrid .component-card', { timeout: 25_000 });
+        await page.waitForTimeout(500);
     });
 
     test('loads with CPU tab active and product grid', async ({ page }) => {
