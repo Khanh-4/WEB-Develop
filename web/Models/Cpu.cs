@@ -39,4 +39,5 @@ public class Cpu
     public string? VideoUrl { get; set; }
     public int Stock { get; set; }
     public int? StockStatusOverride { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

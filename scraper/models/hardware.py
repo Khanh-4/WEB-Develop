@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Numeric, create_engine
+from sqlalchemy import Column, DateTime, Integer, String, Numeric, create_engine, func
 from sqlalchemy.orm import DeclarativeBase, Session
 
 
@@ -23,6 +23,7 @@ class Cpu(Base):
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
     SourceUrl = Column(String, nullable=True)
+    CreatedAt = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class Motherboard(Base):
@@ -74,6 +75,7 @@ class VideoCard(Base):
     ImageUrl = Column(String, nullable=True)
     Stock = Column(Integer, nullable=False, default=0)
     SourceUrl = Column(String, nullable=True)
+    CreatedAt = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 class PowerSupply(Base):

@@ -62,7 +62,9 @@
 
                         <!-- Compare checkbox -->
                         <label class="card-cmp-check" title="So sánh"
-                               onclick="toggleCompare(@item.Id,'@item.Category',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Name)),@item.Price,'@(item.ImageUrl ?? "")'); event.preventDefault(); event.stopPropagation();">
+                               data-cmp-id="@item.Id" data-cmp-cat="@item.Category"
+                               data-cmp-name="@item.Name" data-cmp-price="@item.Price" data-cmp-img="@(item.ImageUrl ?? "")"
+                               onclick="toggleCompare(this.dataset.cmpId,this.dataset.cmpCat,this.dataset.cmpName,this.dataset.cmpPrice,this.dataset.cmpImg); event.preventDefault(); event.stopPropagation();">
                             <i class="bi bi-check2-square"></i>
                         </label>
 
@@ -120,7 +122,9 @@
                     }
                     <button class="btn glass-sm text-white btn-sm flex-shrink-0"
                             id="cmpBtn_@(item.Category)_@(item.Id)"
-                            onclick="toggleCompare(@item.Id,'@item.Category',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Name)),@item.Price,'@(item.ImageUrl ?? "")')"
+                            data-cmp-id="@item.Id" data-cmp-cat="@item.Category"
+                            data-cmp-name="@item.Name" data-cmp-price="@item.Price" data-cmp-img="@(item.ImageUrl ?? "")"
+                            onclick="toggleCompare(this.dataset.cmpId,this.dataset.cmpCat,this.dataset.cmpName,this.dataset.cmpPrice,this.dataset.cmpImg)"
                             title="So sánh"
                             style="font-size:.8rem;padding:6px 9px;border-radius:7px">
                         <i class="bi bi-bar-chart-steps"></i>

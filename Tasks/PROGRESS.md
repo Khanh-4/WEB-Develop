@@ -1,7 +1,7 @@
 # 📊 Project Progress
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-03
+> Last updated: 2026-06-15
 
 ---
 
@@ -70,6 +70,26 @@ Overall                  ██████████░░░░░░░░�
 | `scraper/scrapers/phongvu.py` | Phong Vũ scraper (9 categories) |
 | `scraper/scoring/performance.py` | CPU/GPU heuristic scoring |
 | `scraper/processors/normalizer.py` | Unit normalization |
+
+---
+
+## Session 20 — Security & Quality Fixes (2026-06-15)
+
+Code review bằng ECC (7 finder angles × parallel agents) phát hiện và fix 9 bugs:
+
+| Fix | File | Mô tả |
+|-----|------|--------|
+| QuickQuote form binding | `Index.cshtml:308` | `name="Contact"` → `name="phoneOrEmail"` — form chưa bao giờ hoạt động |
+| Recently-viewed XSS | `Index.cshtml:363` | Replace `innerHTML` template literal bằng `createElement`/`textContent` |
+| FeaturedCategory XSS | `FeaturedCategory/Default.cshtml:65,123` | `toggleCompare` → `data-cmp-*` attributes (2 nơi) |
+| ProductGrid XSS | `_ProductGrid.cshtml:87` | Cùng pattern XSS fix như trên |
+| hoursLeft stale | `Index.cshtml:35` | Dùng `ViewData["Now"]` từ controller thay `DateTime.UtcNow` mới |
+| Homepage DB error | `HomeController.cs` | `try/catch` around spotlight queries + graceful fallback |
+| IMemoryCache | `HomeController.cs` | Cache spotlight 60s → giảm DB load |
+| CreatedAt migration | `Cpu`, `VideoCard` | `ALTER TABLE ADD CreatedAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP` |
+| Cross-table ID fix | `HomeController.cs` | Dùng `CreatedAt` thay `Id` để so sánh "newest" cross-table |
+
+**52/52 Playwright E2E tests pass** sau tất cả fixes.
 
 ---
 

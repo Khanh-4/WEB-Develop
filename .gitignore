@@ -30,3 +30,4 @@ tests/test-results/
 .vscode/
 .idea/
 *.swp
+.superpowers/

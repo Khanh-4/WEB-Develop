@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using TechSpecs.Data;
 using TechSpecs.Models;
 using TechSpecs.Services;
@@ -15,59 +16,83 @@ public class HomeController : Controller
     private readonly AppDbContext _db;
     private readonly IEmailSender _email;
     private readonly IConfiguration _config;
+    private readonly IMemoryCache _cache;
 
     public HomeController(
         ILogger<HomeController> logger,
         IMockDataService mockDataService,
         AppDbContext db,
         IEmailSender email,
-        IConfiguration config)
+        IConfiguration config,
+        IMemoryCache cache)
     {
         _logger = logger;
         _mockDataService = mockDataService;
         _db = db;
         _email = email;
         _config = config;
+        _cache = cache;
     }
 
     public async Task<IActionResult> Index()
     {
         var now = DateTime.UtcNow;
+        ViewData["Now"] = now;
 
-        // Spotlight 1: soonest-expiring active flash sale
-        var spotlightFlash = await _db.FlashSales
-            .Where(f => f.IsActive && f.StartsAt <= now && f.EndsAt > now)
-            .OrderBy(f => f.EndsAt)
-            .FirstOrDefaultAsync();
+        FlashSale? spotlightFlash = null;
+        SpotlightProductDto? spotlightNew = null;
+        SpotlightProductDto? spotlightHot = null;
 
-        // Spotlight 2: newest product by highest Id across CPU and GPU tables
-        var newestCpu = await _db.Cpus
-            .OrderByDescending(x => x.Id)
-            .Select(x => new SpotlightProductDto(x.Id, "cpu", x.Name, x.Price, x.ImageUrl))
-            .FirstOrDefaultAsync();
-        var newestGpu = await _db.VideoCards
-            .OrderByDescending(x => x.Id)
-            .Select(x => new SpotlightProductDto(x.Id, "gpu", x.Name, x.Price, x.ImageUrl))
-            .FirstOrDefaultAsync();
-        var spotlightNew = (newestCpu, newestGpu) switch
+        const string CacheKey = "home_spotlights";
+        if (_cache.TryGetValue<(FlashSale?, SpotlightProductDto?, SpotlightProductDto?)>(CacheKey, out var cached))
         {
-            (null, var g) => g,
-            (var c, null) => c,
-            (var c, var g) => c.Id > g.Id ? c : g,
-        };
+            (spotlightFlash, spotlightNew, spotlightHot) = cached;
+        }
+        else
+        {
+            try
+            {
+                // Sequential — DbContext is not thread-safe; cannot use Task.WhenAll on same instance
+                spotlightFlash = await _db.FlashSales
+                    .Where(f => f.IsActive && f.StartsAt <= now && f.EndsAt > now)
+                    .OrderBy(f => f.EndsAt)
+                    .FirstOrDefaultAsync();
 
-        // Spotlight 3: best-value GPU by ApproximatePerformance/Price; fallback to CPU
-        // GPU and CPU scores use different scales so we don't cross-compare — GPU wins by default
-        var spotlightHot = await _db.VideoCards
-            .Where(x => x.Price > 0 && x.ApproximatePerformance > 0)
-            .OrderByDescending(x => x.ApproximatePerformance / x.Price)
-            .Select(x => new SpotlightProductDto(x.Id, "gpu", x.Name, x.Price, x.ImageUrl))
-            .FirstOrDefaultAsync()
-            ?? await _db.Cpus
-                .Where(x => x.Price > 0 && x.ApproximatePerformance > 0)
-                .OrderByDescending(x => x.ApproximatePerformance / x.Price)
-                .Select(x => new SpotlightProductDto(x.Id, "cpu", x.Name, x.Price, x.ImageUrl))
-                .FirstOrDefaultAsync();
+                var newestCpu = await _db.Cpus
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Select(x => new SpotlightProductDto(x.Id, "cpu", x.Name, x.Price, x.ImageUrl, x.CreatedAt))
+                    .FirstOrDefaultAsync();
+                var newestGpu = await _db.VideoCards
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Select(x => new SpotlightProductDto(x.Id, "gpu", x.Name, x.Price, x.ImageUrl, x.CreatedAt))
+                    .FirstOrDefaultAsync();
+                spotlightNew = (newestCpu, newestGpu) switch
+                {
+                    (null, var g) => g,
+                    (var c, null) => c,
+                    (var c, var g) => c.CreatedAt > g.CreatedAt ? c : g,
+                };
+
+                // GPU and CPU scores use different scales so we don't cross-compare — GPU wins by default
+                spotlightHot = await _db.VideoCards
+                    .Where(x => x.Price > 0 && x.ApproximatePerformance > 0)
+                    .OrderByDescending(x => x.ApproximatePerformance / x.Price)
+                    .Select(x => new SpotlightProductDto(x.Id, "gpu", x.Name, x.Price, x.ImageUrl, x.CreatedAt))
+                    .FirstOrDefaultAsync()
+                    ?? await _db.Cpus
+                        .Where(x => x.Price > 0 && x.ApproximatePerformance > 0)
+                        .OrderByDescending(x => x.ApproximatePerformance / x.Price)
+                        .Select(x => new SpotlightProductDto(x.Id, "cpu", x.Name, x.Price, x.ImageUrl, x.CreatedAt))
+                        .FirstOrDefaultAsync();
+
+                _cache.Set(CacheKey, (spotlightFlash, spotlightNew, spotlightHot),
+                    TimeSpan.FromSeconds(60));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to load spotlight data; homepage rendered without spotlights");
+            }
+        }
 
         var vm = new HomeViewModel
         {

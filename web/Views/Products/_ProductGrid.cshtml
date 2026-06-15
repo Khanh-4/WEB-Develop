@@ -84,7 +84,9 @@ else
                                 </button>
                                 <button class="btn btn-sm glass px-2 py-1 cmp-btn" style="color:var(--text)"
                                         id="cmpBtn_@(p.Category)_@(p.Id)"
-                                        onclick="toggleCompare(@p.Id,'@p.Category',@Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.Name)),@p.Price,'@(p.ImageUrl ?? "")')"
+                                        data-cmp-id="@p.Id" data-cmp-cat="@p.Category"
+                                        data-cmp-name="@p.Name" data-cmp-price="@p.Price" data-cmp-img="@(p.ImageUrl ?? "")"
+                                        onclick="toggleCompare(this.dataset.cmpId,this.dataset.cmpCat,this.dataset.cmpName,this.dataset.cmpPrice,this.dataset.cmpImg)"
                                         title="So sánh">
                                     <i class="bi bi-bar-chart-steps" style="font-size:.8rem"></i>
                                 </button>

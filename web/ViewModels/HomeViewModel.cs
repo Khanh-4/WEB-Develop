@@ -12,9 +12,10 @@ public class HomeViewModel
 }
 
 public record SpotlightProductDto(
-    int     Id,
-    string  Category,   // "cpu" | "gpu"
-    string  Name,
-    decimal Price,
-    string? ImageUrl
+    int      Id,
+    string   Category,   // "cpu" | "gpu"
+    string   Name,
+    decimal  Price,
+    string?  ImageUrl,
+    DateTime CreatedAt
 );
