@@ -2,9 +2,25 @@
 @{ ViewData["Title"] = "PC Builder"; }
 
 <div class="container-xl py-4 px-3">
-    <h4 class="fw-bold mb-4" style="color:var(--text)">
-        <i class="bi bi-cpu me-2" style="color:var(--primary)"></i>PC Builder
-    </h4>
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h4 class="fw-bold mb-0" style="color:var(--text)">
+            <i class="bi bi-cpu me-2" style="color:var(--primary)"></i>PC Builder
+        </h4>
+        <!-- ── Option tab bar ─────────────────────────────────── -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="small" style="color:var(--text-muted)">Cấu hình:</span>
+            <div class="d-flex gap-2 flex-wrap" id="optionTabs"></div>
+            <button class="btn btn-sm glass" id="addOptionBtn"
+                    style="color:var(--primary);font-size:.8rem" onclick="addOption()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm
+            </button>
+            <button class="btn btn-sm d-none" id="compareOptionsBtn"
+                    style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);color:#c084fc;font-size:.8rem"
+                    onclick="openCompareOptions()">
+                <i class="bi bi-bar-chart-line me-1"></i>So sánh
+            </button>
+        </div>
+    </div>
 
     <div class="row g-4">
 
@@ -325,6 +341,149 @@ let currentCategory = 'cpu';
 let currentProducts  = [];
 let filterTimer      = null;
 
+// ── Multi-option state ────────────────────────────────────────
+const LS_OPTIONS_KEY  = 'builderOptions';
+const OPTION_COLORS   = ['#60a5fa', '#c084fc', '#4ade80', '#fb923c'];
+const OPTION_LABELS   = ['A', 'B', 'C', 'D'];
+let builderOptions    = []; // [{ label, buildState, selectedComponents }]
+let activeOptionIdx   = 0;
+
+function syncCurrentOption() {
+    if (!builderOptions[activeOptionIdx]) return;
+    builderOptions[activeOptionIdx].buildState         = { ...buildState };
+    builderOptions[activeOptionIdx].selectedComponents = { ...selectedComponents };
+}
+
+function renderOptionTabs() {
+    const container = document.getElementById('optionTabs');
+    if (!container) return;
+    container.innerHTML = '';
+    builderOptions.forEach((opt, idx) => {
+        const color    = OPTION_COLORS[idx];
+        const isActive = idx === activeOptionIdx;
+        const tab      = document.createElement('div');
+        tab.className  = 'd-flex align-items-center gap-1 px-3 py-1 rounded-pill';
+        tab.style.cssText = `cursor:pointer;border:1.5px solid ${color};background:${isActive ? color + '22' : 'transparent'};color:${color};font-size:.82rem;font-weight:${isActive ? '600' : '400'};transition:all .15s`;
+        tab.onclick = () => switchOption(idx);
+
+        const label   = document.createElement('span');
+        label.textContent = `Option ${opt.label}`;
+        tab.appendChild(label);
+
+        if (builderOptions.length > 1) {
+            const closeBtn        = document.createElement('button');
+            closeBtn.className    = 'btn p-0 border-0 ms-1 d-flex align-items-center';
+            closeBtn.style.cssText = `color:${color};opacity:.7;line-height:1;font-size:.7rem`;
+            closeBtn.innerHTML    = '<i class="bi bi-x-lg"></i>';
+            closeBtn.onclick      = (e) => { e.stopPropagation(); removeOption(idx); };
+            tab.appendChild(closeBtn);
+        }
+        container.appendChild(tab);
+    });
+
+    const addBtn = document.getElementById('addOptionBtn');
+    if (addBtn) addBtn.classList.toggle('d-none', builderOptions.length >= 4);
+
+    const cmpBtn = document.getElementById('compareOptionsBtn');
+    if (cmpBtn) cmpBtn.classList.toggle('d-none', builderOptions.length < 2);
+}
+
+function switchOption(idx) {
+    if (idx === activeOptionIdx) return;
+    syncCurrentOption();
+    activeOptionIdx = idx;
+    const opt = builderOptions[idx];
+    Object.assign(buildState, opt.buildState);
+    Object.keys(selectedComponents).forEach(k => delete selectedComponents[k]);
+    Object.assign(selectedComponents, opt.selectedComponents);
+    renderOptionTabs();
+    updateBuildPanel();
+    callFilterApi();
+    saveOptionsToLocalStorage();
+}
+
+function addOption() {
+    if (builderOptions.length >= 4) return;
+    syncCurrentOption();
+    const newBs    = JSON.parse(JSON.stringify(buildState));
+    const newComps = JSON.parse(JSON.stringify(selectedComponents));
+    const label    = OPTION_LABELS[builderOptions.length];
+    builderOptions.push({ label, buildState: newBs, selectedComponents: newComps });
+    activeOptionIdx = builderOptions.length - 1;
+    Object.assign(buildState, newBs);
+    Object.keys(selectedComponents).forEach(k => delete selectedComponents[k]);
+    Object.assign(selectedComponents, newComps);
+    renderOptionTabs();
+    updateBuildPanel();
+    saveOptionsToLocalStorage();
+    showToast(`<i class="bi bi-plus-circle me-2"></i>Đã thêm Option ${label} (clone từ option hiện tại)`, 'info');
+}
+
+function removeOption(idx) {
+    if (builderOptions.length <= 1) return;
+    builderOptions.splice(idx, 1);
+    builderOptions.forEach((opt, i) => { opt.label = OPTION_LABELS[i]; });
+    if (activeOptionIdx >= builderOptions.length) activeOptionIdx = builderOptions.length - 1;
+    const opt = builderOptions[activeOptionIdx];
+    Object.assign(buildState, opt.buildState);
+    Object.keys(selectedComponents).forEach(k => delete selectedComponents[k]);
+    Object.assign(selectedComponents, opt.selectedComponents);
+    renderOptionTabs();
+    updateBuildPanel();
+    callFilterApi();
+    saveOptionsToLocalStorage();
+}
+
+function saveOptionsToLocalStorage() {
+    syncCurrentOption();
+    try {
+        localStorage.setItem(LS_OPTIONS_KEY, JSON.stringify({ options: builderOptions, activeIdx: activeOptionIdx }));
+    } catch {}
+}
+
+function initOptions() {
+    try {
+        const raw = localStorage.getItem(LS_OPTIONS_KEY);
+        if (raw) {
+            const { options, activeIdx } = JSON.parse(raw);
+            if (Array.isArray(options) && options.length > 0) {
+                builderOptions  = options;
+                activeOptionIdx = activeIdx ?? 0;
+                const opt       = builderOptions[activeOptionIdx];
+                Object.assign(buildState, opt.buildState);
+                Object.keys(selectedComponents).forEach(k => delete selectedComponents[k]);
+                Object.assign(selectedComponents, opt.selectedComponents);
+                renderOptionTabs();
+                return true;
+            }
+        }
+    } catch {}
+    // Migrate từ schema cũ nếu có
+    try {
+        const lsRaw = localStorage.getItem(LS_KEY);
+        if (lsRaw) {
+            const { buildState: lsState, selectedComponents: lsComps } = JSON.parse(lsRaw);
+            if (lsState && lsComps && Object.keys(lsComps).length > 0) {
+                builderOptions  = [{ label: 'A', buildState: { ...lsState }, selectedComponents: { ...lsComps } }];
+                activeOptionIdx = 0;
+                Object.assign(buildState, lsState);
+                Object.keys(selectedComponents).forEach(k => delete selectedComponents[k]);
+                Object.assign(selectedComponents, lsComps);
+                renderOptionTabs();
+                return true;
+            }
+        }
+    } catch {}
+    builderOptions  = [{ label: 'A', buildState: { ...buildState }, selectedComponents: {} }];
+    activeOptionIdx = 0;
+    renderOptionTabs();
+    return false;
+}
+
+function openCompareOptions() {
+    showToast('<i class="bi bi-bar-chart-line me-2"></i>Tính năng so sánh đang được phát triển!', 'info');
+}
+
 const CATEGORY_KEY_MAP = {
     cpu:          'selectedCpuId',
     motherboard:  'selectedMotherboardId',
@@ -357,15 +516,20 @@ function saveToLocalStorage() {
             selectedComponents: { ...selectedComponents }
         }));
     } catch {}
+    saveOptionsToLocalStorage();
 }
 
 function clearSavedBuild() {
     try { localStorage.removeItem(LS_KEY); } catch {}
-    // Clear all selections
+    try { localStorage.removeItem(LS_OPTIONS_KEY); } catch {}
+    // Reset về 1 option trống
     Object.keys(CATEGORY_KEY_MAP).forEach(cat => {
         delete selectedComponents[cat];
         buildState[CATEGORY_KEY_MAP[cat]] = null;
     });
+    builderOptions  = [{ label: 'A', buildState: { ...buildState }, selectedComponents: {} }];
+    activeOptionIdx = 0;
+    renderOptionTabs();
     updateBuildPanel();
     callFilterApi();
     showToast('<i class="bi bi-trash me-2"></i>Đã xóa build', 'info');
@@ -378,28 +542,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (savedBuild) {
         sessionStorage.removeItem('loadBuild');
+        initOptions();
         loadSavedBuild(JSON.parse(savedBuild));
     } else if (aiPreset) {
         sessionStorage.removeItem('aiBuildPreset');
+        initOptions();
         loadAiPreset(JSON.parse(aiPreset));
     } else {
-        // P33: check localStorage for persisted build
-        try {
-            const lsRaw = localStorage.getItem(LS_KEY);
-            if (lsRaw) {
-                const { buildState: lsState, selectedComponents: lsComps } = JSON.parse(lsRaw);
-                if (lsState && lsComps && Object.keys(lsComps).length > 0) {
-                    Object.assign(buildState, lsState);
-                    Object.assign(selectedComponents, lsComps);
-                    updateBuildPanel();
-                    selectCategory('cpu');
-                    callFilterApi();
-                    return;
-                }
-            }
-        } catch {}
-        selectCategory('cpu');
-        callFilterApi();
+        const restored = initOptions();
+        if (restored && Object.keys(selectedComponents).length > 0) {
+            updateBuildPanel();
+            selectCategory('cpu');
+            callFilterApi();
+        } else {
+            selectCategory('cpu');
+            callFilterApi();
+        }
     }
 });
 
