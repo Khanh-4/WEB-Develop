@@ -8,8 +8,7 @@ public class SavedBuild
 {
     public int Id { get; set; }
 
-    [Required]
-    public string UserId { get; set; } = string.Empty;
+    public string? UserId { get; set; }    // null = anonymous build
 
     [Required, MaxLength(100)]
     public string Name { get; set; } = string.Empty;
@@ -20,11 +19,12 @@ public class SavedBuild
     [Required, MaxLength(32)]
     public string ShareToken { get; set; } = Guid.NewGuid().ToString("N");
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime  CreatedAt   { get; set; } = DateTime.UtcNow;
+    public DateTime? ExpiresAt   { get; set; }  // null = không hết hạn
+    public bool      IsAnonymous { get; set; } = false;
+    public bool      IsPublic    { get; set; } = false;
+    public int       UpvoteCount { get; set; } = 0;
 
-    public bool IsPublic { get; set; } = false;
-    public int  UpvoteCount { get; set; } = 0;
-
-    public ApplicationUser User { get; set; } = null!;
+    public ApplicationUser? User { get; set; }
     public ICollection<BuildUpvote> Upvotes { get; set; } = new List<BuildUpvote>();
 }

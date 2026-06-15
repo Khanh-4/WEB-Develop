@@ -308,7 +308,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass border-0">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-semibold" style="color:var(--text)">Save Build</h5>
+                <h5 class="modal-title fw-semibold" id="saveModalTitle" style="color:var(--text)">Lưu & Chia sẻ</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="saveModalBody">
@@ -884,29 +884,85 @@ function escHtml(s) {
 let saveBuildModal = null;
 
 function openSaveModal() {
+    if (!saveBuildModal) saveBuildModal = new bootstrap.Modal(document.getElementById('saveBuildModal'));
     @if (User.Identity?.IsAuthenticated == true)
     {
         <text>
-        if (!saveBuildModal) saveBuildModal = new bootstrap.Modal(document.getElementById('saveBuildModal'));
-        document.getElementById('buildNameInput').value = '';
+        document.getElementById('saveModalTitle').textContent = 'Lưu & Chia sẻ Build';
         document.getElementById('saveModalBody').innerHTML = `
             <div class="mb-3">
-                <label class="form-label small mb-1" style="color:var(--text-muted)">Build Name</label>
+                <label class="form-label small mb-1" style="color:var(--text-muted)">Tên build</label>
                 <input type="text" id="buildNameInput" class="form-control" maxlength="100"
-                       placeholder="e.g. Gaming PC 2025, Workstation Build…">
+                       placeholder="VD: Gaming PC 2025, Máy đồ họa…">
             </div>
             <button class="btn btn-gradient w-100" onclick="saveBuild()">
-                <i class="bi bi-bookmark-check me-2"></i>Save & Get Share Link
+                <i class="bi bi-bookmark-check me-2"></i>Lưu vĩnh viễn & lấy link
             </button>`;
-        saveBuildModal.show();
         </text>
     }
     else
     {
         <text>
-        window.location.href = '/Account/Login?returnUrl=/Builder';
+        document.getElementById('saveModalTitle').textContent = 'Chia sẻ Build';
+        document.getElementById('saveModalBody').innerHTML = `
+            <p class="small mb-3" style="color:var(--text-muted)">
+                <i class="bi bi-info-circle me-1"></i>Không cần đăng nhập — link sẽ dẫn thẳng đến cấu hình này.
+            </p>
+            <div class="mb-3">
+                <label class="form-label small mb-1" style="color:var(--text-muted)">Tên build (tuỳ chọn)</label>
+                <input type="text" id="buildNameInput" class="form-control" maxlength="100"
+                       placeholder="VD: Gaming PC tầm 15 triệu…">
+            </div>
+            <div class="mb-4">
+                <label class="form-label small mb-2 d-block" style="color:var(--text-muted)">Thời hạn link</label>
+                <div class="d-flex gap-2">
+                    <label class="ttl-option flex-1" data-ttl="7">
+                        <input type="radio" name="ttlOpt" value="7" class="d-none">
+                        <div class="px-3 py-2 rounded-3 text-center" style="border:1.5px solid var(--border);cursor:pointer;font-size:.82rem;color:var(--text-muted)">
+                            <div class="fw-semibold">7 ngày</div>
+                        </div>
+                    </label>
+                    <label class="ttl-option flex-1" data-ttl="30">
+                        <input type="radio" name="ttlOpt" value="30" class="d-none">
+                        <div class="px-3 py-2 rounded-3 text-center" style="border:1.5px solid var(--border);cursor:pointer;font-size:.82rem;color:var(--text-muted)">
+                            <div class="fw-semibold">30 ngày</div>
+                        </div>
+                    </label>
+                    <label class="ttl-option flex-1" data-ttl="0">
+                        <input type="radio" name="ttlOpt" value="0" checked class="d-none">
+                        <div class="px-3 py-2 rounded-3 text-center" style="border:1.5px solid var(--primary);background:rgba(99,102,241,.1);cursor:pointer;font-size:.82rem;color:var(--primary)">
+                            <div class="fw-semibold">Không hết hạn</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <button class="btn btn-gradient w-100" onclick="shareAnonymousBuild()">
+                <i class="bi bi-link-45deg me-2"></i>Lấy link chia sẻ
+            </button>
+            <div class="text-center mt-3">
+                <a href="/Account/Login?returnUrl=/Builder" class="small" style="color:var(--text-muted)">
+                    Đăng nhập để lưu vĩnh viễn vào tài khoản →
+                </a>
+            </div>`;
+        // TTL option click handler
+        setTimeout(() => {
+            document.querySelectorAll('.ttl-option').forEach(lbl => {
+                lbl.addEventListener('click', () => {
+                    document.querySelectorAll('.ttl-option > div').forEach(d => {
+                        d.style.borderColor = 'var(--border)';
+                        d.style.background  = 'transparent';
+                        d.style.color       = 'var(--text-muted)';
+                    });
+                    const sel = lbl.querySelector('div');
+                    sel.style.borderColor = 'var(--primary)';
+                    sel.style.background  = 'rgba(99,102,241,.1)';
+                    sel.style.color       = 'var(--primary)';
+                });
+            });
+        }, 0);
         </text>
     }
+    saveBuildModal.show();
 }
 
 async function saveBuild() {
@@ -950,6 +1006,50 @@ async function saveBuild() {
         <div class="d-flex gap-2">
             <a href="/Build/MyBuilds" class="btn glass flex-grow-1" style="color:var(--text)">My Builds</a>
             <a href="${data.shareUrl}" class="btn btn-gradient flex-grow-1" target="_blank">View</a>
+        </div>`;
+}
+
+async function shareAnonymousBuild() {
+    const name    = document.getElementById('buildNameInput')?.value?.trim() || '';
+    const ttlVal  = document.querySelector('input[name="ttlOpt"]:checked')?.value;
+    const ttlDays = ttlVal === '0' || ttlVal == null ? null : parseInt(ttlVal, 10);
+
+    const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]')?.value || '';
+    const btn   = document.querySelector('#saveBuildModal .btn-gradient');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang tạo link…'; }
+
+    const r = await fetch('/Build/ShareAnonymous', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+        body: JSON.stringify({ buildJson: JSON.stringify(selectedComponents), name, ttlDays })
+    });
+
+    if (!r.ok) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-link-45deg me-2"></i>Lấy link chia sẻ'; }
+        showToast('Tạo link thất bại, thử lại.', 'danger');
+        return;
+    }
+
+    const data = await r.json();
+    const ttlText = ttlDays ? `Hết hạn sau ${ttlDays} ngày` : 'Không hết hạn';
+    document.getElementById('saveModalBody').innerHTML = `
+        <div class="text-center mb-3">
+            <i class="bi bi-link-45deg text-success" style="font-size:2rem"></i>
+            <div class="fw-semibold mt-2" style="color:var(--text)">Link đã sẵn sàng!</div>
+            <div class="small mt-1" style="color:var(--text-muted)">${ttlText}</div>
+        </div>
+        <div class="mb-3">
+            <div class="input-group">
+                <input type="text" class="form-control" id="shareLinkInput" value="${data.shareUrl}" readonly>
+                <button class="btn glass" style="color:var(--text)" onclick="copyShareLink(this)">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="/Account/Login?returnUrl=/Builder" class="small" style="color:var(--text-muted)">
+                Đăng nhập để lưu vĩnh viễn →
+            </a>
         </div>`;
 }
 

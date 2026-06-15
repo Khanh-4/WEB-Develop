@@ -19,6 +19,39 @@ public class BuildController : Controller
         _users = users;
     }
 
+    // POST /Build/ShareAnonymous — không cần đăng nhập, TTL tuỳ chọn
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ShareAnonymous([FromBody] ShareAnonymousRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.BuildJson))
+            return BadRequest(new { error = "Dữ liệu build là bắt buộc." });
+
+        var name = string.IsNullOrWhiteSpace(req.Name)
+            ? $"Build chia sẻ {DateTime.UtcNow:dd/MM/yyyy HH:mm}"
+            : req.Name.Trim()[..Math.Min(req.Name.Trim().Length, 100)];
+
+        DateTime? expiresAt = req.TtlDays.HasValue
+            ? DateTime.UtcNow.AddDays(req.TtlDays.Value)
+            : null;
+
+        var build = new SavedBuild
+        {
+            UserId      = null,
+            Name        = name,
+            BuildJson   = req.BuildJson,
+            ShareToken  = Guid.NewGuid().ToString("N"),
+            CreatedAt   = DateTime.UtcNow,
+            ExpiresAt   = expiresAt,
+            IsAnonymous = true,
+            IsPublic    = false,
+        };
+        _db.SavedBuilds.Add(build);
+        await _db.SaveChangesAsync();
+
+        var shareUrl = Url.Action("Share", "Build", new { token = build.ShareToken }, Request.Scheme)!;
+        return Json(new { shareUrl });
+    }
+
     // POST /Build/Save
     [HttpPost, Authorize, ValidateAntiForgeryToken]
     public async Task<IActionResult> Save([FromBody] SaveBuildRequest req)
@@ -165,6 +198,8 @@ public class BuildController : Controller
             .Include(b => b.User)
             .FirstOrDefaultAsync(b => b.ShareToken == token);
         if (build == null) return NotFound();
+        if (build.ExpiresAt.HasValue && build.ExpiresAt.Value < DateTime.UtcNow)
+            return View("ShareExpired");
 
         var components = new Dictionary<string, SharedComponent>();
         try
@@ -191,6 +226,7 @@ public class BuildController : Controller
 }
 
 public record SaveBuildRequest(string Name, string BuildJson);
+public record ShareAnonymousRequest(string BuildJson, string? Name, int? TtlDays);
 
 public class CommunityViewModel
 {
