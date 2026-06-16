@@ -1497,6 +1497,11 @@ input[type="radio"], input[type="checkbox"], .form-check-input { accent-color: v
 /* ═══════════════════════════════════════════════════
    RESPONSIVE — MOBILE
    ═══════════════════════════════════════════════════ */
+@media (max-width: 1200px) {
+    .tx-nav { gap: .4rem; }
+    .tx-nav a { font-size: .82rem; padding: 6px 2px; }
+    .tx-nav .btn-gradient { padding: 4px 10px; font-size: .8rem; }
+}
 @media (max-width: 768px) {
     .tx-header .main-bar { gap: .5rem; flex-wrap: wrap; }
     .tx-search { order: 3; flex-basis: 100%; max-width: 100%; margin-top: .4rem; }

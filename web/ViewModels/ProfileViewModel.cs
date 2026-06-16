@@ -8,8 +8,13 @@ public class ProfileViewModel
     public string FullName { get; set; } = string.Empty;
 
     public string Email { get; set; } = string.Empty;
+
+    [EmailAddress, MaxLength(256), Display(Name = "New Email")]
+    public string? NewEmail { get; set; }
+
     public DateTime CreatedAt { get; set; }
     public bool IsGoogleAccount { get; set; }
+    public bool EmailChangePending { get; set; }
 
     // Loyalty
     public decimal TotalSpend { get; set; }

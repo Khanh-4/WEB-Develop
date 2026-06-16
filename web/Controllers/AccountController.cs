@@ -204,6 +204,88 @@ public class AccountController : Controller
         return RedirectToAction(nameof(Profile));
     }
 
+    // ── Email Change ──────────────────────────────────────────────────────
+
+    [HttpPost, Authorize, ValidateAntiForgeryToken]
+    public async Task<IActionResult> RequestEmailChange(string newEmail)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return RedirectToAction(nameof(Login));
+
+        var logins = await _userManager.GetLoginsAsync(user);
+        if (logins.Any(l => l.LoginProvider == "Google"))
+        {
+            TempData["Error"] = "Google accounts cannot change their email here.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        if (string.IsNullOrWhiteSpace(newEmail) || !new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(newEmail))
+        {
+            TempData["Error"] = "Please enter a valid email address.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        newEmail = newEmail.Trim().ToLowerInvariant();
+
+        if (newEmail == (user.Email ?? string.Empty).ToLowerInvariant())
+        {
+            TempData["Error"] = "New email must be different from your current email.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        var existing = await _userManager.FindByEmailAsync(newEmail);
+        if (existing != null)
+        {
+            TempData["Error"] = "This email is already in use by another account.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        var token = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+        var confirmLink = Url.Action(nameof(ConfirmEmailChange), "Account",
+            new { userId = user.Id, newEmail, token }, Request.Scheme)!;
+
+        await _emailSender.SendEmailAsync(
+            newEmail,
+            "Xác nhận thay đổi email — TechSpecs",
+            $"""
+            <div style="font-family:sans-serif;max-width:480px;margin:auto">
+              <h2 style="color:#7c3aed">TechSpecs — Xác nhận email mới</h2>
+              <p>Bạn đã yêu cầu thay đổi email tài khoản TechSpecs sang địa chỉ này.</p>
+              <p>Click vào nút bên dưới để xác nhận. Link có hiệu lực trong <strong>24 giờ</strong>.</p>
+              <a href="{confirmLink}"
+                 style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:12px 0">
+                Xác nhận email mới
+              </a>
+              <p style="color:#888;font-size:.85rem">Nếu bạn không yêu cầu thay đổi, hãy bỏ qua email này.</p>
+            </div>
+            """);
+
+        TempData["Success"] = $"Email xác nhận đã được gửi tới {newEmail}. Vui lòng kiểm tra hộp thư để hoàn tất.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmailChange(string userId, string newEmail, string token)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(newEmail) || string.IsNullOrWhiteSpace(token))
+            return BadRequest();
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound();
+
+        var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+        if (!result.Succeeded)
+        {
+            TempData["Error"] = "Link xác nhận không hợp lệ hoặc đã hết hạn.";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        await _userManager.SetUserNameAsync(user, newEmail);
+        await _signInManager.RefreshSignInAsync(user);
+
+        return View("ConfirmEmailChange", (object)newEmail);
+    }
+
     [HttpPost, Authorize, ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
