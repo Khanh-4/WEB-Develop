@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -15,11 +16,15 @@ public class BuilderController : Controller
 {
     private readonly ICompatibilityEngine _engine;
     private readonly AppDbContext _db;
+    private readonly IMemoryCache _cache;
+    private readonly IAIAssistantService _ai;
 
-    public BuilderController(ICompatibilityEngine engine, AppDbContext db)
+    public BuilderController(ICompatibilityEngine engine, AppDbContext db, IMemoryCache cache, IAIAssistantService ai)
     {
         _engine = engine;
         _db = db;
+        _cache = cache;
+        _ai = ai;
     }
 
     // GET /Builder — main PC builder page (loads with empty state)
@@ -52,6 +57,74 @@ public class BuilderController : Controller
             B = await BuildSnapshotAsync(req.BuildB),
         };
         return Json(result);
+    }
+
+    // POST /Builder/CompareOptions — multi-option compare (2–4 builds, used by modal)
+    [HttpPost]
+    public async Task<IActionResult> CompareOptions([FromBody] MultiCompareRequest req)
+    {
+        if (req is null || req.Builds.Count < 2) return BadRequest();
+        var session = await BuildCompareSessionAsync(req);
+        return Json(new MultiCompareResult { Options = session.Options });
+    }
+
+    // POST /Builder/SaveCompare — persist multi-option compare to cache, return token
+    [HttpPost]
+    public async Task<IActionResult> SaveCompare([FromBody] MultiCompareRequest req)
+    {
+        if (req is null || req.Builds.Count < 2) return BadRequest();
+        var session = await BuildCompareSessionAsync(req);
+        var token = Guid.NewGuid().ToString("N")[..12];
+        _cache.Set($"compare:{token}", session, TimeSpan.FromHours(1));
+        return Json(new { token });
+    }
+
+    private async Task<CompareSession> BuildCompareSessionAsync(MultiCompareRequest req)
+    {
+        var options = new List<LabeledSnapshot>();
+        foreach (var b in req.Builds)
+            options.Add(new LabeledSnapshot { Label = b.Label, Data = await BuildSnapshotAsync(b.State) });
+        return new CompareSession { Options = options };
+    }
+
+    // GET /Builder/Compare/{token} — full compare page
+    [HttpGet]
+    [Route("Builder/Compare/{token}")]
+    public IActionResult Compare(string token)
+    {
+        if (!_cache.TryGetValue<CompareSession>($"compare:{token}", out var session))
+            return RedirectToAction("Index");
+        return View(session);
+    }
+
+    // POST /Builder/CompareNarrative/{token} — AI narrative for compare page
+    [HttpPost]
+    [Route("Builder/CompareNarrative/{token}")]
+    public async Task<IActionResult> CompareNarrative(string token)
+    {
+        if (!_cache.TryGetValue<CompareSession>($"compare:{token}", out var session) || session is null)
+            return NotFound();
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("Bạn là chuyên gia tư vấn PC người Việt. Phân tích và so sánh các cấu hình PC dưới đây bằng tiếng Việt (3–5 câu ngắn gọn cho mỗi phần). Trả lời HTML inline (chỉ dùng <strong>, <em>, <ul>, <li> — không dùng heading hay div).");
+        sb.AppendLine();
+        foreach (var opt in session.Options)
+        {
+            var d = opt.Data;
+            sb.AppendLine($"Option {opt.Label} ({d.TotalPrice:N0}đ):");
+            sb.AppendLine($"  CPU: {d.Specs.Cpu?.Name ?? "—"}, GPU: {d.Specs.Gpu?.Name ?? "—"}, RAM: {d.Specs.Memory?.Name ?? "—"}");
+            sb.AppendLine($"  Điểm Gaming: {d.Radar.Gaming}/100, Đa nhiệm: {d.Radar.Multitasking}/100, Nâng cấp: {d.Radar.Upgrade}/100");
+            if (d.Benchmark?.FpsCs2_1080p.HasValue == true)
+                sb.AppendLine($"  FPS CS2 1080p: {d.Benchmark.FpsCs2_1080p}, Cyberpunk 1080p: {d.Benchmark.FpsCyberpunk_1080p}");
+        }
+        sb.AppendLine();
+        sb.AppendLine("Hãy phân tích:");
+        sb.AppendLine("1. **Điểm mạnh** của mỗi option (1–2 câu)");
+        sb.AppendLine("2. **Phù hợp nhất** cho ai (gaming, đồ họa, làm việc văn phòng…)");
+        sb.AppendLine("3. **Khuyến nghị** option nào nên chọn và lý do");
+
+        var narrative = await _ai.CompareNarrativeAsync(sb.ToString());
+        return Content(narrative ?? "Không thể tạo phân tích lúc này.", "text/plain; charset=utf-8");
     }
 
     private async Task<BuildSnapshot> BuildSnapshotAsync(BuildState state)
@@ -109,7 +182,7 @@ public class BuilderController : Controller
         {
             var gpuBench = await _db.ComponentBenchmarks
                 .Where(b => b.Category == "gpu" &&
-                            EF.Functions.ILike(gpu.Name, $"%{b.ComponentName}%"))
+                            EF.Functions.ILike(gpu.Name, "%" + b.ComponentName + "%"))
                 .OrderByDescending(b => b.Id).FirstOrDefaultAsync();
 
             if (gpuBench != null && (gpuBench.FpsCs2_1080p.HasValue || gpuBench.FpsCyberpunk_1080p.HasValue))
@@ -137,7 +210,7 @@ public class BuilderController : Controller
         {
             var cpuBench = await _db.ComponentBenchmarks
                 .Where(b => b.Category == "cpu" &&
-                            EF.Functions.ILike(cpu.Name, $"%{b.ComponentName}%"))
+                            EF.Functions.ILike(cpu.Name, "%" + b.ComponentName + "%"))
                 .OrderByDescending(b => b.Id).FirstOrDefaultAsync();
 
             if (cpuBench != null && cpuBench.CinebenchR23Multi.HasValue)

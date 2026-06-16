@@ -44,6 +44,65 @@ public class AIAssistantService : IAIAssistantService
             ?? await TryOpenRouterAsync(userMessage);
     }
 
+    public async Task<string?> CompareNarrativeAsync(string prompt)
+    {
+        return await TryGeminiTextAsync(prompt)
+            ?? await TryGroqTextAsync(prompt);
+    }
+
+    private async Task<string?> TryGeminiTextAsync(string prompt)
+    {
+        var apiKey = _config["AI:GeminiApiKey"];
+        if (string.IsNullOrEmpty(apiKey)) return null;
+        try
+        {
+            var client = _http.CreateClient();
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            var body = JsonSerializer.Serialize(new
+            {
+                contents = new[] { new { parts = new[] { new { text = prompt } } } },
+                generationConfig = new { temperature = 0.7, maxOutputTokens = 600 }
+            });
+            var resp = await client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
+            resp.EnsureSuccessStatusCode();
+            var json = JsonNode.Parse(await resp.Content.ReadAsStringAsync());
+            return json?["candidates"]?[0]?["content"]?["parts"]?[0]?["text"]?.GetValue<string>();
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning("Gemini narrative failed: {Msg}", ex.Message);
+            return null;
+        }
+    }
+
+    private async Task<string?> TryGroqTextAsync(string prompt)
+    {
+        var apiKey = _config["AI:GroqApiKey"];
+        if (string.IsNullOrEmpty(apiKey)) return null;
+        try
+        {
+            var client = _http.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            var body = JsonSerializer.Serialize(new
+            {
+                model = "llama-3.1-8b-instant",
+                messages = new[] { new { role = "user", content = prompt } },
+                temperature = 0.7,
+                max_tokens = 600,
+            });
+            var resp = await client.PostAsync("https://api.groq.com/openai/v1/chat/completions",
+                new StringContent(body, Encoding.UTF8, "application/json"));
+            resp.EnsureSuccessStatusCode();
+            var json = JsonNode.Parse(await resp.Content.ReadAsStringAsync());
+            return json?["choices"]?[0]?["message"]?["content"]?.GetValue<string>();
+        }
+        catch (Exception ex)
+        {
+            _log.LogError("Groq narrative failed: {Msg}", ex.Message);
+            return null;
+        }
+    }
+
     // ── Gemini ────────────────────────────────────────────────────────────────
 
     private async Task<AiBuildParams?> TryGeminiAsync(string message)

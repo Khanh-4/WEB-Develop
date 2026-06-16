@@ -1,0 +1,267 @@
+@model TechSpecs.ViewModels.CompareSession
+@{
+    ViewData["Title"] = "So sánh cấu hình PC";
+    var colors = new[] { "#60a5fa", "#a855f7", "#4ade80", "#f97316" };
+    var token = ViewContext.RouteData.Values["token"]?.ToString();
+}
+
+<style>
+    .compare-page { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+    .cmp-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+    }
+    .option-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: .9rem;
+        font-weight: 600;
+    }
+    .radar-wrap { position: relative; height: 320px; }
+    .spec-table { font-size: .82rem; width: 100%; border-collapse: collapse; }
+    .spec-table th { padding: 8px 12px; font-size: .72rem; letter-spacing: .05em; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .spec-table td { padding: 8px 12px; border-top: 1px solid var(--border); color: var(--text); vertical-align: top; }
+    .spec-table td.label { color: var(--text-muted); white-space: nowrap; font-weight: 500; width: 110px; }
+    .narrative-box { font-size: .9rem; line-height: 1.75; color: var(--text); }
+    .narrative-box ul { padding-left: 20px; margin: 8px 0; }
+    .narrative-box li { margin-bottom: 4px; }
+    @@media (max-width: 768px) { .radar-wrap { height: 240px; } }
+</style>
+
+<div class="compare-page">
+    <a href="/Builder" class="btn btn-sm glass mb-4" style="color:var(--text-muted)">
+        <i class="bi bi-arrow-left me-1"></i>Quay lại Builder
+    </a>
+
+    <!-- Header -->
+    <div class="cmp-card">
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+            <h1 class="h5 fw-bold m-0" style="color:var(--text)">
+                <i class="bi bi-bar-chart-line me-2" style="color:var(--primary)"></i>So sánh cấu hình PC
+            </h1>
+            <span class="badge" style="background:rgba(168,85,247,.15);color:#c084fc;font-size:.72rem">
+                @Model.Options.Count options
+            </span>
+        </div>
+        <div class="d-flex flex-wrap gap-3">
+            @for (int i = 0; i < Model.Options.Count; i++)
+            {
+                var opt = Model.Options[i];
+                var c = colors[i % colors.Length];
+                <div class="option-chip" style="background:@(c)18;border:1px solid @(c)50;color:@c">
+                    <span>Option @opt.Label</span>
+                    <span style="font-size:.85rem;opacity:.8">@opt.Data.TotalPrice.ToString("N0")đ</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Radar + Benchmark -->
+        <div class="col-lg-5">
+            <div class="cmp-card" style="margin-bottom:0">
+                <div class="fw-semibold mb-3" style="color:var(--text);font-size:.9rem">
+                    <i class="bi bi-pentagon me-2" style="color:var(--primary)"></i>Điểm đánh giá tổng hợp
+                </div>
+                <div class="radar-wrap">
+                    <canvas id="compareRadar"></canvas>
+                </div>
+                <div class="d-flex flex-wrap gap-3 mt-3 justify-content-center">
+                    @for (int i = 0; i < Model.Options.Count; i++)
+                    {
+                        <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:@colors[i % colors.Length]">
+                            <div style="width:12px;height:3px;background:@colors[i % colors.Length];border-radius:2px"></div>
+                            Option @Model.Options[i].Label
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @{
+                var hasBench = Model.Options.Any(o => o.Data.Benchmark != null);
+                int? TopIdx(IEnumerable<int?> vals)
+                {
+                    var list = vals.ToList();
+                    var max = list.Max();
+                    return max.HasValue ? list.IndexOf(max) : (int?)null;
+                }
+            }
+            @if (hasBench)
+            {
+                var benches = Model.Options.Select(o => o.Data.Benchmark).ToList();
+                <div class="cmp-card mt-4" style="margin-bottom:0">
+                    <div class="fw-semibold mb-3" style="color:var(--text);font-size:.9rem">
+                        <i class="bi bi-speedometer2 me-2" style="color:var(--primary)"></i>Benchmark
+                    </div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>Test</th>
+                                @for (int i = 0; i < Model.Options.Count; i++)
+                                {
+                                    <th style="color:@colors[i % colors.Length]">@Model.Options[i].Label</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                void BenchRow(string label, Func<TechSpecs.ViewModels.BenchmarkData?, int?> get, string unit = "")
+                                {
+                                    var vals = benches.Select(get).ToList();
+                                    if (!vals.Any(v => v.HasValue)) return;
+                                    var wi = TopIdx(vals);
+                                    <tr>
+                                        <td class="label">@label</td>
+                                        @for (int i = 0; i < benches.Count; i++)
+                                        {
+                                            var v = vals[i];
+                                            <td style="@(i == wi ? $"color:{colors[i % colors.Length]};font-weight:700" : "")">
+                                                @(v.HasValue ? v.Value.ToString("N0") + unit : "—")
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                            @{ BenchRow("CB R23 Multi", b => b?.CinebenchMulti); }
+                            @{ BenchRow("CS2 1080p", b => b?.FpsCs2_1080p, " fps"); }
+                            @{ BenchRow("Cyberpunk 1080p", b => b?.FpsCyberpunk_1080p, " fps"); }
+                            @{ BenchRow("Valorant 1080p", b => b?.FpsValorant_1080p, " fps"); }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- Spec table + AI -->
+        <div class="col-lg-7">
+            <div class="cmp-card" style="margin-bottom:0;overflow-x:auto">
+                <div class="fw-semibold mb-3" style="color:var(--text);font-size:.9rem">
+                    <i class="bi bi-list-ul me-2" style="color:var(--primary)"></i>Chi tiết linh kiện
+                </div>
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>Linh kiện</th>
+                            @for (int i = 0; i < Model.Options.Count; i++)
+                            {
+                                <th style="color:@colors[i % colors.Length]">Option @Model.Options[i].Label</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var specs = Model.Options.Select(o => o.Data.Specs).ToList();
+                            void SpecRow(string lbl, Func<TechSpecs.ViewModels.BuildSpecsDetail, string?> getter)
+                            {
+                                var vals = specs.Select(s => getter(s) ?? "—").ToList();
+                                var allSame = vals.Distinct().Count() == 1;
+                                <tr>
+                                    <td class="label">@lbl</td>
+                                    @for (int i = 0; i < specs.Count; i++)
+                                    {
+                                        var v = vals[i];
+                                        <td style="@(!allSame && v != "—" ? $"color:{colors[i % colors.Length]}" : "")">@v</td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        @{ SpecRow("CPU", s => s.Cpu?.Name); }
+                        @{ SpecRow("GPU", s => s.Gpu?.Name); }
+                        @{ SpecRow("RAM", s => s.Memory?.Name); }
+                        @{ SpecRow("Storage", s => s.Storage?.Name); }
+                        @{ SpecRow("Mainboard", s => s.Motherboard?.Name); }
+                        @{ SpecRow("PSU", s => s.Psu?.Name); }
+                        @{ SpecRow("Tản nhiệt", s => s.Cooler?.Name); }
+                        @{ SpecRow("Case", s => s.Case?.Name); }
+                        @{ SpecRow("PSU dự phòng", s => s.PsuHeadroomW > 0 ? s.PsuHeadroomW + "W" : null); }
+                        @{ SpecRow("Khe RAM còn", s => s.RamFreeSlots + " slots"); }
+                        <tr style="border-top:2px solid var(--border)">
+                            <td class="label fw-semibold">Tổng tiền</td>
+                            @for (int i = 0; i < Model.Options.Count; i++)
+                            {
+                                <td class="fw-bold" style="color:@colors[i % colors.Length]">
+                                    @Model.Options[i].Data.TotalPrice.ToString("N0")đ
+                                </td>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- AI Narrative -->
+            <div class="cmp-card mt-4" style="margin-bottom:0">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-robot" style="color:var(--primary);font-size:1rem"></i>
+                    <span class="fw-semibold" style="color:var(--text);font-size:.9rem">Phân tích AI</span>
+                    <div id="narrativeSpinner" class="spinner-border spinner-border-sm ms-2"
+                         style="color:var(--primary);width:14px;height:14px;border-width:2px"></div>
+                </div>
+                <div id="narrativeContent" class="narrative-box" style="display:none"></div>
+                <div id="narrativeError" style="display:none;color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px 0">
+                    <i class="bi bi-exclamation-triangle me-1"></i>Không thể tải phân tích AI lúc này.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+        integrity="sha384-eCNJ+uxRYtmJErOrCVbHb2Y2CV35nrJXc9KEWxN+xVAuzlInckyv8mPw5bKITSRF"
+        crossorigin="anonymous"></script>
+<script>
+const COLORS = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(colors));
+const LABELS = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Options.Select(o => "Option " + o.Label).ToArray()));
+const SCORES = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Options.Select(o => new[] {
+    o.Data.Radar.Gaming, o.Data.Radar.Multitasking, o.Data.Radar.Storage, o.Data.Radar.Thermal, o.Data.Radar.Upgrade
+}).ToArray()));
+
+new Chart(document.getElementById('compareRadar').getContext('2d'), {
+    type: 'radar',
+    data: {
+        labels: ['Gaming', 'Đa nhiệm', 'Lưu trữ', 'Tản nhiệt', 'Nâng cấp'],
+        datasets: LABELS.map((label, i) => ({
+            label,
+            data: SCORES[i],
+            borderColor: COLORS[i],
+            backgroundColor: COLORS[i] + '20',
+            pointBackgroundColor: COLORS[i],
+            borderWidth: 2,
+        }))
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { r: {
+            min: 0, max: 100,
+            ticks: { display: false },
+            grid: { color: 'rgba(255,255,255,.1)' },
+            pointLabels: { color: 'rgba(255,255,255,.75)', font: { size: 12 } },
+            angleLines: { color: 'rgba(255,255,255,.1)' },
+        }},
+        plugins: { legend: { labels: { color: 'rgba(255,255,255,.75)', font: { size: 12 } } } }
+    }
+});
+
+(async () => {
+    try {
+        const r = await fetch('/Builder/CompareNarrative/@token', { method: 'POST' });
+        if (!r.ok) throw new Error();
+        const html = await r.text();
+        document.getElementById('narrativeSpinner').style.display = 'none';
+        const el = document.getElementById('narrativeContent');
+        el.innerHTML = html;
+        el.style.display = '';
+    } catch {
+        document.getElementById('narrativeSpinner').style.display = 'none';
+        document.getElementById('narrativeError').style.display = '';
+    }
+})();
+</script>
+}

@@ -2,6 +2,7 @@ using TechSpecs.ViewModels.Builder;
 
 namespace TechSpecs.ViewModels;
 
+// Legacy 2-build compare (kept for backward compat)
 public class CompareRequest
 {
     public BuildState BuildA { get; set; } = new();
@@ -12,6 +13,36 @@ public class BuildComparisonResult
 {
     public BuildSnapshot A { get; set; } = new();
     public BuildSnapshot B { get; set; } = new();
+}
+
+// Multi-option compare (2–4 builds)
+public class LabeledBuild
+{
+    public string Label { get; set; } = string.Empty;
+    public BuildState State { get; set; } = new();
+}
+
+public class MultiCompareRequest
+{
+    public List<LabeledBuild> Builds { get; set; } = new();
+}
+
+public class LabeledSnapshot
+{
+    public string Label { get; set; } = string.Empty;
+    public BuildSnapshot Data { get; set; } = new();
+}
+
+public class MultiCompareResult
+{
+    public List<LabeledSnapshot> Options { get; set; } = new();
+}
+
+// Cached compare session (stored in IMemoryCache, expires in 1h)
+public class CompareSession
+{
+    public List<LabeledSnapshot> Options { get; set; } = new();
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class BuildSnapshot

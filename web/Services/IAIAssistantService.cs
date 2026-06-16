@@ -11,4 +11,5 @@ public record AiBuildParams(
 public interface IAIAssistantService
 {
     Task<AiBuildParams?> ParseBuildRequestAsync(string userMessage);
+    Task<string?> CompareNarrativeAsync(string prompt);
 }
