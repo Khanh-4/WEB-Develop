@@ -20,6 +20,7 @@ public class LabeledBuild
 {
     public string Label { get; set; } = string.Empty;
     public BuildState State { get; set; } = new();
+    public int? PrebuiltPcId { get; set; }  // when set, snapshot is loaded from prebuilt_pcs table
 }
 
 public class MultiCompareRequest

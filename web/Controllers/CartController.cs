@@ -96,6 +96,63 @@ public class CartController : Controller
         return Ok(new { count, total });
     }
 
+    // POST /Cart/AddPrebuilt — adds all components of a prebuilt PC to cart individually
+    [HttpPost]
+    public async Task<IActionResult> AddPrebuilt([FromBody] AddPrebuiltRequest req)
+    {
+        if (!(User.Identity?.IsAuthenticated ?? false))
+            return Unauthorized(new { error = "login_required" });
+
+        var pc = await _db.PrebuiltPcs
+            .Include(p => p.Cpu)
+            .Include(p => p.Motherboard)
+            .Include(p => p.Memory)
+            .Include(p => p.VideoCard)
+            .Include(p => p.Storage)
+            .Include(p => p.PowerSupply)
+            .Include(p => p.Case)
+            .Include(p => p.Cooler)
+            .FirstOrDefaultAsync(p => p.Id == req.PrebuiltPcId && p.IsActive);
+
+        if (pc == null) return NotFound(new { error = "Prebuilt PC not found" });
+
+        var cart = await GetOrCreateCartAsync();
+
+        var components = new (string cat, int? id, string? name, decimal price, string? img)[]
+        {
+            ("cpu",         pc.CpuId,         pc.Cpu?.Name,         pc.Cpu?.Price ?? 0,         pc.Cpu?.ImageUrl),
+            ("motherboard", pc.MotherboardId,  pc.Motherboard?.Name, pc.Motherboard?.Price ?? 0, pc.Motherboard?.ImageUrl),
+            ("memory",      pc.MemoryId,       pc.Memory?.Name,      pc.Memory?.Price ?? 0,      pc.Memory?.ImageUrl),
+            ("gpu",         pc.VideoCardId,    pc.VideoCard?.Name,   pc.VideoCard?.Price ?? 0,   pc.VideoCard?.ImageUrl),
+            ("storage",     pc.StorageId,      pc.Storage?.Name,     pc.Storage?.Price ?? 0,     pc.Storage?.ImageUrl),
+            ("psu",         pc.PowerSupplyId,  pc.PowerSupply?.Name, pc.PowerSupply?.Price ?? 0, pc.PowerSupply?.ImageUrl),
+            ("case",        pc.CaseId,         pc.Case?.Name,        pc.Case?.Price ?? 0,        pc.Case?.ImageUrl),
+            ("cooler",      pc.CoolerId,       pc.Cooler?.Name,      pc.Cooler?.Price ?? 0,      pc.Cooler?.ImageUrl),
+        };
+
+        int added = 0;
+        foreach (var (cat, id, name, price, img) in components)
+        {
+            if (!id.HasValue || string.IsNullOrEmpty(name)) continue;
+            var existing = cart.Items.FirstOrDefault(i => i.Category == cat && i.ComponentId == id.Value);
+            if (existing != null) { existing.Quantity++; }
+            else
+            {
+                cart.Items.Add(new CartItem
+                {
+                    Category = cat, ComponentId = id.Value,
+                    ComponentName = name, Price = price,
+                    Quantity = 1, ImageUrl = img,
+                });
+            }
+            added++;
+        }
+
+        await _db.SaveChangesAsync();
+        int count = cart.Items.Sum(i => i.Quantity);
+        return Ok(new { count, added });
+    }
+
     [HttpPost]
     public async Task<IActionResult> Clear()
     {
@@ -192,5 +249,6 @@ public class CartController : Controller
 }
 
 public record AddToCartRequest(string Category, int ComponentId, string Name, decimal Price, string? ImageUrl);
+public record AddPrebuiltRequest(int PrebuiltPcId);
 public record RemoveFromCartRequest(int CartItemId);
 public record UpdateQtyRequest(int CartItemId, int Quantity);

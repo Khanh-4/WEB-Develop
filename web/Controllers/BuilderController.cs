@@ -86,8 +86,42 @@ public class BuilderController : Controller
     {
         var options = new List<LabeledSnapshot>();
         foreach (var b in req.Builds)
-            options.Add(new LabeledSnapshot { Label = b.Label, Data = await BuildSnapshotAsync(b.State) });
+        {
+            BuildSnapshot snap = b.PrebuiltPcId.HasValue
+                ? await PrebuiltSnapshotAsync(b.PrebuiltPcId.Value)
+                : await BuildSnapshotAsync(b.State);
+            options.Add(new LabeledSnapshot { Label = b.Label, Data = snap });
+        }
         return new CompareSession { Options = options };
+    }
+
+    private async Task<BuildSnapshot> PrebuiltSnapshotAsync(int id)
+    {
+        var pc = await _db.PrebuiltPcs
+            .Include(p => p.Cpu)
+            .Include(p => p.Motherboard)
+            .Include(p => p.Memory)
+            .Include(p => p.VideoCard)
+            .Include(p => p.Storage)
+            .Include(p => p.PowerSupply)
+            .Include(p => p.Case)
+            .Include(p => p.Cooler)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (pc == null) return new BuildSnapshot();
+
+        var state = new TechSpecs.ViewModels.Builder.BuildState
+        {
+            SelectedCpuId          = pc.CpuId,
+            SelectedMotherboardId  = pc.MotherboardId,
+            SelectedMemoryId       = pc.MemoryId,
+            SelectedVideoCardId    = pc.VideoCardId,
+            SelectedStorageId      = pc.StorageId,
+            SelectedPowerSupplyId  = pc.PowerSupplyId,
+            SelectedCaseId         = pc.CaseId,
+            SelectedCoolerId       = pc.CoolerId,
+        };
+        return await BuildSnapshotAsync(state);
     }
 
     // GET /Builder/Compare/{token} — full compare page
