@@ -214,9 +214,18 @@
                                             <div class="pc-cat">@purposeLabel PC</div>
                                             <div class="pc-name">@item.Name</div>
                                             <div class="d-flex flex-wrap gap-1">
-                                                <span class="spec-chip" style="color:#c084fc;border-color:rgba(168,85,247,.25)">@item.CpuBadge</span>
-                                                <span class="spec-chip" style="color:#34d399;border-color:rgba(16,185,129,.25)">@item.GpuBadge</span>
-                                                <span class="spec-chip">@item.RamBadge</span>
+                                                @if (item.Cpu != null) {
+                                                    var cpuShort = item.Cpu.Name.Length > 20 ? item.Cpu.Name[..20] + "…" : item.Cpu.Name;
+                                                    <span class="spec-chip" style="color:#c084fc;border-color:rgba(168,85,247,.25)" title="@item.Cpu.Name">@cpuShort</span>
+                                                }
+                                                @if (item.VideoCard != null) {
+                                                    var gpuShort = item.VideoCard.Name.Length > 20 ? item.VideoCard.Name[..20] + "…" : item.VideoCard.Name;
+                                                    <span class="spec-chip" style="color:#34d399;border-color:rgba(16,185,129,.25)" title="@item.VideoCard.Name">@gpuShort</span>
+                                                }
+                                                @if (item.Memory != null) {
+                                                    var ramShort = item.Memory.Name.Length > 16 ? item.Memory.Name[..16] + "…" : item.Memory.Name;
+                                                    <span class="spec-chip" title="@item.Memory.Name">@ramShort</span>
+                                                }
                                             </div>
                                             <div class="pc-price">
                                                 <span class="now">@item.Price.ToString("N0")đ</span>

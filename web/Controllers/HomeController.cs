@@ -96,9 +96,31 @@ public class HomeController : Controller
             }
         }
 
+        List<TechSpecs.Models.PrebuiltPc> prebuilts;
+        try
+        {
+            prebuilts = await _db.PrebuiltPcs
+                .Where(p => p.IsActive)
+                .Include(p => p.Cpu)
+                .Include(p => p.VideoCard)
+                .Include(p => p.Memory)
+                .Include(p => p.Motherboard)
+                .Include(p => p.Storage)
+                .Include(p => p.PowerSupply)
+                .Include(p => p.Case)
+                .Include(p => p.Cooler)
+                .OrderBy(p => p.Price)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to load prebuilt PCs");
+            prebuilts = new();
+        }
+
         var vm = new HomeViewModel
         {
-            PrebuiltPcs    = _mockDataService.GetPrebuiltPcs(),
+            PrebuiltPcs    = prebuilts,
             SpotlightFlash = spotlightFlash,
             SpotlightNew   = spotlightNew,
             SpotlightHot   = spotlightHot,

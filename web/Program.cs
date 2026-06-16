@@ -140,4 +140,19 @@ catch (Exception ex)
     // App will retry seeding on next restart when DB is available.
     app.Logger.LogWarning(ex, "Role seeding skipped: DB unreachable at startup.");
 }
+
+// Seed prebuilt PCs from real component data (no-op if already seeded)
+try
+{
+    using var scope = app.Services.CreateScope();
+    var seeder = new TechSpecs.Services.PrebuiltPcSeeder(
+        scope.ServiceProvider.GetRequiredService<TechSpecs.Data.AppDbContext>(),
+        scope.ServiceProvider.GetRequiredService<ILogger<TechSpecs.Services.PrebuiltPcSeeder>>());
+    await seeder.SeedAsync();
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "Prebuilt PC seeding skipped: DB unreachable at startup.");
+}
+
 app.Run();

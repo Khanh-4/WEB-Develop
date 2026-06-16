@@ -736,13 +736,12 @@ public class ProductsController : Controller
 
         if (all || category == "cpu")
             brands.AddRange(await _db.Cpus.AsNoTracking()
-                .Where(c => !c.Name.ToLower().StartsWith("pc "))
                 .Select(c => c.Manufacturer).Distinct().ToListAsync());
 
         if (all || category == "prebuilt")
-            brands.AddRange(await _db.Cpus.AsNoTracking()
-                .Where(c => c.Name.ToLower().StartsWith("pc "))
-                .Select(c => c.Manufacturer).Distinct().ToListAsync());
+            brands.AddRange(await _db.PrebuiltPcs.AsNoTracking()
+                .Where(p => p.IsActive && p.Purpose != null)
+                .Select(p => p.Purpose!).Distinct().ToListAsync());
 
         if (all || category == "motherboard")
             brands.AddRange(await _db.Motherboards.AsNoTracking().Select(m => m.Manufacturer).Distinct().ToListAsync());
@@ -792,30 +791,48 @@ public class ProductsController : Controller
         if (category == "ram") category = "memory"; // alias
         string? q = string.IsNullOrWhiteSpace(search) ? null : search.Trim().ToLower();
 
-        // CPU + Prebuilt are both in the cpu table
-        if (all || isCpu || isPrebuilt)
+        // Prebuilt PCs from dedicated table
+        if (isPrebuilt)
+        {
+            var rows = await _db.PrebuiltPcs.AsNoTracking()
+                .Where(p => p.IsActive && (q == null || p.Name.ToLower().Contains(q)))
+                .Include(p => p.Cpu)
+                .Include(p => p.VideoCard)
+                .Include(p => p.Memory)
+                .OrderBy(p => p.Price)
+                .ToListAsync();
+            result.AddRange(rows.Select(p => new ProductListItem
+            {
+                Id = p.Id, Category = "prebuilt", Name = p.Name,
+                Manufacturer = p.Purpose ?? "PC Dựng sẵn", Price = p.Price, ImageUrl = p.ImageUrl,
+                Stock = 99, IsPrebuilt = true,
+                PpScore = 0,
+                Specs = new()
+                {
+                    ["CPU"]      = p.Cpu?.Name ?? "—",
+                    ["GPU"]      = p.VideoCard?.Name ?? "—",
+                    ["RAM"]      = p.Memory?.Name ?? "—",
+                    ["Mục đích"] = p.Purpose ?? "—",
+                },
+                FilterData = new()
+            }));
+        }
+
+        // CPUs
+        if (all || isCpu)
         {
             var query = _db.Cpus.AsNoTracking()
                 .Where(c => q == null || c.Name.ToLower().Contains(q) || c.Manufacturer.ToLower().Contains(q));
 
-            if (isCpu)    query = query.Where(c => !c.Name.ToLower().StartsWith("pc "));
-            if (isPrebuilt) query = query.Where(c => c.Name.ToLower().StartsWith("pc "));
-
             var rows = await query.ToListAsync();
-            result.AddRange(rows.Select(c =>
+            result.AddRange(rows.Select(c => new ProductListItem
             {
-                bool prebuilt = c.Name.StartsWith("PC ", StringComparison.OrdinalIgnoreCase);
-                return new ProductListItem
-                {
-                    Id = c.Id, Category = "cpu", Name = c.Name,
-                    Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
-                    Stock = c.Stock, StockStatusOverride = c.StockStatusOverride, IsPrebuilt = prebuilt,
-                    PpScore = c.Price > 0 ? Math.Round((double)c.ApproximatePerformance / (double)c.Price * 1_000_000, 2) : 0,
-                    Specs = prebuilt
-                        ? new()
-                        : new() { ["Socket"] = c.Socket, ["Nhân/Luồng"] = $"{c.CoreCount}C/{c.ThreadCount}T", ["TDP"] = $"{c.TDP}W" },
-                    FilterData = new() { ["socket"] = c.Socket }
-                };
+                Id = c.Id, Category = "cpu", Name = c.Name,
+                Manufacturer = c.Manufacturer, Price = c.Price, ImageUrl = c.ImageUrl,
+                Stock = c.Stock, StockStatusOverride = c.StockStatusOverride, IsPrebuilt = false,
+                PpScore = c.Price > 0 ? Math.Round((double)c.ApproximatePerformance / (double)c.Price * 1_000_000, 2) : 0,
+                Specs = new() { ["Socket"] = c.Socket, ["Nhân/Luồng"] = $"{c.CoreCount}C/{c.ThreadCount}T", ["TDP"] = $"{c.TDP}W" },
+                FilterData = new() { ["socket"] = c.Socket }
             }));
         }
 
