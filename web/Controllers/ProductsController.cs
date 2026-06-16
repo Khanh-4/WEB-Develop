@@ -24,6 +24,7 @@ public class ProductsController : Controller
         string sort = "name",
         int page = 1)
     {
+        ViewData["Description"] = "Mua linh kiện PC chính hãng tại TechSpecs: CPU Intel/AMD, GPU NVIDIA/AMD, RAM, Mainboard, PSU, Case, Storage và CPU Cooler. Giá tốt, bảo hành chính hãng.";
         var items = await LoadAllAsync(category, search);
         items = ApplySort(items, sort);
 

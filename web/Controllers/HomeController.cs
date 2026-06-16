@@ -36,6 +36,8 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        ViewData["Title"] = "Trang chủ";
+        ViewData["Description"] = "TechSpecs — Linh kiện PC chính hãng: CPU, GPU, RAM, Mainboard, PSU, Case. PC Builder AI tư vấn build PC theo ngân sách miễn phí.";
         var now = DateTime.UtcNow;
         ViewData["Now"] = now;
 

@@ -54,15 +54,17 @@ Valid category names: `cpu gpu ram motherboard psu case storage cooler`
 | Service | File | Purpose |
 |---------|------|---------|
 | `CompatibilityEngine` | `Services/CompatibilityEngine.cs` | Core 3-pass filter — called on every AJAX selection in Builder |
-| `AIAssistantService` | `Services/AIAssistantService.cs` | Gemini → Groq → OpenRouter fallback chain; parses natural language → `AiBuildParams` JSON |
+| `AIAssistantService` | `Services/AIAssistantService.cs` | Gemini → Groq → OpenRouter fallback chain; parses natural language → `AiBuildParams` JSON; `CompareNarrativeAsync()` generates Vietnamese AI analysis for multi-option compare |
 
 **Request flows to understand:**
 
 1. **PC Builder AJAX** — Frontend sends `POST /Builder/Filter` with a `BuildState` JSON body on every component selection. `CompatibilityEngine.FilterAsync()` runs all 3 passes and returns `FilteredResult` (8 lists of `ComponentDto` + totals). The JS in `Builder/Index.cshtml` re-renders the product grid for the active tab only.
 
-2. **AI Chatbot** — `POST /Chat/Ask` with a plain text message → `AIAssistantService` calls the LLM and parses the JSON response into `AiBuildParams` → `ChatController` distributes the budget across component categories (see `GetBudgetAllocation`) → calls `CompatibilityEngine` with no per-component cap → `PickBest()` selects one item per category within the allocated slice. The chat widget stores the result in `sessionStorage['aiBuildPreset']` and redirects to `/Builder`, which reads and applies the preset on load.
+2. **PC Builder Multi-Option Compare** — Builder supports up to 4 option tabs (A/B/C/D). "So sánh" button opens an inline panel with radar chart overlay and spec diff table. "Xem chi tiết đầy đủ" calls `POST /Builder/SaveCompare` (body: `MultiCompareRequest` with list of option builds) → stores in `IMemoryCache` with 12-char token (1h TTL) → opens `GET /Builder/Compare/{token}` in a new tab. That page shows radar chart + spec table with per-option color coding + AI narrative loaded via `POST /Builder/CompareNarrative/{token}`.
 
-3. **Products Filter AJAX** — `GET /Products/Filter?category=...&sort=...&page=...` → `ProductsController.LoadAllAsync()` queries all 8 hardware tables and merges into `List<ProductListItem>`. Default sort is `name` which uses `Interleave()` (round-robin 3 items/category/page) so the "all" view shows variety.
+3. **AI Chatbot** — `POST /Chat/Ask` with a plain text message → `AIAssistantService` calls the LLM and parses the JSON response into `AiBuildParams` → `ChatController` distributes the budget across component categories (see `GetBudgetAllocation`) → calls `CompatibilityEngine` with no per-component cap → `PickBest()` selects one item per category within the allocated slice. The chat widget stores the result in `sessionStorage['aiBuildPreset']` and redirects to `/Builder`, which reads and applies the preset on load.
+
+4. **Products Filter AJAX** — `GET /Products/Filter?category=...&sort=...&page=...` → `ProductsController.LoadAllAsync()` queries all 8 hardware tables and merges into `List<ProductListItem>`. Default sort is `name` which uses `Interleave()` (round-robin 3 items/category/page) so the "all" view shows variety.
 
 **Compatibility Engine — 3-pass pipeline:**
 
@@ -117,9 +119,13 @@ DATABASE_URL=postgresql+psycopg2://postgres.[ref]:[password]@...pooler.supabase.
 
 ---
 
-## What's Not Built Yet
+## Feature Status
 
-Cart, Orders, and Admin Dashboard are the next priorities — see `Tasks/TODO.md`. `AppDbContext` already has commented-out `DbSet` placeholders for `Order`, `OrderDetail`, `Cart`.
+All major features are built and deployed. `Tasks/TODO.md` has only 1 unchecked item: custom domain (optional — Railway domain works fine).
+
+**Built features include:** Cart, Orders, Admin Dashboard, PC Builder with AI assistant + multi-option compare, Flash Sale, Coupons, Bundles, Wishlist, Reviews, Warranties, Quick Quote, Share Build, Recently Viewed, Bottom Nav, Search Overlay, Output Cache, and more.
+
+The only area not yet built: any truly new feature requested in future sessions.
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

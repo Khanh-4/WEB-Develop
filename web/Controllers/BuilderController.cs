@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -14,6 +15,7 @@ namespace TechSpecs.Controllers;
 
 public class BuilderController : Controller
 {
+    private static readonly HtmlSanitizer _narrativeSanitizer = new();
     private readonly ICompatibilityEngine _engine;
     private readonly AppDbContext _db;
     private readonly IMemoryCache _cache;
@@ -31,6 +33,7 @@ public class BuilderController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
+        ViewData["Description"] = "Tự build PC theo ngân sách với AI tư vấn của TechSpecs. Kiểm tra tương thích tự động, so sánh cấu hình, chia sẻ build dễ dàng.";
         var initialResult = await _engine.FilterAsync(new BuildState());
         return View(initialResult);
     }
@@ -63,7 +66,7 @@ public class BuilderController : Controller
     [HttpPost]
     public async Task<IActionResult> CompareOptions([FromBody] MultiCompareRequest req)
     {
-        if (req is null || req.Builds.Count < 2) return BadRequest();
+        if (req is null || req.Builds.Count < 2 || req.Builds.Count > 4) return BadRequest();
         var session = await BuildCompareSessionAsync(req);
         return Json(new MultiCompareResult { Options = session.Options });
     }
@@ -72,7 +75,7 @@ public class BuilderController : Controller
     [HttpPost]
     public async Task<IActionResult> SaveCompare([FromBody] MultiCompareRequest req)
     {
-        if (req is null || req.Builds.Count < 2) return BadRequest();
+        if (req is null || req.Builds.Count < 2 || req.Builds.Count > 4) return BadRequest();
         var session = await BuildCompareSessionAsync(req);
         var token = Guid.NewGuid().ToString("N")[..12];
         _cache.Set($"compare:{token}", session, TimeSpan.FromHours(1));
@@ -111,7 +114,8 @@ public class BuilderController : Controller
         foreach (var opt in session.Options)
         {
             var d = opt.Data;
-            sb.AppendLine($"Option {opt.Label} ({d.TotalPrice:N0}đ):");
+            var safeLabel = opt.Label.Replace("\n", "").Replace("\r", "")[..Math.Min(opt.Label.Length, 20)];
+            sb.AppendLine($"Option {safeLabel} ({d.TotalPrice:N0}đ):");
             sb.AppendLine($"  CPU: {d.Specs.Cpu?.Name ?? "—"}, GPU: {d.Specs.Gpu?.Name ?? "—"}, RAM: {d.Specs.Memory?.Name ?? "—"}");
             sb.AppendLine($"  Điểm Gaming: {d.Radar.Gaming}/100, Đa nhiệm: {d.Radar.Multitasking}/100, Nâng cấp: {d.Radar.Upgrade}/100");
             if (d.Benchmark?.FpsCs2_1080p.HasValue == true)
@@ -123,8 +127,9 @@ public class BuilderController : Controller
         sb.AppendLine("2. **Phù hợp nhất** cho ai (gaming, đồ họa, làm việc văn phòng…)");
         sb.AppendLine("3. **Khuyến nghị** option nào nên chọn và lý do");
 
-        var narrative = await _ai.CompareNarrativeAsync(sb.ToString());
-        return Content(narrative ?? "Không thể tạo phân tích lúc này.", "text/plain; charset=utf-8");
+        var raw = await _ai.CompareNarrativeAsync(sb.ToString()) ?? "Không thể tạo phân tích lúc này.";
+        var safe = _narrativeSanitizer.Sanitize(raw);
+        return Content(safe, "text/html; charset=utf-8");
     }
 
     private async Task<BuildSnapshot> BuildSnapshotAsync(BuildState state)
