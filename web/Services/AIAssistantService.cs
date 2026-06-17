@@ -57,7 +57,7 @@ public class AIAssistantService : IAIAssistantService
         try
         {
             var client = _http.CreateClient();
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
             var body = JsonSerializer.Serialize(new
             {
                 contents = new[] { new { parts = new[] { new { text = prompt } } } },
@@ -113,7 +113,7 @@ public class AIAssistantService : IAIAssistantService
         try
         {
             var client = _http.CreateClient();
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
 
             var body = JsonSerializer.Serialize(new
             {

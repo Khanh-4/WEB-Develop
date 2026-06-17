@@ -488,8 +488,9 @@ function starsHtml(rating, size) {
         const form = document.getElementById('reviewForm');
         if (form) form.style.display = d.hasReviewed ? 'none' : '';
         // List
-        el.innerHTML = d.reviews.length
-            ? d.reviews.map(rv => `
+        const _reviews = d.reviews || [];
+        el.innerHTML = _reviews.length
+            ? _reviews.map(rv => `
                 <div class="mb-3 pb-3" style="border-bottom:1px solid rgba(255,255,255,.06)">
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span style="font-size:.82rem;color:#fff;font-weight:600">${rv.userDisplayName}</span>
@@ -500,7 +501,10 @@ function starsHtml(rating, size) {
                     <small style="font-size:.72rem;opacity:.5;color:var(--text-muted)">${rv.createdAt}</small>
                 </div>`).join('')
             : '<p style="font-size:.83rem;color:var(--text-muted)">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
-    } catch { el.innerHTML = ''; }
+    } catch (e) {
+        console.error('Reviews load failed:', e);
+        el.innerHTML = '<p style="font-size:.83rem;color:var(--text-muted)">Chưa có đánh giá nào.</p>';
+    }
 })();
 
 function hoverStars(n) {
@@ -604,7 +608,10 @@ async function submitReview() {
                     }
                 </div>`).join('')
             : '<p style="font-size:.83rem;color:var(--text-muted)">Chưa có câu hỏi nào.</p>';
-    } catch { el.innerHTML = ''; }
+    } catch (e) {
+        console.error('Q&A load failed:', e);
+        el.innerHTML = '<p style="font-size:.83rem;color:var(--text-muted)">Chưa có câu hỏi nào.</p>';
+    }
 })();
 
 async function postQuestion() {
@@ -643,7 +650,7 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
 {
     <text>
 (function() {
-    const perfScore = @Model.ApproximatePerformance;
+    const perfScore = @Json.Serialize(Model.ApproximatePerformance); // invariant decimal — vi-VN culture renders "," and breaks JS
 
     // tier → { game: [min1080p, max1080p, min1440p, max1440p] }
     const fpsTiers = [
@@ -717,7 +724,7 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
     if (!nameEl || !priceEl) return;
 
     const productName  = @Json.Serialize(Model.Name);
-    const productPrice = @Model.Price;
+    const productPrice = @Json.Serialize(Model.Price); // invariant decimal — avoid vi-VN comma separator
     const productCat   = '@Model.Category';
     const productId    = @Model.Id;
     const productImg   = @Json.Serialize(Model.ImageUrl ?? "");

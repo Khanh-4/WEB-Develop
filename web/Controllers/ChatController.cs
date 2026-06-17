@@ -25,7 +25,7 @@ public class ChatController : Controller
             return Json(new ChatResponse
             {
                 Success = false,
-                Reply = "Sorry, I couldn't understand your request. Please describe your budget and use-case (e.g. 'I have 20 million VND for gaming')."
+                Reply = "Xin lỗi, mình chưa hiểu yêu cầu của bạn. Hãy mô tả ngân sách và nhu cầu sử dụng — ví dụ: \"Mình có 20 triệu để chơi game\" hoặc \"Build PC 35 triệu làm đồ họa\"."
             });
 
         // Run engine without budget cap to get full filtered candidate pool
@@ -90,16 +90,20 @@ public class ChatController : Controller
                    .ToDictionary(x => x.k, x => x.v);
     }
 
-    /// Pick the highest P/P component within the allocated budget.
-    /// Falls back to cheapest available if nothing fits the allocation.
+    /// Pick the strongest component that fits the allocated budget.
+    /// We want to *use* the budget the customer asked for, not under-spend on a
+    /// cheap high-value part — so within the allocation ceiling we pick the part
+    /// with the highest estimated performance (PpScore × Price ≈ raw performance),
+    /// not the highest value ratio. Falls back to cheapest if nothing fits.
     private static ComponentDto? PickBest(List<ComponentDto> items, decimal allocated, decimal totalBudget)
     {
         if (!items.Any()) return null;
 
-        // Prefer items within 130% of allocation (some flex room)
-        var ceiling = allocated * 1.3m;
+        // Prefer items within 140% of allocation (some flex room to use the budget)
+        var ceiling = allocated * 1.4m;
         var inBudget = items.Where(x => x.Price <= ceiling && x.Price > 0)
-                            .OrderByDescending(x => x.PpScore)
+                            .OrderByDescending(x => x.PpScore * (double)x.Price) // ≈ absolute performance
+                            .ThenByDescending(x => x.Price)
                             .ToList();
 
         if (inBudget.Any()) return inBudget.First();
@@ -114,17 +118,17 @@ public class ChatController : Controller
     private static string BuildReplyMessage(string useCase, decimal total, decimal budget)
     {
         var fmtTotal  = total.ToString("N0") + "đ";
-        var fmtBudget = budget > 0 ? budget.ToString("N0") + "đ" : "your budget";
+        var fmtBudget = budget > 0 ? budget.ToString("N0") + "đ" : "ngân sách của bạn";
         var withinBudget = budget > 0 && total <= budget * 1.05m;
-        var budgetNote = withinBudget ? "" : $" *(slightly over {fmtBudget} — adjust components as needed)*";
+        var budgetNote = withinBudget ? "" : $" *(nhỉnh hơn {fmtBudget} một chút — bạn có thể chỉnh lại linh kiện cho phù hợp)*";
 
         return useCase switch
         {
-            "gaming"    => $"Here's a gaming build — total **{fmtTotal}**{budgetNote}. GPU prioritized for smooth framerates.",
-            "design"    => $"Here's a design/render build — total **{fmtTotal}**{budgetNote}. CPU cores and RAM prioritized.",
-            "streaming" => $"Here's a streaming build — total **{fmtTotal}**{budgetNote}. Balanced CPU + GPU.",
-            "office"    => $"Here's an office build — total **{fmtTotal}**{budgetNote}. Efficient and compact.",
-            _           => $"Here's a balanced build — total **{fmtTotal}**{budgetNote}.",
+            "gaming"    => $"Đây là cấu hình chơi game — tổng **{fmtTotal}**{budgetNote}. Ưu tiên GPU mạnh để chơi mượt.",
+            "design"    => $"Đây là cấu hình đồ họa/render — tổng **{fmtTotal}**{budgetNote}. Ưu tiên CPU nhiều nhân và RAM lớn.",
+            "streaming" => $"Đây là cấu hình stream — tổng **{fmtTotal}**{budgetNote}. Cân bằng giữa CPU và GPU.",
+            "office"    => $"Đây là cấu hình văn phòng — tổng **{fmtTotal}**{budgetNote}. Gọn nhẹ và tiết kiệm điện.",
+            _           => $"Đây là cấu hình cân bằng — tổng **{fmtTotal}**{budgetNote}.",
         };
     }
 }

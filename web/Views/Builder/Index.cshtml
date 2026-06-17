@@ -47,7 +47,7 @@
                                 <i class="bi @step.Item3" style="font-size:1.1rem;width:20px;color:var(--text-muted)"></i>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <div class="small" style="color:var(--text-muted)">@step.Item2</div>
-                                    <div class="small text-truncate" style="color:var(--text)" id="step-name-@step.Item1">Not selected</div>
+                                    <div class="small text-truncate" style="color:var(--text)" id="step-name-@step.Item1">Chưa chọn</div>
                                 </div>
                                 <button class="btn btn-sm p-0 border-0 d-none"
                                         style="color:var(--danger)"
@@ -71,11 +71,11 @@
             <!-- Build Stats -->
             <div class="tx-card p-4 mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span style="color:var(--text-muted)">Total Price</span>
+                    <span style="color:var(--text-muted)">Tổng giá</span>
                     <span class="fs-5 fw-bold" style="color:var(--text)" id="totalPrice">0đ</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span style="color:var(--text-muted)">Performance</span>
+                    <span style="color:var(--text-muted)">Hiệu năng</span>
                     <div class="d-flex align-items-center gap-2">
                         <div class="perf-bar-track" style="width:96px">
                             <div class="perf-bar-fill" id="perfBar" style="width:0%"></div>
@@ -86,7 +86,7 @@
                 <!-- P34: Power breakdown panel -->
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span style="color:var(--text-muted)">Power Draw</span>
+                        <span style="color:var(--text-muted)">Điện năng</span>
                         <span class="fw-semibold" style="color:var(--text)" id="totalTdp">0W</span>
                     </div>
                     <div id="powerBreakdown" class="rounded-3 p-2 mb-2" style="background:var(--surface-2);display:none">
@@ -99,7 +99,7 @@
                             <span style="color:var(--text)" id="gpuTdpLabel">0W</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1" style="font-size:.76rem">
-                            <span style="color:var(--text-muted)"><i class="bi bi-motherboard me-1"></i>Overhead</span>
+                            <span style="color:var(--text-muted)"><i class="bi bi-motherboard me-1"></i>Khác (hệ thống)</span>
                             <span style="color:var(--text)">50W</span>
                         </div>
                         <hr class="divider-white my-1">
@@ -115,7 +115,7 @@
                 </div>
                 <hr class="divider-white my-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="small" style="color:var(--text-muted)">Recommended PSU</span>
+                    <span class="small" style="color:var(--text-muted)">PSU đề xuất</span>
                     <span class="small" style="color:var(--text)" id="recPsu">—</span>
                 </div>
             </div>
@@ -124,13 +124,13 @@
             <div id="compatOk" class="compat-ok p-3 mb-3 d-none">
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <i class="bi bi-check-circle-fill"></i>
-                    <strong>Build Complete!</strong>
+                    <strong>Cấu hình hoàn chỉnh!</strong>
                 </div>
                 <button class="btn btn-gradient w-100 mb-2" onclick="addAllToCart()">
-                    <i class="bi bi-cart-plus me-2"></i>Add All to Cart
+                    <i class="bi bi-cart-plus me-2"></i>Thêm tất cả vào giỏ
                 </button>
                 <button class="btn glass w-100 mb-2" style="color:var(--text)" onclick="openSaveModal()">
-                    <i class="bi bi-bookmark-plus me-2"></i>Save Build
+                    <i class="bi bi-bookmark-plus me-2"></i>Lưu cấu hình
                 </button>
                 <button class="btn glass w-100" style="color:var(--text)" id="exportPdfBtn" onclick="exportPdf()">
                     <i class="bi bi-file-earmark-pdf me-2"></i>Xuất báo giá PDF
@@ -159,16 +159,16 @@
                 <button class="btn w-100" id="snapshotBtn"
                         style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.4);color:#c084fc;font-size:.82rem"
                         onclick="snapshotBuild()">
-                    <i class="bi bi-pin-angle me-1"></i>Snapshot Build A để so sánh
+                    <i class="bi bi-pin-angle me-1"></i>Lưu cấu hình A để so sánh
                 </button>
             </div>
 
             <!-- Budget filter -->
             <div class="tx-card p-3">
-                <label class="small mb-2 d-block" style="color:var(--text-muted)">Budget Filter</label>
+                <label class="small mb-2 d-block" style="color:var(--text-muted)">Lọc ngân sách</label>
                 <div class="input-group">
                     <input type="number" id="budgetInput" class="form-control"
-                           placeholder="Max price (VNĐ)" oninput="debounceFilter()">
+                           placeholder="Giá tối đa (VNĐ)" oninput="debounceFilter()">
                     <button class="btn btn-gradient px-3" onclick="applyFilter()">
                         <i class="bi bi-funnel"></i>
                     </button>
@@ -299,12 +299,12 @@
             </div>
             <div class="modal-body" id="saveModalBody">
                 <div class="mb-3">
-                    <label class="form-label small mb-1" style="color:var(--text-muted)">Build Name</label>
+                    <label class="form-label small mb-1" style="color:var(--text-muted)">Tên cấu hình</label>
                     <input type="text" id="buildNameInput" class="form-control" maxlength="100"
-                           placeholder="e.g. Gaming PC 2025, Workstation Build…">
+                           placeholder="VD: PC Gaming 2025, Máy trạm đồ họa…">
                 </div>
                 <button class="btn btn-gradient w-100" onclick="saveBuild()">
-                    <i class="bi bi-bookmark-check me-2"></i>Save & Get Share Link
+                    <i class="bi bi-bookmark-check me-2"></i>Lưu & lấy liên kết chia sẻ
                 </button>
             </div>
         </div>
@@ -616,7 +616,7 @@ function callFilterApi() {
         updateStats(data);
     })
     .catch(() => {
-        grid.innerHTML = '<div class="col-12 text-center py-4" style="color:var(--text-muted)">Failed to load components</div>';
+        grid.innerHTML = '<div class="col-12 text-center py-4" style="color:var(--text-muted)">Không tải được linh kiện</div>';
     });
 }
 
@@ -642,7 +642,7 @@ function renderGrid(products) {
         grid.innerHTML = `
             <div class="col-12 text-center py-5" style="color:var(--text-muted)">
                 <i class="bi bi-exclamation-circle fs-1 mb-3 d-block"></i>
-                <p class="mb-0">No components found</p>
+                <p class="mb-0">Không tìm thấy linh kiện</p>
             </div>`;
         return;
     }
@@ -665,7 +665,7 @@ function renderGrid(products) {
             : '';
 
         const recommendedBadge = p.isRecommended
-            ? `<div class="position-absolute top-0 end-0 m-2 badge shadow-sm z-1" style="background:var(--accent);color:#000"><i class="bi bi-star-fill me-1"></i>Best</div>`
+            ? `<div class="position-absolute top-0 end-0 m-2 badge shadow-sm z-1" style="background:var(--accent);color:#000"><i class="bi bi-star-fill me-1"></i>Tốt nhất</div>`
             : '';
 
         const cardStyle = !p.isCompatible ? 'opacity: 0.55; filter: grayscale(0.6); cursor: not-allowed;' : 'cursor: pointer;';
@@ -764,7 +764,7 @@ function updateBuildPanel() {
             totalPrice += comp.price * qty;
             if (comp.ppScore) { perfSum += comp.ppScore; perfCount++; }
         } else {
-            nameEl.textContent = 'Not selected';
+            nameEl.textContent = 'Chưa chọn';
             priceEl.classList.add('d-none');
             removeEl.classList.add('d-none');
             if (qtyRowEl) { qtyRowEl.classList.add('d-none'); qtyRowEl.classList.remove('d-flex'); }
@@ -969,7 +969,7 @@ async function saveBuild() {
     });
 
     if (!r.ok) {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-bookmark-check me-2"></i>Save & Get Share Link'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-bookmark-check me-2"></i>Lưu & lấy liên kết chia sẻ'; }
         showToast('Lưu build thất bại, thử lại.', 'danger');
         return;
     }
@@ -978,10 +978,10 @@ async function saveBuild() {
     document.getElementById('saveModalBody').innerHTML = `
         <div class="text-center mb-3">
             <i class="bi bi-bookmark-check-fill text-success" style="font-size:2rem"></i>
-            <div class="fw-semibold mt-2" style="color:var(--text)">Build saved!</div>
+            <div class="fw-semibold mt-2" style="color:var(--text)">Đã lưu cấu hình!</div>
         </div>
         <div class="mb-3">
-            <label class="form-label small mb-1" style="color:var(--text-muted)">Share Link</label>
+            <label class="form-label small mb-1" style="color:var(--text-muted)">Liên kết chia sẻ</label>
             <div class="input-group">
                 <input type="text" class="form-control" id="shareLinkInput" value="${data.shareUrl}" readonly>
                 <button class="btn glass" style="color:var(--text)" onclick="copyShareLink(this)">
@@ -990,8 +990,8 @@ async function saveBuild() {
             </div>
         </div>
         <div class="d-flex gap-2">
-            <a href="/Build/MyBuilds" class="btn glass flex-grow-1" style="color:var(--text)">My Builds</a>
-            <a href="${data.shareUrl}" class="btn btn-gradient flex-grow-1" target="_blank">View</a>
+            <a href="/Build/MyBuilds" class="btn glass flex-grow-1" style="color:var(--text)">Cấu hình của tôi</a>
+            <a href="${data.shareUrl}" class="btn btn-gradient flex-grow-1" target="_blank">Xem</a>
         </div>`;
 }
 
@@ -1099,7 +1099,7 @@ function clearSnapshot() {
     snapshotState = null;
     snapshotComponents = null;
     closeComparePanel();
-    document.getElementById('snapshotBtn').innerHTML = '<i class="bi bi-pin-angle me-1"></i>Snapshot Build A để so sánh';
+    document.getElementById('snapshotBtn').innerHTML = '<i class="bi bi-pin-angle me-1"></i>Lưu cấu hình A để so sánh';
     if (compareChart) { compareChart.destroy(); compareChart = null; }
 }
 
@@ -1126,8 +1126,8 @@ async function updateComparePanel() {
             if (!r.ok) return;
             const data = await r.json();
             renderMultiResult([
-                { label: 'Build A', data: data.a },
-                { label: 'Build B', data: data.b },
+                { label: 'Cấu hình A', data: data.a },
+                { label: 'Cấu hình B', data: data.b },
             ]);
         } catch { /* silently ignore */ }
     }, 500);
@@ -1140,8 +1140,8 @@ async function openCompareOptions() {
         showToast('Cần ít nhất 2 options có linh kiện để so sánh.', 'warning');
         return;
     }
-    lastCompareRequest = { builds: active.map(o => ({ label: 'Option ' + o.label, state: o.buildState })) };
-    renderOptionLabels(active.map(o => 'Option ' + o.label));
+    lastCompareRequest = { builds: active.map(o => ({ label: 'Phương án ' + o.label, state: o.buildState })) };
+    renderOptionLabels(active.map(o => 'Phương án ' + o.label));
     openComparePanel(`So sánh ${active.length} options`, false, true);
 
     try {
@@ -1194,7 +1194,7 @@ function renderMultiResult(options) {
     priceEl.style.gap = '4px';
 
     // Radar chart
-    const radarLabels = ['Gaming', 'Đa nhiệm', 'Lưu trữ', 'Tản nhiệt', 'Nâng cấp'];
+    const radarLabels = ['Chơi game', 'Đa nhiệm', 'Lưu trữ', 'Tản nhiệt', 'Nâng cấp'];
     const datasets = options.map((o, i) => {
         const c = CMP_COLORS[i % CMP_COLORS.length];
         const r = o.data?.radar;
@@ -1266,11 +1266,11 @@ function renderDetailTabMulti(options) {
         ['CPU',         o => o.data?.specs?.cpu?.name],
         ['GPU',         o => o.data?.specs?.gpu?.name],
         ['RAM',         o => o.data?.specs?.memory?.name],
-        ['Storage',     o => o.data?.specs?.storage?.name],
+        ['Lưu trữ',     o => o.data?.specs?.storage?.name],
         ['PSU',         o => o.data?.specs?.psu?.name],
         ['Mainboard',   o => o.data?.specs?.motherboard?.name],
-        ['Cooler',      o => o.data?.specs?.cooler?.name],
-        ['Case',        o => o.data?.specs?.case?.name],
+        ['Tản nhiệt',   o => o.data?.specs?.cooler?.name],
+        ['Vỏ case',     o => o.data?.specs?.case?.name],
         ['TDP tổng',    o => o.data?.totalTDP ? o.data.totalTDP + 'W' : null],
         ['Tổng tiền',   o => fmtPrice(o.data?.totalPrice || 0)],
     ];

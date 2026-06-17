@@ -8,20 +8,20 @@
         <div class="row align-items-center">
             <div class="col">
                 <div class="small mb-1" style="color:var(--text-muted)">
-                    <i class="bi bi-share me-1"></i>Shared PC Build
+                    <i class="bi bi-share me-1"></i>Cấu hình PC được chia sẻ
                 </div>
                 <h4 class="fw-bold mb-1" style="color:var(--text)">@Model.Build.Name</h4>
                 <span class="small" style="color:var(--text-muted)">
-                    by @(Model.Build.User?.FullName ?? "Anonymous") &bull;
+                    bởi @(Model.Build.User?.FullName ?? "Ẩn danh") &bull;
                     @Model.Build.CreatedAt.ToString("dd/MM/yyyy")
                 </span>
             </div>
             <div class="col-auto d-flex gap-2">
                 <button class="btn glass" style="color:var(--text)" onclick="copyPageLink(this)">
-                    <i class="bi bi-link-45deg me-1"></i>Copy Link
+                    <i class="bi bi-link-45deg me-1"></i>Sao chép liên kết
                 </button>
                 <a asp-controller="Builder" asp-action="Index" class="btn btn-gradient" id="buildThisBtn">
-                    <i class="bi bi-tools me-2"></i>Build This
+                    <i class="bi bi-tools me-2"></i>Ráp bộ này
                 </a>
             </div>
         </div>
@@ -32,12 +32,12 @@
         <!-- Component List -->
         <div class="col-lg-8">
             <div class="tx-card p-4">
-                <h5 class="fw-semibold mb-4" style="color:var(--text)">Components</h5>
+                <h5 class="fw-semibold mb-4" style="color:var(--text)">Linh kiện</h5>
                 @{
                     var catLabels = new Dictionary<string,string> {
-                        ["cpu"]="Processor",["motherboard"]="Motherboard",["memory"]="Memory",
-                        ["videoCard"]="Graphics Card",["storage"]="Storage",["powerSupply"]="Power Supply",
-                        ["case"]="Case",["cooler"]="CPU Cooler"
+                        ["cpu"]="Bộ xử lý",["motherboard"]="Bo mạch chủ",["memory"]="RAM",
+                        ["videoCard"]="Card đồ họa",["storage"]="Lưu trữ",["powerSupply"]="Nguồn",
+                        ["case"]="Vỏ case",["cooler"]="Tản nhiệt CPU"
                     };
                     var catIcons = new Dictionary<string,string> {
                         ["cpu"]="bi-cpu",["motherboard"]="bi-motherboard",["memory"]="bi-memory",
@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     <div class="small" style="color:var(--text-muted)">@label</div>
-                                    <div class="small fst-italic" style="color:var(--text-muted)">Not included</div>
+                                    <div class="small fst-italic" style="color:var(--text-muted)">Không có</div>
                                 </div>
                                 <div style="color:var(--text-muted)">—</div>
                             </div>
@@ -93,14 +93,14 @@
         <!-- Summary -->
         <div class="col-lg-4">
             <div class="tx-card p-4 mb-3">
-                <h5 class="fw-semibold mb-4" style="color:var(--text)">Summary</h5>
+                <h5 class="fw-semibold mb-4" style="color:var(--text)">Tóm tắt</h5>
 
                 <div class="d-flex justify-content-between mb-3">
-                    <span style="color:var(--text-muted)">Components</span>
+                    <span style="color:var(--text-muted)">Linh kiện</span>
                     <span class="fw-semibold" style="color:var(--text)">@Model.Components.Count / 8</span>
                 </div>
                 <div class="d-flex justify-content-between mb-4">
-                    <span style="color:var(--text-muted)">Total Price</span>
+                    <span style="color:var(--text-muted)">Tổng giá</span>
                     <span class="fw-bold fs-5" style="color:var(--primary)">@Model.TotalPrice.ToString("N0")đ</span>
                 </div>
 
@@ -108,10 +108,10 @@
 
                 <a asp-controller="Builder" asp-action="Index" id="buildThisBtn2"
                    class="btn btn-gradient w-100 mb-2">
-                    <i class="bi bi-tools me-2"></i>Build This PC
+                    <i class="bi bi-tools me-2"></i>Ráp bộ PC này
                 </a>
                 <button class="btn glass w-100" style="color:var(--text)" onclick="copyPageLink(this)">
-                    <i class="bi bi-share me-2"></i>Share Build
+                    <i class="bi bi-share me-2"></i>Chia sẻ cấu hình
                 </button>
             </div>
         </div>
@@ -133,7 +133,7 @@ document.querySelectorAll('#buildThisBtn, #buildThisBtn2').forEach(btn => {
 function copyPageLink(btn) {
     navigator.clipboard.writeText(window.location.href).then(() => {
         const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copied!';
+        btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Đã sao chép!';
         setTimeout(() => btn.innerHTML = orig, 2000);
     });
 }

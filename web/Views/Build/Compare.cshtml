@@ -1,13 +1,13 @@
 @model TechSpecs.Controllers.CompareViewModel
 @using TechSpecs.Controllers
-@{ ViewData["Title"] = "Compare Builds"; }
+@{ ViewData["Title"] = "So sánh cấu hình"; }
 
 @{
     var catOrder  = new[] { "cpu","motherboard","memory","videoCard","storage","powerSupply","case","cooler" };
     var catLabels = new Dictionary<string,string> {
-        ["cpu"]="Processor", ["motherboard"]="Motherboard", ["memory"]="Memory",
-        ["videoCard"]="Graphics Card", ["storage"]="Storage", ["powerSupply"]="Power Supply",
-        ["case"]="Case", ["cooler"]="CPU Cooler"
+        ["cpu"]="Bộ xử lý", ["motherboard"]="Bo mạch chủ", ["memory"]="RAM",
+        ["videoCard"]="Card đồ họa", ["storage"]="Lưu trữ", ["powerSupply"]="Nguồn",
+        ["case"]="Vỏ case", ["cooler"]="Tản nhiệt CPU"
     };
     var catIcons = new Dictionary<string,string> {
         ["cpu"]="bi-cpu", ["motherboard"]="bi-motherboard", ["memory"]="bi-memory",
@@ -22,10 +22,10 @@
     <div class="tx-card p-4 mb-4">
         <div class="row align-items-center g-3">
             <div class="col-12 col-md-5 text-center text-md-start">
-                <div class="small mb-1" style="color:var(--text-muted)">Build A</div>
+                <div class="small mb-1" style="color:var(--text-muted)">Cấu hình A</div>
                 <h4 class="fw-bold mb-0" style="color:var(--text)">@Model.BuildA.Name</h4>
                 <div class="small" style="color:var(--text-muted)">
-                    by @(Model.BuildA.User?.FullName ?? "Anonymous") &bull;
+                    bởi @(Model.BuildA.User?.FullName ?? "Ẩn danh") &bull;
                     @Model.BuildA.CreatedAt.ToString("dd/MM/yyyy")
                 </div>
             </div>
@@ -33,10 +33,10 @@
                 <span class="badge fs-6 px-3 py-2" style="background:var(--surface-2);color:var(--primary)">VS</span>
             </div>
             <div class="col-12 col-md-5 text-center text-md-end">
-                <div class="small mb-1" style="color:var(--text-muted)">Build B</div>
+                <div class="small mb-1" style="color:var(--text-muted)">Cấu hình B</div>
                 <h4 class="fw-bold mb-0" style="color:var(--text)">@Model.BuildB.Name</h4>
                 <div class="small" style="color:var(--text-muted)">
-                    by @(Model.BuildB.User?.FullName ?? "Anonymous") &bull;
+                    bởi @(Model.BuildB.User?.FullName ?? "Ẩn danh") &bull;
                     @Model.BuildB.CreatedAt.ToString("dd/MM/yyyy")
                 </div>
             </div>
@@ -87,7 +87,7 @@
                             </div>
                             <div>
                                 <div class="small" style="color:var(--text-muted)">@label</div>
-                                <div class="fst-italic small" style="color:var(--text-muted)">Not included</div>
+                                <div class="fst-italic small" style="color:var(--text-muted)">Không có</div>
                             </div>
                         </div>
                     }
@@ -97,7 +97,7 @@
                 <div class="col-12 col-md-2 d-none d-md-flex align-items-center justify-content-center">
                     @if (differ)
                     {
-                        <span class="badge rounded-pill px-2" style="background:var(--surface-2);color:var(--primary);font-size:.7rem">DIFF</span>
+                        <span class="badge rounded-pill px-2" style="background:var(--surface-2);color:var(--primary);font-size:.7rem">KHÁC</span>
                     }
                     else
                     {
@@ -139,7 +139,7 @@
                             </div>
                             <div>
                                 <div class="small" style="color:var(--text-muted)">@label</div>
-                                <div class="fst-italic small" style="color:var(--text-muted)">Not included</div>
+                                <div class="fst-italic small" style="color:var(--text-muted)">Không có</div>
                             </div>
                         </div>
                     }
@@ -151,14 +151,14 @@
         <div class="row g-0" style="background:var(--surface-2)">
             <div class="col-12 col-md-5 p-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span style="color:var(--text-muted)">Total</span>
+                    <span style="color:var(--text-muted)">Tổng</span>
                     <span class="fw-bold fs-5" style="color:var(--primary)">@Model.TotalA.ToString("N0")đ</span>
                 </div>
                 @{ var diff = Model.TotalA - Model.TotalB; }
                 @if (diff != 0)
                 {
                     <div class="text-end small mt-1 @(diff > 0 ? "text-danger" : "text-success")">
-                        @(diff > 0 ? "+" : "")@diff.ToString("N0")đ vs Build B
+                        @(diff > 0 ? "+" : "")@diff.ToString("N0")đ so với Cấu hình B
                     </div>
                 }
             </div>
@@ -167,13 +167,13 @@
             </div>
             <div class="col-12 col-md-5 p-3" style="border-left:1px solid var(--border)">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span style="color:var(--text-muted)">Total</span>
+                    <span style="color:var(--text-muted)">Tổng</span>
                     <span class="fw-bold fs-5" style="color:var(--primary)">@Model.TotalB.ToString("N0")đ</span>
                 </div>
                 @if (diff != 0)
                 {
                     <div class="text-end small mt-1 @(diff < 0 ? "text-danger" : "text-success")">
-                        @(diff < 0 ? "+" : "")@((-diff).ToString("N0"))đ vs Build A
+                        @(diff < 0 ? "+" : "")@((-diff).ToString("N0"))đ so với Cấu hình A
                     </div>
                 }
             </div>
@@ -184,17 +184,17 @@
     <div class="row g-3">
         <div class="col-12 col-md-5">
             <button class="btn btn-gradient w-100" onclick="loadBuild('A')">
-                <i class="bi bi-tools me-2"></i>Build A in Builder
+                <i class="bi bi-tools me-2"></i>Mở Cấu hình A trong trình ráp
             </button>
         </div>
         <div class="col-12 col-md-2 text-center">
             <a asp-action="MyBuilds" class="btn glass w-100" style="color:var(--text)">
-                <i class="bi bi-arrow-left me-1"></i>Back
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
             </a>
         </div>
         <div class="col-12 col-md-5">
             <button class="btn btn-gradient w-100" onclick="loadBuild('B')">
-                <i class="bi bi-tools me-2"></i>Build B in Builder
+                <i class="bi bi-tools me-2"></i>Mở Cấu hình B trong trình ráp
             </button>
         </div>
     </div>
