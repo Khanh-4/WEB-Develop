@@ -15,17 +15,20 @@ public class AccountController : Controller
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IEmailSender _emailSender;
     private readonly AppDbContext _db;
+    private readonly ILogger<AccountController> _logger;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IEmailSender emailSender,
-        AppDbContext db)
+        AppDbContext db,
+        ILogger<AccountController> logger)
     {
         _db = db;
         _userManager = userManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -317,20 +320,29 @@ public class AccountController : Controller
         var resetLink = Url.Action(nameof(ResetPassword), "Account",
             new { email = model.Email, token }, Request.Scheme)!;
 
-        await _emailSender.SendEmailAsync(
-            model.Email,
-            "Reset your TechSpecs password",
-            $"""
-            <div style="font-family:sans-serif;max-width:480px;margin:auto">
-              <h2 style="color:#7c3aed">TechSpecs — Password Reset</h2>
-              <p>Click the button below to reset your password. The link expires in <strong>1 hour</strong>.</p>
-              <a href="{resetLink}"
-                 style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:12px 0">
-                Reset Password
-              </a>
-              <p style="color:#888;font-size:.85rem">If you didn't request this, you can ignore this email.</p>
-            </div>
-            """);
+        try
+        {
+            await _emailSender.SendEmailAsync(
+                model.Email,
+                "Reset your TechSpecs password",
+                $"""
+                <div style="font-family:sans-serif;max-width:480px;margin:auto">
+                  <h2 style="color:#7c3aed">TechSpecs — Password Reset</h2>
+                  <p>Click the button below to reset your password. The link expires in <strong>1 hour</strong>.</p>
+                  <a href="{resetLink}"
+                     style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:12px 0">
+                    Reset Password
+                  </a>
+                  <p style="color:#888;font-size:.85rem">If you didn't request this, you can ignore this email.</p>
+                </div>
+                """);
+        }
+        catch (Exception ex)
+        {
+            // Email delivery failed (Resend misconfig, domain unverified, network…).
+            // Don't leak a 500 to the user — log for ops and show the neutral confirmation.
+            _logger.LogError(ex, "Failed to send password reset email to {Email}", model.Email);
+        }
 
         return RedirectToAction(nameof(ForgotPasswordConfirmation));
     }

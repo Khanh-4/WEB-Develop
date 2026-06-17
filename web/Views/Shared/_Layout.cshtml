@@ -435,6 +435,21 @@ window.i18n = {
 </script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 
+@if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+{
+    var _flashIsError = TempData["ErrorMessage"] != null;
+    var _flashMsg = (TempData["ErrorMessage"] ?? TempData["SuccessMessage"])!.ToString();
+    <script>
+    // ── Server flash message → toast (BUG-10: QuickQuote feedback) ──────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        var msg = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(_flashMsg));
+        if (window.showToast) {
+            showToast(msg, @(_flashIsError ? "'error'" : "'success'"), 4000);
+        }
+    });
+    </script>
+}
+
 <script>
 // ── Theme toggle ──────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
