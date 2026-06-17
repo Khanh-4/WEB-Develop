@@ -15,7 +15,7 @@ from processors.normalizer import (
     normalize_socket, normalize_memory_type, normalize_form_factor,
     normalize_efficiency, extract_manufacturer_from_name,
     normalize_chipset, normalize_ram_profile, normalize_psu_form_factor,
-    normalize_case_type, parse_radiator_support,
+    normalize_case_type, parse_radiator_support, is_system_or_laptop,
 )
 from scoring.performance import score_cpu, score_gpu
 from models.hardware import (
@@ -167,6 +167,9 @@ def scrape_cpus(all_urls: list[str]) -> list[Cpu]:
             continue
         time.sleep(0.3)
 
+        if is_system_or_laptop(name):
+            continue  # prebuilt PCs / laptops don't belong in the cpu table (#12)
+
         socket  = normalize_socket(_find(specs, "socket", "loại socket"))
         cores   = _int(_find(specs, "số nhân", "cores", "nhân"))
         threads = _int(_find(specs, "số luồng", "threads", "luồng"))
@@ -280,6 +283,9 @@ def scrape_video_cards(all_urls: list[str]) -> list[VideoCard]:
         if not name or price == 0:
             continue
         time.sleep(0.3)
+
+        if is_system_or_laptop(name):
+            continue  # laptops don't belong in the video_card table (#13)
 
         vram_spec = _find(specs, "bộ nhớ", "vram", "memory", "dung lượng")
         vram   = parse_capacity_gb(vram_spec) if vram_spec else _vram_from_name(name)
