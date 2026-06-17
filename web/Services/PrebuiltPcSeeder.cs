@@ -111,7 +111,9 @@ public class PrebuiltPcSeeder
             Name          = name,
             Purpose       = purpose,
             Price         = total,
-            OldPrice      = total > 0 ? Math.Round(total * 1.08m, -3) : null,
+            // Fake "original price" (8% markup) rounded to the nearest 1.000đ.
+            // NOTE: Math.Round does NOT accept negative digits — round via /1000 then *1000.
+            OldPrice      = total > 0 ? Math.Round(total * 1.08m / 1000m) * 1000m : null,
             CpuId         = cpu?.Id,
             MotherboardId = mb?.Id,
             MemoryId      = ram?.Id,
