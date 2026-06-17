@@ -69,10 +69,32 @@ def parse_wattage(raw: str) -> int:
 
 
 def normalize_socket(raw: str) -> str:
-    """'Socket AM5' / 'socket am5' / 'AM5' → 'AM5'; 'LGA 1700' → 'LGA1700'"""
-    raw = re.sub(r"(?i)socket\s*", "", str(raw)).strip().upper()
-    raw = re.sub(r"\s+", "", raw)
-    return raw
+    """Normalize a CPU/MB socket string to a canonical token matching Cpu.Socket.
+
+    Handles brand prefixes and concatenation noise so values match across tables:
+      'Socket AM5'/'am5' → 'AM5'; 'LGA 1700'/'1700' → 'LGA1700';
+      'Intel LGA1700' → 'LGA1700'; 'AMDAM5' → 'AM5'; 'LGAAM5' → 'AM5'.
+    Returns '' when unrecognized so callers can fall back to name inference.
+    """
+    s = re.sub(r"(?i)socket", "", str(raw)).upper()
+    s = re.sub(r"[^A-Z0-9+]", "", s)                 # drop spaces, dashes, slashes
+    s = s.replace("INTEL", "").replace("AMD", "")     # strip brand prefixes
+    if not s or s == "UNKNOWN":
+        return ""
+    # AMD first (so a stray 'LGA' prefix on 'LGAAM5' is discarded)
+    if "AM5" in s:
+        return "AM5"
+    if "AM4" in s:
+        return "AM4"
+    if "AM3+" in s:
+        return "AM3+"
+    # Intel LGA: keep the numeric pad code (1700/1851/1200/1151/...)
+    m = re.search(r"\d{3,4}", s)
+    if m and ("LGA" in s or re.fullmatch(r"\d{3,4}", s)):
+        return "LGA" + m.group()
+    if s.startswith("LGA"):
+        return s
+    return ""
 
 
 def normalize_memory_type(raw: str) -> str:

@@ -557,6 +557,8 @@ def _socket_from_name(name: str) -> str:
 
 # Chipset → socket map for motherboard name parsing
 _MB_CHIPSET_SOCKET: list[tuple[list[str], str]] = [
+    # Intel LGA1851 (Core Ultra 200S / Arrow Lake) — check before LGA1700 (more specific gen)
+    (["Z890", "B860", "H810", "W880"], "LGA1851"),
     # Intel LGA1700 (12th/13th/14th gen)
     (["Z790", "B760", "H770", "H610", "Z690", "B660", "H670", "W790", "W680"], "LGA1700"),
     # Intel LGA1200 (10th/11th gen)
@@ -577,10 +579,12 @@ def _mb_socket_from_name(name: str) -> str:
     socket = _socket_from_name(name)
     if socket:
         return socket
-    # Chipset pattern: word boundary + chipset code (e.g. "B760M", "Z790-P")
+    # Chipset pattern: chipset code optionally followed by a form-factor letter
+    # ("B760M", "B860M", "H810M") or separator ("Z790-P"). The negative lookahead
+    # stops a digit suffix (so "B840" won't match inside "B8400").
     for chipsets, sock in _MB_CHIPSET_SOCKET:
         for chip in chipsets:
-            if re.search(r'\b' + chip + r'\b', name_u):
+            if re.search(r'\b' + chip + r'(?![0-9])', name_u):
                 return sock
     return ""
 
