@@ -80,7 +80,8 @@
 > - **BUG-08** — ĐÃ FIXED SẴN: cả reviews (`d.reviews.length ? … : 'Chưa có đánh giá…'`) lẫn articles (`if(!data.length)`) đều handle empty + bỏ spinner. Không cần sửa.
 > - **BUG-13** — ĐÃ FIXED SẴN: `Brands()` đọc field `Manufacturer` từ mỗi bảng (không còn extract từ tên SP → hết lỗi "Liên"). Không cần sửa.
 > - **BUG-14** — FIXED: handler chip (`addEventListener` + `clearAllFilters`) vốn đúng; root cause tiềm ẩn là `#activeFilters` có `display:none!important` + class `d-flex` (!important) xung đột với `style.display`. Đã chuyển sang toggle `display:none`↔`flex` thuần (bỏ `!important` + `d-flex`).
-> - **BUG-15** — CHƯA FIX: điều tra static (CSS breakpoints, grid cols, JS scroll-reveal) KHÔNG tìm thấy nguyên nhân blank ở 1024px — grid đều có fallback `col-lg`/`col-md`, block `@media(max-width:1200px)` chỉ chỉnh nav. Cần reproduce bằng browser thật (chrome-devtools @ 1024px) để tìm root cause.
+> - **BUG-15** — KHÔNG REPRODUCE: chạy Playwright/Chromium ở đúng 1024×1366 trên Home/Products/Builder/Cart → **tất cả render đầy đủ** (Home scrollHeight 8946px, Builder 6364px); các container "ẩn" chỉ là `modal fade` + section rỗng (display:none bình thường). Triệu chứng "chỉ hiện header" KHÔNG xảy ra trong Chromium → nhiều khả năng đặc thù Safari/iPad-engine hoặc đã được giải quyết. Không guess-fix khi không có root cause.
+> - **BONUS (bug thật phát hiện khi reproduce BUG-15)** — FIXED: Chart.js CDN bị **block toàn site do SRI integrity hash sai** (`sha384-eCNJ+ux…` ≠ hash thật) → radar compare (Builder) + FPS chart (Product Detail) hỏng. jsdelivr serve bytes thay đổi theo edge nên SRI hardcode luôn fragile → **self-host** `chart.js@4.4.0` vào `wwwroot/lib/chartjs/`, 3 view dùng `~/lib/chartjs/chart.umd.min.js` (bỏ integrity/crossorigin). Verify: `window.Chart` defined, 0 console error.
 > - Build: 0 errors, 0 warnings.
 
 ### BUG-04: Cải thiện hệ thống tra cứu đơn hàng
