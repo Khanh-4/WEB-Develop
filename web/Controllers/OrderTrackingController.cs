@@ -18,6 +18,14 @@ public class OrderTrackingController : Controller
     // Phone is required. orderId is optional:
     //  - phone only        → all orders for that phone, newest first
     //  - orderId + phone    → that single order (backward compatible)
+    //
+    // SECURITY NOTE (deliberate, accepted by product owner 2026-06-17):
+    // Phone-only lookup is an intentional convenience for guests (same UX as
+    // Shopee/GHN order tracking by phone). The IDOR/enumeration tradeoff was
+    // reviewed and accepted. Risk is bounded by data minimization: this endpoint
+    // returns only order status/items/totals — never recipient name or shipping
+    // address (those stay behind [Authorize] on OrdersController). Do not add
+    // name/address fields here without revisiting this decision.
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Check(int orderId, string phone)
     {
