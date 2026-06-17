@@ -6,7 +6,7 @@
     <div class="text-center mb-4">
         <i class="bi bi-truck" style="font-size:3rem;color:var(--primary)"></i>
         <h4 class="fw-bold mt-2" style="color:var(--text)">Tra cứu đơn hàng</h4>
-        <p style="color:var(--text-muted)">Nhập mã đơn hàng và số điện thoại để xem trạng thái</p>
+        <p style="color:var(--text-muted)">Nhập số điện thoại để xem tất cả đơn hàng — thêm mã đơn nếu muốn tra cứu chính xác một đơn</p>
     </div>
 
     <div class="tx-card p-4 mb-4">
@@ -14,15 +14,15 @@
             @Html.AntiForgeryToken()
             <div class="row g-3">
                 <div class="col-md-5">
-                    <label class="form-label small" style="color:var(--text-muted)">Mã đơn hàng *</label>
-                    <div class="input-group">
-                        <span class="input-group-text glass-sm border-0" style="color:var(--text-muted)">#</span>
-                        <input id="trackOrderId" type="number" class="form-control" placeholder="12345" min="1" required>
-                    </div>
-                </div>
-                <div class="col-md-5">
                     <label class="form-label small" style="color:var(--text-muted)">Số điện thoại *</label>
                     <input id="trackPhone" type="tel" class="form-control" placeholder="0912 345 678" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small" style="color:var(--text-muted)">Mã đơn hàng (tùy chọn)</label>
+                    <div class="input-group">
+                        <span class="input-group-text glass-sm border-0" style="color:var(--text-muted)">#</span>
+                        <input id="trackOrderId" type="number" class="form-control" placeholder="Để trống = xem tất cả" min="1">
+                    </div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-gradient w-100">
@@ -75,11 +75,18 @@
         if (!data.found) {
             res.innerHTML = `<div class="tx-card p-4 text-center" style="color:var(--text-muted)">
                 <i class="bi bi-search" style="font-size:2rem;opacity:.4"></i>
-                <p class="mt-2">Không tìm thấy đơn hàng.<br>Vui lòng kiểm tra lại mã đơn và số điện thoại.</p>
+                <p class="mt-2">Không tìm thấy đơn hàng.<br>Vui lòng kiểm tra lại số điện thoại${orderId ? ' và mã đơn' : ''}.</p>
             </div>`;
             return;
         }
 
+        const heading = data.orders.length > 1
+            ? `<p class="mb-3" style="color:var(--text-muted);font-size:.85rem">Tìm thấy <strong style="color:var(--text)">${data.orders.length}</strong> đơn hàng</p>`
+            : '';
+        res.innerHTML = heading + data.orders.map(order => renderOrder(order, data.steps)).join('');
+    });
+
+    function renderOrder(data, steps) {
         let stepperHtml = '';
         if (data.isCancelled) {
             stepperHtml = `<div class="glass-sm p-3 rounded-3 mb-4 text-center" style="border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.07)">
@@ -87,7 +94,7 @@
                 <span style="color:#f87171">Đơn hàng đã bị hủy</span>
             </div>`;
         } else {
-            const dots = data.steps.map((s, i) => {
+            const dots = steps.map((s, i) => {
                 const isDone   = s.status < data.currentStep;
                 const isActive = s.status === data.currentStep;
                 const cls = isDone ? 'done' : isActive ? 'active' : '';
@@ -96,7 +103,7 @@
                     : isActive
                         ? `<div class="dot-inner"></div>`
                         : `<i class="bi ${s.icon}" style="opacity:.3;font-size:.75rem;color:var(--text-muted)"></i>`;
-                const connector = i < data.steps.length - 1
+                const connector = i < steps.length - 1
                     ? `<div class="track-connector ${isDone ? 'done' : ''}"></div>`
                     : '';
                 return `
@@ -129,7 +136,7 @@
             ? `<div class="d-flex justify-content-between mb-1"><span style="color:var(--text-muted)"><i class="bi bi-tag-fill me-1"></i>Giảm giá</span><span style="color:#4ade80">-${data.discountAmount.toLocaleString('vi-VN')}đ</span></div>`
             : '';
 
-        res.innerHTML = `
+        return `
             <div class="tx-card p-4 mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-semibold mb-0" style="color:var(--text)">Đơn hàng #${data.orderId}</h6>
@@ -148,5 +155,5 @@
                 </div>
                 <div class="mt-2" style="color:var(--text-muted);font-size:.82rem">${payIcon}</div>
             </div>`;
-    });
+    }
 </script>

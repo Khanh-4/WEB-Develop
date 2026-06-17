@@ -15,19 +15,30 @@ public class OrderTrackingController : Controller
     public IActionResult Index() => View();
 
     // POST /OrderTracking/Check
+    // Phone is required. orderId is optional:
+    //  - phone only        → all orders for that phone, newest first
+    //  - orderId + phone    → that single order (backward compatible)
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Check(int orderId, string phone)
     {
         phone = (phone ?? "").Trim();
-        if (orderId <= 0 || string.IsNullOrEmpty(phone))
-            return Json(new { error = "Vui lòng nhập đầy đủ thông tin." });
+        if (string.IsNullOrEmpty(phone))
+            return Json(new { error = "Vui lòng nhập số điện thoại." });
 
-        var order = await _db.Orders
+        var query = _db.Orders
             .AsNoTracking()
             .Include(o => o.Details)
-            .FirstOrDefaultAsync(o => o.Id == orderId && o.Phone == phone);
+            .Where(o => o.Phone == phone);
 
-        if (order == null)
+        if (orderId > 0)
+            query = query.Where(o => o.Id == orderId);
+
+        var orders = await query
+            .OrderByDescending(o => o.CreatedAt)
+            .Take(20)
+            .ToListAsync();
+
+        if (orders.Count == 0)
             return Json(new { found = false });
 
         var steps = new[]
@@ -40,17 +51,12 @@ public class OrderTrackingController : Controller
             new { status = (int)OrderStatus.Delivered,    label = "Đã nhận hàng",  icon = "bi-house-check" },
         };
 
-        int currentStep = (int)order.Status;
-        bool isCancelled = order.Status == OrderStatus.Cancelled;
-
-        return Json(new
+        var result = orders.Select(order => new
         {
-            found = true,
             orderId = order.Id,
             status = order.Status.ToString(),
-            isCancelled,
-            currentStep,
-            steps,
+            isCancelled = order.Status == OrderStatus.Cancelled,
+            currentStep = (int)order.Status,
             totalAmount = order.TotalAmount,
             discountAmount = order.DiscountAmount,
             paymentMethod = order.PaymentMethod.ToString(),
@@ -63,5 +69,7 @@ public class OrderTrackingController : Controller
                 d.ImageUrl
             })
         });
+
+        return Json(new { found = true, steps, orders = result });
     }
 }

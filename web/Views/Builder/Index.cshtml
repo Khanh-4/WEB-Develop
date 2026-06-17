@@ -29,17 +29,17 @@
 
             <!-- Step list -->
             <div class="tx-card p-4 mb-3">
-                <h5 class="fw-semibold mb-3" style="color:var(--text)">Your Build</h5>
+                <h5 class="fw-semibold mb-3" style="color:var(--text)">Cấu hình của bạn</h5>
                 <div id="buildSteps" class="d-flex flex-column gap-2">
                     @foreach (var step in new[] {
-                        ("cpu",          "Processor",    "bi-cpu"),
-                        ("motherboard",  "Motherboard",  "bi-motherboard"),
-                        ("memory",       "Memory",       "bi-memory"),
-                        ("videoCard",    "Graphics Card","bi-gpu-card"),
-                        ("storage",      "Storage",      "bi-device-hdd"),
-                        ("powerSupply",  "Power Supply", "bi-lightning-charge"),
-                        ("case",         "Case",         "bi-box"),
-                        ("cooler",       "CPU Cooler",   "bi-thermometer-half"),
+                        ("cpu",          "CPU",            "bi-cpu"),
+                        ("motherboard",  "Bo mạch chủ",    "bi-motherboard"),
+                        ("memory",       "RAM",            "bi-memory"),
+                        ("videoCard",    "Card đồ họa",    "bi-gpu-card"),
+                        ("storage",      "Ổ cứng",         "bi-device-hdd"),
+                        ("powerSupply",  "Nguồn",          "bi-lightning-charge"),
+                        ("case",         "Vỏ case",        "bi-box"),
+                        ("cooler",       "Tản nhiệt",      "bi-thermometer-half"),
                     })
                     {
                         <div class="build-step" data-category="@step.Item1" onclick="selectCategory('@step.Item1')">
@@ -183,14 +183,14 @@
                 <!-- Category tabs -->
                 <div class="d-flex flex-wrap gap-2 mb-4" id="categoryTabs">
                     @foreach (var tab in new[] {
-                        ("cpu",         "Processor",    "bi-cpu"),
-                        ("motherboard", "Motherboard",  "bi-motherboard"),
-                        ("memory",      "Memory",       "bi-memory"),
-                        ("videoCard",   "Graphics",     "bi-gpu-card"),
-                        ("storage",     "Storage",      "bi-device-hdd"),
-                        ("powerSupply", "PSU",          "bi-lightning-charge"),
-                        ("case",        "Case",         "bi-box"),
-                        ("cooler",      "Cooler",       "bi-thermometer-half"),
+                        ("cpu",         "CPU",          "bi-cpu"),
+                        ("motherboard", "Bo mạch chủ",  "bi-motherboard"),
+                        ("memory",      "RAM",          "bi-memory"),
+                        ("videoCard",   "Card đồ họa",  "bi-gpu-card"),
+                        ("storage",     "Ổ cứng",       "bi-device-hdd"),
+                        ("powerSupply", "Nguồn",        "bi-lightning-charge"),
+                        ("case",        "Vỏ case",      "bi-box"),
+                        ("cooler",      "Tản nhiệt",    "bi-thermometer-half"),
                     })
                     {
                         <button class="category-pill @(tab.Item1 == "cpu" ? "active" : "")"
@@ -206,13 +206,13 @@
                     <div class="flex-grow-1 position-relative">
                         <i class="bi bi-search position-absolute" style="left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
                         <input type="text" id="searchInput" class="form-control ps-5"
-                               placeholder="Search components..." oninput="debounceFilter()">
+                               placeholder="Tìm linh kiện..." oninput="debounceFilter()">
                     </div>
                     <select class="form-select" style="width:auto;background:var(--surface-2);border-color:var(--border);color:var(--text)" id="sortSelect" onchange="sortProducts()">
-                        <option value="pp">Best Value</option>
-                        <option value="price-asc">Price ↑</option>
-                        <option value="price-desc">Price ↓</option>
-                        <option value="perf">Performance</option>
+                        <option value="pp">Giá trị nhất</option>
+                        <option value="price-asc">Giá ↑</option>
+                        <option value="price-desc">Giá ↓</option>
+                        <option value="perf">Hiệu năng</option>
                     </select>
                 </div>
 
@@ -229,7 +229,7 @@
 </div>
 
 <!-- Compare Panel (slide-in from right) — supports both snapshot-mode and multi-option mode -->
-<div id="comparePanel" style="display:none;position:fixed;right:0;top:0;bottom:0;width:440px;z-index:1055;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.5);display:flex;flex-direction:column">
+<div id="comparePanel" style="display:none;position:fixed;right:0;top:0;bottom:0;width:440px;z-index:1055;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.5);flex-direction:column">
     <!-- Header -->
     <div class="d-flex align-items-center justify-content-between p-3 flex-shrink-0" style="border-bottom:1px solid var(--border)">
         <div class="d-flex align-items-center gap-2">

@@ -72,7 +72,16 @@
 
 ---
 
-## Phase 2 — HIGH
+## Phase 2 — HIGH (đang làm — 2026-06-17)
+
+> **Kết quả verify + fix:**
+> - **BUG-03** — FIXED: dịch toàn bộ label Builder sang tiếng Việt (build steps + category tabs + search placeholder + sort options). **BUG-03b**: tìm ra root cause panel So sánh tự hiện — inline style `#comparePanel` có **2 lần `display`** (`display:none` đầu + `display:flex` cuối), CSS lấy cái cuối → panel luôn hiện. Đã bỏ `display:flex` thừa.
+> - **BUG-04** — FIXED: `OrderTrackingController.Check()` giờ chỉ bắt buộc SĐT; orderId optional. Phone-only → trả về mảng tất cả đơn (newest first, max 20); orderId+phone → 1 đơn (backward-compat). View đổi: SĐT bắt buộc + mã đơn tùy chọn, render danh sách đơn (`renderOrder()`). Nav "Đơn hàng": đăng nhập → `/Orders`, khách → `/OrderTracking`.
+> - **BUG-08** — ĐÃ FIXED SẴN: cả reviews (`d.reviews.length ? … : 'Chưa có đánh giá…'`) lẫn articles (`if(!data.length)`) đều handle empty + bỏ spinner. Không cần sửa.
+> - **BUG-13** — ĐÃ FIXED SẴN: `Brands()` đọc field `Manufacturer` từ mỗi bảng (không còn extract từ tên SP → hết lỗi "Liên"). Không cần sửa.
+> - **BUG-14** — FIXED: handler chip (`addEventListener` + `clearAllFilters`) vốn đúng; root cause tiềm ẩn là `#activeFilters` có `display:none!important` + class `d-flex` (!important) xung đột với `style.display`. Đã chuyển sang toggle `display:none`↔`flex` thuần (bỏ `!important` + `d-flex`).
+> - **BUG-15** — CHƯA FIX: điều tra static (CSS breakpoints, grid cols, JS scroll-reveal) KHÔNG tìm thấy nguyên nhân blank ở 1024px — grid đều có fallback `col-lg`/`col-md`, block `@media(max-width:1200px)` chỉ chỉnh nav. Cần reproduce bằng browser thật (chrome-devtools @ 1024px) để tìm root cause.
+> - Build: 0 errors, 0 warnings.
 
 ### BUG-04: Cải thiện hệ thống tra cứu đơn hàng
 **Mô tả:**

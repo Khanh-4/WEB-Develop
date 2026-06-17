@@ -120,7 +120,7 @@
     </div>
 
     <!-- P24: Active filters display -->
-    <div id="activeFilters" class="d-flex flex-wrap gap-2 mb-3" style="display:none!important"></div>
+    <div id="activeFilters" class="flex-wrap gap-2 mb-3" style="display:none"></div>
 
     <!-- Product Grid -->
     <div id="productGrid" class="row g-4">
@@ -687,7 +687,7 @@ function renderActiveFilters() {
     });
 
     if (!tags.length) { bar.style.display = 'none'; return; }
-    bar.style.display = '';
+    bar.style.display = 'flex';
     bar.innerHTML = tags.map((t, i) =>
         `<button class="filter-tag" data-idx="${i}">
             ${t.label}
