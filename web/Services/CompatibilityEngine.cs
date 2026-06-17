@@ -118,10 +118,13 @@ public class CompatibilityEngine : ICompatibilityEngine
             else if (c.Name.Contains("Core i7") || c.Name.Contains("Ryzen 7")) dto.Badges.Add("High-End");
             else if (c.Name.Contains("Core i5") || c.Name.Contains("Ryzen 5")) dto.Badges.Add("Mid-Range");
 
-            if (selMb != null && c.Socket != selMb.SocketCompatibility && selMb.SocketCompatibility != "Unknown" && selMb.SocketCompatibility != "Universal")
+            // Resolve sockets (infer from chipset/model name when the DB says "Unknown")
+            var cpuSocket = SocketResolver.ResolveCpuSocket(c.Socket, c.Name);
+            var selMbSocket = selMb != null ? SocketResolver.ResolveBoardSocket(selMb.SocketCompatibility, selMb.Name) : null;
+            if (selMb != null && SocketResolver.IsKnown(selMbSocket) && SocketResolver.IsKnown(cpuSocket) && cpuSocket != selMbSocket)
             {
                 dto.IsCompatible = false;
-                dto.IncompatibleReason = $"Socket mismatch (MB requires {selMb.SocketCompatibility})";
+                dto.IncompatibleReason = $"Socket mismatch (MB requires {selMbSocket})";
             }
 
             if (dto.IsCompatible && selGpu != null && c.ApproximatePerformance > 100 && selGpu.ApproximatePerformance > 400)
@@ -150,10 +153,12 @@ public class CompatibilityEngine : ICompatibilityEngine
             dto.Badges.Add(m.MemoryCompatibility);
             dto.Badges.Add(m.FormFactor);
 
-            if (selCpu != null && m.SocketCompatibility != selCpu.Socket && m.SocketCompatibility != "Unknown" && m.SocketCompatibility != "Universal")
+            var mbSocket = SocketResolver.ResolveBoardSocket(m.SocketCompatibility, m.Name);
+            var selCpuSocket = selCpu != null ? SocketResolver.ResolveCpuSocket(selCpu.Socket, selCpu.Name) : null;
+            if (selCpu != null && SocketResolver.IsKnown(mbSocket) && SocketResolver.IsKnown(selCpuSocket) && mbSocket != selCpuSocket)
             {
                 dto.IsCompatible = false;
-                dto.IncompatibleReason = $"Socket mismatch (Requires {selCpu.Socket})";
+                dto.IncompatibleReason = $"Socket mismatch (Requires {selCpuSocket})";
             }
             else if (selMem != null && m.MemoryCompatibility != selMem.Type && m.MemoryCompatibility != "Unknown")
             {
