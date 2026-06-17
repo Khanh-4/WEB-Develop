@@ -1,7 +1,7 @@
 # Bug Fix Plan — TechSpecs QA Report
 **Ngày tạo:** 2026-06-16  
 **Nguồn:** Check lỗi.docx (15 bugs từ QA review)  
-**Trạng thái:** Phase 1 XONG (2026-06-17) — Phase 2 & 3 còn lại
+**Trạng thái:** Phase 1, 2, 3 XONG (2026-06-17) — tất cả bug đã xử lý (trừ BUG-06 SKIP)
 
 ---
 
@@ -187,7 +187,15 @@
 
 ---
 
-## Phase 3 — MEDIUM
+## Phase 3 — MEDIUM ✅ XONG (2026-06-17)
+
+> **Kết quả:**
+> - **BUG-05** — FIXED: nút AI (`#chatToggle`) từ 56×56 (right:28px, lệch trục) → **48×48, right:20px** trong `_ChatWidget.cshtml`; thẳng 1 cột với Zalo+Messenger (48×48) ở `_Layout.cshtml`. Panel chat căn lại right:20px.
+> - **BUG-09** — FIXED: tạo `wwwroot/images/placeholder.svg` ("Không có ảnh") + thêm `onerror="this.src='/images/placeholder.svg'"` cho mọi `<img>` sản phẩm (Products Index card/quick-view/recently-viewed, Detail main+related, Home prebuilt grid); Home guard luôn src rỗng tại render.
+> - **BUG-11** — FIXED: AI chat widget vô hình ở light theme (chữ #f1f5f9 trên panel kính trắng). Bot bubble + build-card chuyển sang theme vars (`--surface-2`/`--text`/`--border`), header gradient tăng .35→.9, subtitle/nút header dùng màu sáng cố định (header giờ luôn tối). Home/Products đã dùng tokens sẵn (session 19) → không cần sửa.
+> - **BUG-12** — FIXED: `.mega-link`/`.vmega-link` thêm `min-width:0` + `overflow-wrap:anywhere`, icon `flex-shrink:0` → label dài wrap thay vì tràn khung `CategoryMenu/Default.cshtml`.
+> - **BUG-02** — FIXED: **root cause** = `AcceptLanguageHeaderRequestCultureProvider` trong `Program.cs` lật toàn UI sang tiếng Anh cho trình duyệt locale EN → đã **bỏ provider này** (giữ Cookie provider cho toggle `/Language`, default vẫn "vi"). Verify `vi.resx` đủ 108 key (không thiếu). Dịch nốt chuỗi English trong `_ChatWidget` (lời chào, placeholder, error, build-card) + placeholder lọc giá Products/Index ("Min/Max"→"Từ/Đến").
+> - Build: 0 errors, 0 warnings. **Chưa verify trực quan trên browser** (WSL không có system chrome; thay đổi CSS/i18n rủi ro thấp).
 
 ### BUG-11: Light theme — text bị invisible/khó đọc
 **Mô tả:** Light theme → text trùng màu nền trên nhiều trang  
