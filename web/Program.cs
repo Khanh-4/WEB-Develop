@@ -59,7 +59,19 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<Microsoft.AspNetCore.Identity.IUserClaimsPrincipalFactory<TechSpecs.Models.ApplicationUser>, TechSpecs.Services.AppUserClaimsPrincipalFactory>();
 builder.Services.AddScoped<TechSpecs.Services.ICompatibilityEngine, TechSpecs.Services.CompatibilityEngine>();
 builder.Services.AddScoped<TechSpecs.Services.IAIAssistantService, TechSpecs.Services.AIAssistantService>();
-builder.Services.AddScoped<TechSpecs.Services.IEmailSender, TechSpecs.Services.ResendEmailSender>();
+// Email provider is config-switchable ("Email:Provider" = "Gmail" | "Resend").
+// Gmail (OAuth refresh token) can deliver to any recipient without a verified
+// domain; Resend's sandbox can only reach the account owner.
+builder.Services.AddScoped<TechSpecs.Services.IEmailSender>(sp =>
+{
+    var config  = sp.GetRequiredService<IConfiguration>();
+    var factory = sp.GetRequiredService<IHttpClientFactory>();
+    var provider = config["Email:Provider"] ?? "Resend";
+    return provider.Equals("Gmail", StringComparison.OrdinalIgnoreCase)
+        ? new TechSpecs.Services.GmailApiEmailSender(
+            factory, config, sp.GetRequiredService<ILogger<TechSpecs.Services.GmailApiEmailSender>>())
+        : new TechSpecs.Services.ResendEmailSender(factory, config);
+});
 builder.Services.AddScoped<TechSpecs.Services.IMockDataService, TechSpecs.Services.MockDataService>();
 builder.Services.AddHttpClient();
 
