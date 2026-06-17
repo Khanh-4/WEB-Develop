@@ -84,8 +84,8 @@
                     <div class="col-sm-6 col-lg-3">
                         <label class="small mb-1 d-block" style="color:var(--text-muted)">@L["Products.PriceRange"]</label>
                         <div class="d-flex gap-2">
-                            <input type="number" id="minPrice" class="form-control" placeholder="Min (đ)" min="0" oninput="debounceSearch()">
-                            <input type="number" id="maxPrice" class="form-control" placeholder="Max (đ)" min="0" oninput="debounceSearch()">
+                            <input type="number" id="minPrice" class="form-control" placeholder="Từ (đ)" min="0" oninput="debounceSearch()">
+                            <input type="number" id="maxPrice" class="form-control" placeholder="Đến (đ)" min="0" oninput="debounceSearch()">
                         </div>
                     </div>
                     <!-- Brand Filter -->
@@ -487,7 +487,7 @@ function renderProducts(products) {
         const detailUrl  = `/Products/Detail/${p.category}/${p.id}`;
 
         const img = p.imageUrl
-            ? `<img src="${p.imageUrl}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">`
+            ? `<img src="${p.imageUrl}" alt="${esc(p.name)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder.svg';this.style.objectFit='contain'">`
             : `<i class="bi bi-cpu" style="font-size:3rem;color:var(--text-muted)"></i>`;
 
         const sale     = activeSalesMap[`${p.category}_${p.id}`];
@@ -769,7 +769,7 @@ function renderCompareBar() {
     const avatars = cmpItems.map(item => `
         <div class="d-flex align-items-center gap-2 glass-sm rounded-3 px-2 py-1" style="min-width:0">
             ${item.img
-                ? `<img src="${item.img}" style="width:36px;height:36px;object-fit:cover;border-radius:6px" loading="lazy">`
+                ? `<img src="${item.img}" style="width:36px;height:36px;object-fit:cover;border-radius:6px" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder.svg'">`
                 : `<div style="width:36px;height:36px;border-radius:6px;background:rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center"><i class="bi bi-cpu" style="color:#a855f7"></i></div>`}
             <div style="min-width:0">
                 <div style="font-size:.73rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;color:var(--text)">${item.name}</div>
@@ -858,7 +858,7 @@ async function loadQuickView(category, id) {
                 <div class="col-md-5 d-flex align-items-center justify-content-center"
                      style="min-height:240px;background:var(--surface-2);border-radius:12px">
                     ${p.imageUrl
-                        ? `<img src="${p.imageUrl}" alt="" style="max-height:220px;max-width:100%;object-fit:contain">`
+                        ? `<img src="${p.imageUrl}" alt="" style="max-height:220px;max-width:100%;object-fit:contain" onerror="this.onerror=null;this.src='/images/placeholder.svg'">`
                         : `<i class="bi bi-cpu" style="font-size:5rem;opacity:.3;color:var(--text-muted)"></i>`}
                 </div>
                 <div class="col-md-7">

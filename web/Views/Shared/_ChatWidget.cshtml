@@ -1,13 +1,13 @@
 <!-- ── Floating Chat Button ───────────────────────── -->
 <button id="chatToggle" onclick="toggleChat()" aria-label="Mở trợ lý AI"
-        style="position:fixed;bottom:28px;right:28px;z-index:2000;width:56px;height:56px;border-radius:50%;border:none"
+        style="position:fixed;bottom:28px;right:20px;z-index:2000;width:48px;height:48px;border-radius:50%;border:none"
         class="btn-gradient shadow-lg d-flex align-items-center justify-content-center">
-    <i class="bi bi-chat-dots-fill fs-5 text-white" id="chatIcon"></i>
+    <i class="bi bi-chat-dots-fill text-white" id="chatIcon" style="font-size:1.3rem"></i>
 </button>
 
 <!-- ── Chat Panel ─────────────────────────────────── -->
 <div id="chatPanel" style="
-    position:fixed; bottom:96px; right:28px; z-index:1999;
+    position:fixed; bottom:96px; right:20px; z-index:1999;
     width:380px; max-height:560px;
     display:none; flex-direction:column;
     border-radius:1.25rem; overflow:hidden;"
@@ -15,15 +15,15 @@
 
     <!-- Header -->
     <div class="d-flex align-items-center gap-3 p-3"
-         style="background:linear-gradient(90deg,rgba(168,85,247,.35),rgba(59,130,246,.35));border-bottom:1px solid rgba(255,255,255,.15)">
+         style="background:linear-gradient(90deg,rgba(168,85,247,.9),rgba(59,130,246,.9));border-bottom:1px solid rgba(255,255,255,.15)">
         <div class="gradient-icon" style="width:38px;height:38px;flex-shrink:0">
             <i class="bi bi-robot text-white"></i>
         </div>
         <div>
             <div class="text-white fw-semibold" style="font-size:.9rem">TechSpecs AI</div>
-            <div class="text-muted-white" style="font-size:.75rem">Beginner PC Builder</div>
+            <div style="font-size:.75rem;color:rgba(255,255,255,.8)">Trợ lý ráp PC</div>
         </div>
-        <button onclick="toggleChat()" class="btn p-0 border-0 ms-auto text-muted-white">
+        <button onclick="toggleChat()" class="btn p-0 border-0 ms-auto text-white" style="opacity:.85">
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
@@ -31,9 +31,9 @@
     <!-- Messages -->
     <div id="chatMessages" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;min-height:200px">
         <div class="chat-msg bot">
-            <p class="mb-1">👋 Hi! I'm your AI PC builder assistant.</p>
-            <p class="mb-0">Tell me your <strong>budget</strong> and <strong>use-case</strong>, and I'll suggest a complete compatible build.</p>
-            <p class="mb-0 mt-2 text-muted-white" style="font-size:.8rem">Example: "I have 20 million VND for gaming" or "Budget 15tr, làm đồ họa"</p>
+            <p class="mb-1">👋 Chào bạn! Mình là trợ lý AI ráp PC.</p>
+            <p class="mb-0">Cho mình biết <strong>ngân sách</strong> và <strong>nhu cầu sử dụng</strong>, mình sẽ gợi ý một cấu hình hoàn chỉnh và tương thích.</p>
+            <p class="mb-0 mt-2 text-muted-white" style="font-size:.8rem">Ví dụ: "Mình có 20 triệu để chơi game" hoặc "Ngân sách 15tr, làm đồ họa"</p>
         </div>
     </div>
 
@@ -41,7 +41,7 @@
     <div class="p-3" style="border-top:1px solid rgba(255,255,255,.12)">
         <div class="d-flex gap-2">
             <input type="text" id="chatInput" class="form-control"
-                   placeholder="Describe your budget & needs..."
+                   placeholder="Nhập ngân sách & nhu cầu của bạn..."
                    onkeydown="if(event.key==='Enter')sendChat()">
             <button class="btn btn-gradient px-3" onclick="sendChat()" id="chatSendBtn">
                 <i class="bi bi-send-fill"></i>
@@ -52,10 +52,11 @@
 
 <style>
 .chat-msg { max-width:85%; }
-.chat-msg.bot  { align-self:flex-start; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:.25rem 1rem 1rem 1rem; padding:.6rem .9rem; color:#f1f5f9; font-size:.85rem; }
-.chat-msg.user { align-self:flex-end;   background:linear-gradient(135deg,rgba(168,85,247,.4),rgba(59,130,246,.4)); border:1px solid rgba(168,85,247,.3); border-radius:1rem 1rem .25rem 1rem; padding:.6rem .9rem; color:#fff; font-size:.85rem; }
-.build-card { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:.75rem; padding:.75rem; margin-top:.5rem; }
-.build-card .row-item { display:flex; justify-content:space-between; align-items:center; padding:.3rem 0; border-bottom:1px solid rgba(255,255,255,.07); font-size:.78rem; }
+.chat-msg.bot  { align-self:flex-start; background:var(--surface-2); border:1px solid var(--border); border-radius:.25rem 1rem 1rem 1rem; padding:.6rem .9rem; color:var(--text); font-size:.85rem; }
+.chat-msg.user { align-self:flex-end;   background:linear-gradient(135deg,rgba(168,85,247,.9),rgba(59,130,246,.9)); border:1px solid rgba(168,85,247,.5); border-radius:1rem 1rem .25rem 1rem; padding:.6rem .9rem; color:#fff; font-size:.85rem; }
+.chat-msg.bot .chat-build-val { color:var(--text); }
+.build-card { background:var(--surface-2); border:1px solid var(--border); border-radius:.75rem; padding:.75rem; margin-top:.5rem; }
+.build-card .row-item { display:flex; justify-content:space-between; align-items:center; padding:.3rem 0; border-bottom:1px solid var(--border); font-size:.78rem; }
 .build-card .row-item:last-child { border-bottom:none; }
 </style>
 
@@ -90,14 +91,14 @@ async function sendChat() {
         removeTyping();
 
         if (!data.success) {
-            addMessage(data.reply || 'Sorry, something went wrong. Please try again.', 'bot');
+            addMessage(data.reply || 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.', 'bot');
         } else {
             addMessage(data.reply, 'bot');
             if (data.build) renderBuildCard(data.build, data.totalPrice);
         }
     } catch {
         removeTyping();
-        addMessage('Connection error. Please try again.', 'bot');
+        addMessage('Lỗi kết nối. Vui lòng thử lại.', 'bot');
     } finally {
         input.disabled = false;
         document.getElementById('chatSendBtn').disabled = false;
@@ -143,7 +144,7 @@ function renderBuildCard(build, totalPrice) {
     const rows = parts.map(([label, c]) =>
         `<div class="row-item">
             <span class="text-muted-white">${label}</span>
-            <span class="text-white" style="max-width:55%;text-align:right;font-size:.76rem">${c.name}</span>
+            <span class="chat-build-val" style="max-width:55%;text-align:right;font-size:.76rem">${c.name}</span>
             <span style="color:#c084fc;min-width:70px;text-align:right">${fmt(c.price)}</span>
         </div>`
     ).join('');
@@ -153,15 +154,15 @@ function renderBuildCard(build, totalPrice) {
     el.style.maxWidth = '98%';
     el.innerHTML = `
         <div class="build-card">
-            <div class="fw-semibold text-white mb-2" style="font-size:.82rem">📋 Suggested Build</div>
+            <div class="fw-semibold chat-build-val mb-2" style="font-size:.82rem">📋 Cấu hình gợi ý</div>
             ${rows}
             <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,.2)">
-                <span class="text-muted-white" style="font-size:.8rem">Total</span>
+                <span class="text-muted-white" style="font-size:.8rem">Tổng cộng</span>
                 <span class="fw-bold" style="color:#c084fc">${fmt(totalPrice)}</span>
             </div>
             <button class="btn btn-gradient w-100 mt-2 py-1" style="font-size:.8rem"
                     onclick='loadBuildInBuilder(${JSON.stringify(build).replace(/&/g, "&amp;").replace(/'/g, "&#39;")})'>
-                <i class="bi bi-tools me-1"></i>Open in PC Builder
+                <i class="bi bi-tools me-1"></i>Mở trong PC Builder
             </button>
         </div>`;
     document.getElementById('chatMessages').appendChild(el);

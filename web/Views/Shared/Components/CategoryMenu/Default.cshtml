@@ -16,10 +16,13 @@
 .mega-heading { font-size:.68rem;font-weight:600;color:var(--text-muted);opacity:.7;letter-spacing:.08em; }
 .mega-link {
     display:flex;align-items:center;gap:.5rem;
-    color:var(--text-muted);font-size:.82rem;
+    min-width:0;                         /* allow flex item to shrink inside narrow grid col */
+    color:var(--text-muted);font-size:.82rem;line-height:1.25;
     text-decoration:none;transition:all .15s;
     border-radius:.375rem;padding:.4rem .5rem;
+    overflow-wrap:anywhere;              /* wrap long labels instead of overflowing */
 }
+.mega-link i { flex-shrink:0; }         /* keep icon at fixed width while label wraps */
 .mega-link:hover { color:var(--text);background:rgba(168,85,247,.12); }
 .mega-link-green:hover { color:#34d399;background:rgba(16,185,129,.12); }
 .mega-divider { border-color:var(--border);margin:8px 0; }
@@ -31,10 +34,13 @@
 .vmega-heading { font-size:.75rem;font-weight:700;color:var(--text-muted);opacity:.55;letter-spacing:.08em; }
 .vmega-link {
     display:flex;align-items:center;gap:.75rem;
-    color:var(--text-muted);font-size:.9rem;font-weight:500;
+    min-width:0;
+    color:var(--text-muted);font-size:.9rem;font-weight:500;line-height:1.25;
     text-decoration:none;transition:all .15s;
     border-radius:.5rem;padding:.45rem .75rem;
+    overflow-wrap:anywhere;
 }
+.vmega-link i { flex-shrink:0; }
 .vmega-link:hover { color:#c084fc;background:rgba(168,85,247,.15); }
 .vmega-link-green:hover { color:#34d399;background:rgba(16,185,129,.15); }
 .vmega-link-blue:hover  { color:#60a5fa;background:rgba(59,130,246,.15); }

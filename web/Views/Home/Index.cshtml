@@ -208,7 +208,7 @@
                                     </div>
                                     <a href="/Products/Detail/prebuilt/@item.Id" class="text-decoration-none d-flex flex-column h-100">
                                         <div class="pc-media">
-                                            <img src="@item.ImageUrl" alt="@item.Name" loading="lazy">
+                                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/placeholder.svg" : item.ImageUrl)" alt="@item.Name" loading="lazy" onerror="this.onerror=null;this.src='/images/placeholder.svg'">
                                         </div>
                                         <div class="pc-body">
                                             <div class="pc-cat">@purposeLabel PC</div>

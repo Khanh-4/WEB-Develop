@@ -106,10 +106,12 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     DefaultRequestCulture = new RequestCulture("vi"),
     SupportedCultures     = supportedCultures,
     SupportedUICultures   = supportedCultures,
+    // Vietnamese-first site: only an explicit user choice (cookie set via /Language/Set)
+    // overrides the default. We intentionally drop AcceptLanguageHeaderRequestCultureProvider
+    // so visitors with an English-locale browser don't get an involuntary EN/VI mixed UI (BUG-02).
     RequestCultureProviders = new List<IRequestCultureProvider>
     {
         new CookieRequestCultureProvider(),
-        new AcceptLanguageHeaderRequestCultureProvider(),
     }
 });
 
