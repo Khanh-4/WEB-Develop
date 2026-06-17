@@ -313,7 +313,7 @@
                 <h6 class="fw-bold mb-3" style="color:var(--text)">
                     <i class="bi bi-envelope-paper me-2" style="color:var(--primary)"></i>Nhận báo giá nhanh
                 </h6>
-                <form asp-controller="Home" asp-action="QuickQuote" method="post">
+                <form id="quickQuoteForm" asp-controller="Home" asp-action="QuickQuote" method="post">
                     <input type="text" name="Website" style="display:none" autocomplete="off" tabindex="-1" />
                     <div class="mb-2">
                         <input type="text" name="phoneOrEmail" class="form-control form-control-sm"
@@ -331,6 +331,56 @@
         </div>
     </div>
 </div>
+
+<!-- Quick-quote confirmation popup (#7) -->
+<div id="quoteSuccessPopup" role="dialog" aria-modal="true" aria-labelledby="quotePopupTitle"
+     style="display:none;position:fixed;inset:0;z-index:3000;align-items:center;justify-content:center;background:rgba(0,0,0,.55)">
+    <div class="tx-card p-4 text-center" style="max-width:380px;margin:1rem;border:1px solid var(--border)">
+        <div class="mb-3" style="font-size:2.6rem;color:#10b981"><i class="bi bi-check-circle-fill"></i></div>
+        <h6 id="quotePopupTitle" class="fw-bold mb-2" style="color:var(--text)">Đã nhận thông tin của bạn!</h6>
+        <p class="mb-4" style="color:var(--text-muted);font-size:.88rem">
+            Chúng tôi đã ghi nhận yêu cầu báo giá và sẽ liên hệ với bạn ngay khi có sản phẩm phù hợp với ngân sách.
+        </p>
+        <button type="button" class="btn btn-gradient btn-sm px-4 fw-bold"
+                onclick="document.getElementById('quoteSuccessPopup').style.display='none'">
+            Đã hiểu
+        </button>
+    </div>
+</div>
+
+<script>
+(function () {
+    var form = document.getElementById('quickQuoteForm');
+    if (!form) return;
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button[type="submit"]');
+        var original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        try {
+            var resp = await fetch(form.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: new FormData(form)
+            });
+            var data = await resp.json().catch(function () { return { success: resp.ok }; });
+            if (data.success) {
+                form.reset();
+                document.getElementById('quoteSuccessPopup').style.display = 'flex';
+            } else {
+                alert(data.message || 'Vui lòng nhập số điện thoại hoặc email.');
+            }
+        } catch (err) {
+            form.submit(); // network failure → fall back to normal submit
+            return;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = original;
+        }
+    });
+})();
+</script>
 
 <!-- ── 9. BRAND SHOWCASE ──────────────────────────────────────────────────────── -->
 <div class="container-xl mb-5">

@@ -132,12 +132,16 @@ public class HomeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> QuickQuote(string? website, string? phoneOrEmail, string? budget)
     {
+        var isAjax = string.Equals(Request.Headers["X-Requested-With"], "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+
         // Honeypot check — bots fill the hidden "website" field
         if (!string.IsNullOrEmpty(website))
-            return RedirectToAction("Index");
+            return isAjax ? Json(new { success = true }) : RedirectToAction("Index");
 
         if (string.IsNullOrWhiteSpace(phoneOrEmail))
         {
+            if (isAjax)
+                return Json(new { success = false, message = "Vui lòng nhập số điện thoại hoặc email." });
             TempData["ErrorMessage"] = "Vui lòng nhập số điện thoại hoặc email.";
             return RedirectToAction("Index");
         }
@@ -183,6 +187,9 @@ public class HomeController : Controller
         {
             _logger.LogWarning("Notification:AdminEmail not configured — skipping email for QuoteRequest #{Id}", quote.Id);
         }
+
+        if (isAjax)
+            return Json(new { success = true, message = "Yêu cầu báo giá của bạn đã được gửi. Chúng tôi sẽ liên hệ sớm nhất!" });
 
         TempData["SuccessMessage"] = "Yêu cầu báo giá của bạn đã được gửi. Chúng tôi sẽ liên hệ sớm nhất!";
         return RedirectToAction("Index");

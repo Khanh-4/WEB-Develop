@@ -493,12 +493,17 @@ document.addEventListener('DOMContentLoaded', function () {
         drawer.classList.add('open');
         backdrop.classList.add('show');
         document.body.style.overflow = 'hidden';
+        // Hide the floating chat button so it doesn't overlap the drawer's checkout CTA
+        var chatBtn = document.getElementById('chatToggle');
+        if (chatBtn) chatBtn.style.display = 'none';
         loadDrawer();
     }
     function closeDrawer() {
         drawer.classList.remove('open');
         backdrop.classList.remove('show');
         document.body.style.overflow = '';
+        var chatBtn = document.getElementById('chatToggle');
+        if (chatBtn) chatBtn.style.display = '';
     }
     openBtn.addEventListener('click', openDrawer);
     closeBtn.addEventListener('click', closeDrawer);
@@ -522,7 +527,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             el.innerHTML = items.map(function (i) {
                 return '<div class="cart-line">' +
-                    '<img src="' + (i.imageUrl || '') + '" alt="">' +
+                    '<img src="' + (i.imageUrl || '') + '" alt="" loading="lazy" ' +
+                    'onerror="this.onerror=null;this.src=\'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2394a3b8%22 stroke-width=%221.5%22><rect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%222%22/><circle cx=%229%22 cy=%229%22 r=%222%22/><path d=%22M21 15l-5-5L5 21%22/></svg>\';this.style.objectFit=\'contain\';this.style.padding=\'8px\'">' +
                     '<div class="meta">' +
                     '  <div class="name">' + i.name + '</div>' +
                     '  <div class="price">' + fmt(i.price) + '</div>' +
