@@ -650,7 +650,7 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
 {
     <text>
 (function() {
-    const perfScore = @Model.ApproximatePerformance;
+    const perfScore = @Json.Serialize(Model.ApproximatePerformance); // invariant decimal — vi-VN culture renders "," and breaks JS
 
     // tier → { game: [min1080p, max1080p, min1440p, max1440p] }
     const fpsTiers = [
@@ -724,7 +724,7 @@ document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el =>
     if (!nameEl || !priceEl) return;
 
     const productName  = @Json.Serialize(Model.Name);
-    const productPrice = @Model.Price;
+    const productPrice = @Json.Serialize(Model.Price); // invariant decimal — avoid vi-VN comma separator
     const productCat   = '@Model.Category';
     const productId    = @Model.Id;
     const productImg   = @Json.Serialize(Model.ImageUrl ?? "");
