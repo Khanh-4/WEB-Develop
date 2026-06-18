@@ -62,6 +62,18 @@ public class BuilderController : Controller
         return Json(result);
     }
 
+    // GET /Builder/Prebuilts — list active prebuilt PCs for the compare picker
+    [HttpGet]
+    public async Task<IActionResult> Prebuilts()
+    {
+        var list = await _db.PrebuiltPcs.AsNoTracking()
+            .Where(p => p.IsActive)
+            .OrderBy(p => p.Price)
+            .Select(p => new { id = p.Id, name = p.Name, purpose = p.Purpose, price = p.Price })
+            .ToListAsync();
+        return Json(list);
+    }
+
     // POST /Builder/CompareOptions — multi-option compare (2–4 builds, used by modal)
     [HttpPost]
     public async Task<IActionResult> CompareOptions([FromBody] MultiCompareRequest req)

@@ -161,6 +161,11 @@
                         onclick="snapshotBuild()">
                     <i class="bi bi-pin-angle me-1"></i>Lưu cấu hình A để so sánh
                 </button>
+                <button class="btn w-100 mt-2" id="prebuiltCompareBtn"
+                        style="background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.4);color:#60a5fa;font-size:.82rem"
+                        onclick="openPrebuiltCompare()">
+                    <i class="bi bi-pc-display me-1"></i>So sánh với PC dựng sẵn
+                </button>
             </div>
 
             <!-- Budget filter -->
@@ -287,6 +292,22 @@
             <i class="bi bi-arrow-up-right-square me-2"></i>Xem chi tiết đầy đủ + phân tích AI
         </button>
     </div>
+</div>
+
+<!-- Prebuilt PC picker (choose a pre-built PC to compare the current build against) -->
+<div id="prebuiltPickerBackdrop" onclick="closePrebuiltPicker()"
+     style="display:none;position:fixed;inset:0;z-index:1060;background:rgba(0,0,0,.55)"></div>
+<div id="prebuiltPicker"
+     style="display:none;position:fixed;z-index:1061;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:80vh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:0 24px 64px rgba(0,0,0,.5)">
+    <div class="d-flex align-items-center justify-content-between p-3 flex-shrink-0" style="border-bottom:1px solid var(--border)">
+        <span class="fw-bold" style="color:var(--text)">
+            <i class="bi bi-pc-display me-2" style="color:#60a5fa"></i>Chọn PC dựng sẵn để so sánh
+        </span>
+        <button class="btn p-0 border-0" style="color:var(--text-muted)" onclick="closePrebuiltPicker()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div id="prebuiltPickerList" class="p-2"></div>
 </div>
 
 <!-- Save Build Modal -->
@@ -466,8 +487,96 @@ function initOptions() {
     return false;
 }
 
-function openCompareOptions() {
-    showToast('<i class="bi bi-bar-chart-line me-2"></i>Tính năng so sánh đang được phát triển!', 'info');
+// ── Compare current build against a pre-built PC ──────────────
+let prebuiltCache = null;
+
+async function openPrebuiltCompare() {
+    if (Object.keys(selectedComponents).length === 0) {
+        showToast('Hãy chọn linh kiện trước khi so sánh.', 'warning');
+        return;
+    }
+    const list = document.getElementById('prebuiltPickerList');
+    document.getElementById('prebuiltPicker').style.display = 'block';
+    document.getElementById('prebuiltPickerBackdrop').style.display = 'block';
+    list.replaceChildren(buildPickerNotice('Đang tải...'));
+    try {
+        if (!prebuiltCache) {
+            const r = await fetch('/Builder/Prebuilts');
+            if (!r.ok) throw new Error();
+            prebuiltCache = await r.json();
+        }
+        if (!prebuiltCache.length) {
+            list.replaceChildren(buildPickerNotice('Chưa có PC dựng sẵn nào.'));
+            return;
+        }
+        list.replaceChildren(...prebuiltCache.map(buildPickerRow));
+    } catch {
+        list.replaceChildren(buildPickerNotice('Lỗi tải danh sách. Thử lại sau.'));
+    }
+}
+
+function buildPickerNotice(text) {
+    const el = document.createElement('div');
+    el.className = 'text-center py-4';
+    el.style.color = 'var(--text-muted)';
+    el.textContent = text;
+    return el;
+}
+
+// Build a picker row with DOM APIs (textContent) to stay XSS-safe
+function buildPickerRow(p) {
+    const btn = document.createElement('button');
+    btn.className = 'btn w-100 text-start mb-2 d-flex justify-content-between align-items-center';
+    btn.style.cssText = 'background:var(--surface-2);border:1px solid var(--border);color:var(--text);font-size:.85rem';
+    btn.onclick = () => compareWithPrebuilt(p.id);
+
+    const left = document.createElement('span');
+    const name = document.createElement('span');
+    name.className = 'fw-semibold d-block';
+    name.textContent = p.name;
+    const purpose = document.createElement('small');
+    purpose.style.color = 'var(--text-muted)';
+    purpose.textContent = p.purpose || 'PC dựng sẵn';
+    left.append(name, purpose);
+
+    const price = document.createElement('span');
+    price.className = 'fw-bold';
+    price.style.cssText = 'color:#60a5fa;white-space:nowrap';
+    price.textContent = fmtPrice(p.price);
+
+    btn.append(left, price);
+    return btn;
+}
+
+function closePrebuiltPicker() {
+    document.getElementById('prebuiltPicker').style.display = 'none';
+    document.getElementById('prebuiltPickerBackdrop').style.display = 'none';
+}
+
+async function compareWithPrebuilt(id) {
+    const pc = (prebuiltCache || []).find(x => x.id === id);
+    if (!pc) return;
+    closePrebuiltPicker();
+    syncCurrentOption();
+    lastCompareRequest = { builds: [
+        { label: 'Cấu hình của bạn', state: buildState },
+        { label: pc.name, prebuiltPcId: pc.id },
+    ]};
+    renderOptionLabels(['Cấu hình của bạn', pc.name]);
+    openComparePanel('So sánh với PC dựng sẵn', false, true);
+    try {
+        const r = await fetch('/Builder/CompareOptions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lastCompareRequest)
+        });
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        renderMultiResult(data.options);
+    } catch {
+        document.getElementById('compareLoading').style.display = 'none';
+        showToast('Lỗi tải dữ liệu so sánh.', 'warning');
+    }
 }
 
 const CATEGORY_KEY_MAP = {
