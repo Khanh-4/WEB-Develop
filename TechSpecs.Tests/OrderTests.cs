@@ -7,6 +7,7 @@ using TechSpecs.Data;
 using TechSpecs.Models;
 using TechSpecs.Tests.Helpers;
 using TechSpecs.ViewModels;
+using System.Security.Claims;
 using Xunit;
 
 namespace TechSpecs.Tests;
@@ -39,13 +40,18 @@ public class OrderTests : IDisposable
 
         var userManager = MockUserManager(TestUserId);
 
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, TestUserId) };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+        var httpContext = new DefaultHttpContext { User = principal };
+
         _cart = new CartController(_db, userManager)
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
         _orders = new OrdersController(_db, userManager)
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            ControllerContext = new ControllerContext { HttpContext = httpContext }
         };
     }
 

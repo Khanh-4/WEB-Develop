@@ -145,7 +145,7 @@ def scrape_cpus(max_pages: int = 10) -> list[Cpu]:
             if boost_c == 0:
                 boost_c = _boost_clock_from_name(name)
             if base_c == 0 and boost_c > 0:
-                base_c = round(boost_c * 0.85, 2)  # Estimate base ≈ 85% of boost
+                base_c = _base_clock_from_name(name, boost_c)  # table lookup, else ~85% of boost
             if tdp == 0:
                 tdp = _tdp_from_name(name)
 
@@ -498,7 +498,7 @@ _CPU_BOOST_GHZ: list[tuple[str, float]] = sorted([
     ("3800xt", 4.7), ("3800x", 4.5),
     ("3700x",  4.4),
     ("3600xt", 4.5), ("3600x", 4.4), ("3600", 4.2),
-    ("3300x",  4.3), ("3100",  3.6),
+    ("3400g",  4.2), ("3300x", 4.3), ("3200g", 4.0), ("3100",  3.6),
 ], key=lambda x: -len(x[0]))  # longest key first → most specific match wins
 
 
@@ -509,7 +509,7 @@ def _boost_clock_from_name(name: str) -> float:
     # 1. Explicit boost/turbo keyword labels
     for pat in [
         r"boost\s+(?:tối\s+đa\s+)?([\d.]+)\s*ghz",
-        r"up\s+to\s+([\d.]+)\s*ghz",
+        r"up\s*to\s+([\d.]+)\s*ghz",
         r"tối\s+đa\s+([\d.]+)\s*ghz",
         r"turbo\s+([\d.]+)\s*ghz",
         r"([\d.]+)\s*ghz\s+turbo",
@@ -543,6 +543,57 @@ def _boost_clock_from_name(name: str) -> float:
     return 0.0
 
 
+# P-core base clock (GHz) by CPU model substring. Product names frequently list
+# only the boost ("UP TO 5.8GHZ"), so without this the base would be guessed as
+# 0.85 * boost (e.g. a wrong 4.93 for an i9-14900 whose real base is 2.0/3.2).
+# Keys mirror _CPU_BOOST_GHZ; longest key first so K/KF/KS beat the bare model.
+_CPU_BASE_GHZ: list[tuple[str, float]] = sorted([
+    # Intel Core Ultra (Arrow Lake 200-series)
+    ("ultra9285k", 3.7), ("ultra7265k", 3.9), ("ultra5245k", 4.2),
+    # Intel 14th gen
+    ("i914900ks", 3.2), ("i914900kf", 3.2), ("i914900k", 3.2), ("i914900f", 2.0), ("i914900", 2.0),
+    ("i714700kf", 3.4), ("i714700k", 3.4), ("i714700f", 2.1), ("i714700", 2.1),
+    ("i514600kf", 3.5), ("i514600k", 3.5), ("i514500", 2.6), ("i514400f", 2.5), ("i514400", 2.5),
+    ("i314100f", 3.5), ("i314100", 3.5),
+    # Intel 13th gen
+    ("i913900ks", 3.2), ("i913900kf", 3.0), ("i913900k", 3.0), ("i913900f", 2.0), ("i913900", 2.0),
+    ("i713700kf", 3.4), ("i713700k", 3.4), ("i713700f", 2.1), ("i713700", 2.1),
+    ("i513600kf", 3.5), ("i513600k", 3.5), ("i513500", 2.5), ("i513400f", 2.5), ("i513400", 2.5),
+    ("i313100f", 3.4), ("i313100", 3.4),
+    # Intel 12th gen
+    ("i912900ks", 3.4), ("i912900kf", 3.2), ("i912900k", 3.2), ("i912900f", 2.4), ("i912900", 2.4),
+    ("i712700kf", 3.6), ("i712700k", 3.6), ("i712700f", 2.1), ("i712700", 2.1),
+    ("i512600kf", 3.7), ("i512600k", 3.7), ("i512500", 3.0), ("i512400f", 2.5), ("i512400", 2.5),
+    ("i312100f", 3.3), ("i312100", 3.3),
+    # AMD Ryzen 9000 (Zen 5 / AM5)
+    ("9950x", 4.3), ("9900x", 4.4), ("9700x", 3.8), ("9600x", 3.9),
+    # AMD Ryzen 7000 (Zen 4 / AM5)
+    ("7950x3d", 4.2), ("7950x", 4.5), ("7900x3d", 4.4), ("7900x", 4.7), ("7900", 3.7),
+    ("7800x3d", 4.2), ("7700x", 4.5), ("7700", 3.8), ("7600x", 4.7), ("7600", 3.8), ("7500f", 3.7),
+    # AMD Ryzen 5000 (Zen 3 / AM4)
+    ("5950x", 3.4), ("5900x", 3.7), ("5800x3d", 3.4), ("5800x", 3.8), ("5800", 3.4),
+    ("5700x", 3.4), ("5700g", 3.8), ("5700", 3.7), ("5600x", 3.7), ("5600g", 3.9), ("5600", 3.5), ("5500", 3.6),
+    # AMD Ryzen 3000 (Zen 2 / AM4)
+    ("3950x", 3.5), ("3900xt", 3.8), ("3900x", 3.8), ("3800xt", 3.9), ("3800x", 3.9),
+    ("3700x", 3.6), ("3600xt", 3.8), ("3600x", 3.8), ("3600", 3.6), ("3400g", 3.7), ("3300x", 3.8), ("3200g", 3.6), ("3100", 3.6),
+], key=lambda x: -len(x[0]))  # longest key first → most specific match wins
+
+
+def _base_clock_from_name(name: str, boost: float) -> float:
+    """Best base clock for a CPU: an explicit lower GHz value in the name, else a
+    model-table lookup (names often carry only the boost), else 85% of boost."""
+    name_l = name.lower()
+    vals = [float(v) for v in re.findall(r"([\d.]+)\s*ghz", name_l)]
+    below = [v for v in vals if 0.5 < v < boost]
+    if below:
+        return round(min(below), 2)
+    key = re.sub(r"[\s\-]", "", name_l)
+    for model, base in _CPU_BASE_GHZ:
+        if model in key:
+            return base
+    return round(boost * 0.85, 2)
+
+
 def _socket_from_name(name: str) -> str:
     name_u = name.upper()
     for s in ["LGA1700", "LGA1200", "LGA1151", "AM5", "AM4", "AM3+"]:
@@ -568,7 +619,10 @@ _MB_CHIPSET_SOCKET: list[tuple[list[str], str]] = [
     # AMD AM5 (Zen 4+)
     (["X870E", "X870", "B850", "B840", "X670E", "X670", "B650E", "B650", "A620"], "AM5"),
     # AMD AM4 (Zen 1–3)
-    (["X570", "B550", "X470", "B450", "X370", "B350", "A320", "A300"], "AM4"),
+    (["X570", "B550", "X470", "B450", "X370", "B350", "A520", "A320", "A300"], "AM4"),
+    # AMD Threadripper / workstation (sTR5) — Pro WS boards; no consumer CPU fits,
+    # so this keeps them out of consumer builds instead of acting as a wildcard.
+    (["WRX90", "TRX50"], "sTR5"),
 ]
 
 
@@ -590,8 +644,62 @@ def _mb_socket_from_name(name: str) -> str:
 
 
 def _cores_from_name(name: str) -> int:
-    m = re.search(r"(\d+)\s*(?:nhân|core|lõi)", name.lower())
-    return int(m.group(1)) if m else 0
+    name_l = name.lower()
+    m = re.search(r"(\d+)\s*(?:nhân|core|lõi)", name_l)
+    if m:
+        return int(m.group(1))
+    # Compact "20C-28T" / "16C24T" / "6c / 12t" core-thread notation
+    m = re.search(r"(\d+)\s*c\s*[-/]?\s*\d+\s*t\b", name_l)
+    if m:
+        return int(m.group(1))
+    
+    # Model name lookup fallback
+    key = re.sub(r"[\s\-]", "", name_l)
+    for model, cores in _CPU_CORES_MAP:
+        if model in key:
+            return cores
+    return 0
+
+
+# CPU core counts by model substring (longest key first)
+_CPU_CORES_MAP: list[tuple[str, int]] = sorted([
+    # Intel Core Ultra (Arrow Lake 200-series)
+    ("ultra9285k", 24), ("ultra7270k", 24), ("ultra7265k", 20), ("ultra5245k", 14), ("ultra5245kf", 14), ("ultra5225f", 10), ("ultra5225", 10),
+    # Intel 14th gen
+    ("i914900ks", 24), ("i914900kf", 24), ("i914900k", 24), ("i914900f", 24), ("i914900", 24),
+    ("i714700kf", 20), ("i714700k", 20), ("i714700f", 20), ("i714700", 20),
+    ("i514600kf", 14), ("i514600k", 14), ("i514500", 14), ("i514400f", 10), ("i514400", 10),
+    ("i314100f", 4), ("i314100", 4),
+    # Intel 13th gen
+    ("i913900ks", 24), ("i913900kf", 24), ("i913900k", 24), ("i913900f", 24), ("i913900", 24),
+    ("i713700kf", 16), ("i713700k", 16), ("i713700f", 16), ("i713700", 16),
+    ("i513600kf", 14), ("i513600k", 14), ("i513500", 14), ("i513400f", 10), ("i513400", 10),
+    ("i313100f", 4), ("i313100", 4),
+    # Intel 12th gen
+    ("i912900ks", 16), ("i912900kf", 16), ("i912900k", 16), ("i912900f", 16), ("i912900", 16),
+    ("i712700kf", 12), ("i712700k", 12), ("i712700f", 12), ("i712700", 12),
+    ("i512600kf", 10), ("i512600k", 10), ("i512500", 6), ("i512400f", 6), ("i512400", 6),
+    ("i312100f", 4), ("i312100", 4),
+    # AMD Ryzen 9000 (Zen 5 / AM5)
+    ("9950x3d", 16), ("9950x", 16), ("9900x", 12), ("9800x3d", 8), ("9700x", 8), ("9600x", 6),
+    # AMD Ryzen 7000 (Zen 4 / AM5)
+    ("7950x3d", 16), ("7950x", 16), ("7900x3d", 12), ("7900x", 12), ("7900", 12),
+    ("7800x3d", 8), ("7700x", 8), ("7700", 8), ("7600x", 6), ("7600", 6), ("7500f", 6),
+    # AMD Ryzen 5000 (Zen 3 / AM4)
+    ("5950x", 16), ("5900x", 12), ("5800x3d", 8), ("5800x", 8), ("5800", 8),
+    ("5700x3d", 8), ("5700x", 8), ("5700g", 8), ("5700", 8),
+    ("5600x", 6), ("5600g", 6), ("5600gt", 6), ("5600", 6), ("5500gt", 6), ("5500", 6),
+    # AMD Ryzen 3000 (Zen 2 / AM4)
+    ("3950x", 16), ("3900xt", 12), ("3900x", 12), ("3800xt", 8), ("3800x", 8), ("3700x", 8),
+    ("3600xt", 6), ("3600x", 6), ("3600", 6), ("3400g", 4), ("3300x", 4), ("3200g", 4), ("3100", 4),
+    # AMD Ryzen 4000
+    ("4500", 6), ("4300g", 4), ("4100", 4),
+    # Threadripper
+    ("7995wx", 96), ("7985wx", 64), ("7980x", 64), ("7975wx", 32), ("7970x", 32), ("7965wx", 24), ("7960x", 24),
+    # Older/low end
+    ("athlon3000g", 2), ("pentiumgoldg7400", 2),
+], key=lambda x: -len(x[0]))
+
 
 
 def _vram_from_name(name: str) -> int:

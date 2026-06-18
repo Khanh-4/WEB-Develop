@@ -41,9 +41,7 @@ public class CompatibilityEngineTests : IDisposable
         // MB id=11 is AM5; CPU id=1 is LGA1700 → mismatch
         var result = await _engine.FilterAsync(new BuildState { SelectedMotherboardId = 11 });
 
-        var cpu = result.Cpus.First(c => c.Id == 1);
-        Assert.False(cpu.IsCompatible);
-        Assert.Contains("Socket mismatch", cpu.IncompatibleReason);
+        Assert.DoesNotContain(result.Cpus, c => c.Id == 1);
     }
 
     [Fact]
@@ -77,9 +75,7 @@ public class CompatibilityEngineTests : IDisposable
         // CPU id=2 is AM5; MB id=10 is LGA1700 → mismatch
         var result = await _engine.FilterAsync(new BuildState { SelectedCpuId = 2 });
 
-        var mb = result.Motherboards.First(m => m.Id == 10);
-        Assert.False(mb.IsCompatible);
-        Assert.Contains("Socket mismatch", mb.IncompatibleReason);
+        Assert.DoesNotContain(result.Motherboards, m => m.Id == 10);
     }
 
     [Fact]
@@ -88,9 +84,7 @@ public class CompatibilityEngineTests : IDisposable
         // RAM id=21 is DDR4; MB id=10 requires DDR5 → mismatch
         var result = await _engine.FilterAsync(new BuildState { SelectedMemoryId = 21 });
 
-        var mb = result.Motherboards.First(m => m.Id == 10);
-        Assert.False(mb.IsCompatible);
-        Assert.Contains("DDR4", mb.IncompatibleReason!);
+        Assert.DoesNotContain(result.Motherboards, m => m.Id == 10);
     }
 
     [Fact]
@@ -99,9 +93,7 @@ public class CompatibilityEngineTests : IDisposable
         // Case id=52 only supports ITX; MB id=10 is ATX → mismatch
         var result = await _engine.FilterAsync(new BuildState { SelectedCaseId = 52 });
 
-        var mb = result.Motherboards.First(m => m.Id == 10);
-        Assert.False(mb.IsCompatible);
-        Assert.Contains("ATX", mb.IncompatibleReason!);
+        Assert.DoesNotContain(result.Motherboards, m => m.Id == 10);
     }
 
     // ── GPU ──────────────────────────────────────────────────────
@@ -122,9 +114,7 @@ public class CompatibilityEngineTests : IDisposable
         // Case id=51 MaxVGA=315mm; GPU id=32 is 340mm → too long
         var result = await _engine.FilterAsync(new BuildState { SelectedCaseId = 51 });
 
-        var gpu = result.VideoCards.First(g => g.Id == 32);
-        Assert.False(gpu.IsCompatible);
-        Assert.Contains("Too long", gpu.IncompatibleReason!);
+        Assert.DoesNotContain(result.VideoCards, g => g.Id == 32);
     }
 
     [Fact]
@@ -133,9 +123,7 @@ public class CompatibilityEngineTests : IDisposable
         // PSU id=41 is 550W; GPU id=32 TDP=450W + CPU default 65W = 515 * 1.2 = 618W needed
         var result = await _engine.FilterAsync(new BuildState { SelectedPowerSupplyId = 41 });
 
-        var gpu = result.VideoCards.First(g => g.Id == 32);
-        Assert.False(gpu.IsCompatible);
-        Assert.Contains("PSU", gpu.IncompatibleReason!);
+        Assert.DoesNotContain(result.VideoCards, g => g.Id == 32);
     }
 
     [Fact]
@@ -185,8 +173,7 @@ public class CompatibilityEngineTests : IDisposable
             SelectedVideoCardId = 30
         });
 
-        var psu = result.PowerSupplies.First(p => p.Id == 40);
-        Assert.False(psu.IsCompatible);
+        Assert.DoesNotContain(result.PowerSupplies, p => p.Id == 40);
     }
 
     [Fact]
@@ -222,9 +209,7 @@ public class CompatibilityEngineTests : IDisposable
         // CPU id=2 is AM5; Cooler id=62 only supports LGA1700,LGA1200
         var result = await _engine.FilterAsync(new BuildState { SelectedCpuId = 2 });
 
-        var cooler = result.Coolers.First(c => c.Id == 62);
-        Assert.False(cooler.IsCompatible);
-        Assert.Contains("AM5", cooler.IncompatibleReason!);
+        Assert.DoesNotContain(result.Coolers, c => c.Id == 62);
     }
 
     [Fact]
@@ -238,9 +223,7 @@ public class CompatibilityEngineTests : IDisposable
 
         var result = await _engine.FilterAsync(new BuildState { SelectedCpuId = 1 });
 
-        var cooler = result.Coolers.First(c => c.Id == 62);
-        Assert.False(cooler.IsCompatible);
-        Assert.Contains("Cooling capacity", cooler.IncompatibleReason!);
+        Assert.DoesNotContain(result.Coolers, c => c.Id == 62);
     }
 
     // ── TDP totals ───────────────────────────────────────────────
@@ -284,17 +267,12 @@ public class CompatibilityEngineTests : IDisposable
     }
 
     [Fact]
-    public async Task IncompatibleItems_AppearAfterCompatibleOnes()
+    public async Task IncompatibleItems_AreHidden()
     {
-        // With AM5 MB selected, LGA1700 CPUs should be incompatible and appear after AM5 ones
+        // With AM5 MB selected, LGA1700 CPUs should be incompatible and hidden completely
         var result = await _engine.FilterAsync(new BuildState { SelectedMotherboardId = 11 }); // AM5
 
-        var compatible = result.Cpus.TakeWhile(c => c.IsCompatible).ToList();
-        var incompatible = result.Cpus.SkipWhile(c => c.IsCompatible).ToList();
-
-        // All compatible items appear before any incompatible
-        Assert.All(incompatible, c => Assert.False(c.IsCompatible));
-        if (compatible.Any() && incompatible.Any())
-            Assert.True(result.Cpus.IndexOf(compatible.Last()) < result.Cpus.IndexOf(incompatible.First()));
+        Assert.All(result.Cpus, c => Assert.True(c.IsCompatible));
+        Assert.DoesNotContain(result.Cpus, c => c.Id == 1); // CPU 1 is LGA1700
     }
 }

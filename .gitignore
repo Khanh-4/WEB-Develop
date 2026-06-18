@@ -31,3 +31,9 @@ tests/test-results/
 .idea/
 *.swp
 .superpowers/
+
+# Local QA bug-report docs & test artifacts (not source)
+TEST_TAY/
+Lỗi/
+# Junk dirs created by chrome-devtools/lighthouse MCP writing Windows paths on WSL
+C:\\Users\\ADMIN\\AppData\\Local\\lighthouse.*
