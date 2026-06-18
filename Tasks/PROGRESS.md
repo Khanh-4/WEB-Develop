@@ -1,7 +1,7 @@
 # 📊 Project Progress
 
 > Project: **TechSpecs** — E-Commerce + Custom PC Builder
-> Last updated: 2026-06-15
+> Last updated: 2026-06-18
 
 ---
 
@@ -93,8 +93,28 @@ Code review bằng ECC (7 finder angles × parallel agents) phát hiện và fix
 
 ---
 
+## Session 24 — Check lỗi V2 đóng toàn bộ + fix data CPU (2026-06-18)
+
+**Check lỗi V2 (15 mục) hoàn tất 100%.** Hai PR merged vào `main`:
+
+| PR | Commit | Nội dung |
+|----|--------|----------|
+| #2 | `2969e3b` | Đợt cuối Check lỗi V2: #3 phần 2 (so sánh build với PC dựng sẵn), #1 (Gmail API gửi mail reset), #4 (seed review), #10/#12/#13 (lọc thương hiệu + dọn data) |
+| #3 | `3ecfe0b` | Fix bug xung nhịp CPU sai |
+
+**#3 phần 2 — So sánh với PC dựng sẵn:**
+- `GET /Builder/Prebuilts` liệt kê PC dựng sẵn; nút "So sánh với PC dựng sẵn" + picker (DOM API, XSS-safe) → dùng lại `CompareOptions` + `renderMultiResult`. Backend `LabeledBuild.PrebuiltPcId` đã có từ session 22.
+
+**Fix data CPU (BoostClock sai):**
+- `parse_clock_ghz()` đọc nhầm field spec → trả giá trị rác (vd 90 GHz) thắng fallback từ tên SP. Hardening: kết quả > 7 GHz trả 0.
+- `scraper/fix_cpu_clocks.py` (DRY-RUN mặc định, `--apply` để ghi) — đã sửa **6 dòng** (Base/Boost/ApproximatePerformance tính lại từ tên SP). 0 xung nhịp phi lý còn lại.
+
+Branch `fix/checkv2-ui-batch` + `fix/cpu-clock-data` đã xóa (đã merge).
+
+---
+
 ## Next Session Priority
 
-1. **Cart & Checkout** — quan trọng nhất, web hiện tại chưa bán được hàng
-2. **Fix Motherboard socket** — `SocketCompatibility = "Unknown"` làm Compatibility Engine kém chính xác
-3. **Admin Dashboard** — cần để quản lý sản phẩm và đơn hàng
+1. **Dọn working tree** — xóa PDF rác trong `TEST_TAY/`, thư mục `C:\Users\...lighthouse.*`, `.pyc` đang track + thêm `.gitignore`
+2. **(Tùy chọn) Base clock i9-14900** — id 124/125 đang ước lượng (4.93) vì tên SP thiếu; cần bảng tra base clock nếu muốn hiển thị chính xác
+3. **Fix Motherboard socket** — `SocketCompatibility = "Unknown"` làm Compatibility Engine kém chính xác
