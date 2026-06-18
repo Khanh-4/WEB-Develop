@@ -29,18 +29,28 @@ def parse_speed_mhz(raw: str) -> int:
     return int(m.group(1)) if m else 0
 
 
+# No consumer CPU clock (base or boost) exceeds this; a parse above it means the
+# source field was mis-matched, so we return 0 and let the caller fall back to
+# name-based extraction (_boost_clock_from_name).
+_MAX_PLAUSIBLE_GHZ = 7.0
+
+
 def parse_clock_ghz(raw: str) -> float:
-    """'3.6GHz' / '3600MHz' / '3.6' → 3.6"""
+    """'3.6GHz' / '3600MHz' / '3.6' → 3.6. Returns 0.0 when the result is
+    implausible for a CPU clock (so the caller can fall back to the name)."""
     raw = str(raw).upper()
     ghz = re.search(r"([\d.]+)\s*GHZ", raw)
     if ghz:
-        return round(float(ghz.group(1)), 2)
-    mhz = re.search(r"([\d]{3,5})\s*MHZ", raw)
-    if mhz:
-        return round(float(mhz.group(1)) / 1000, 2)
-    plain = re.search(r"[\d.]+", raw)
-    val = float(plain.group()) if plain else 0.0
-    return round(val / 1000 if val > 100 else val, 2)
+        val = round(float(ghz.group(1)), 2)
+    else:
+        mhz = re.search(r"([\d]{3,5})\s*MHZ", raw)
+        if mhz:
+            val = round(float(mhz.group(1)) / 1000, 2)
+        else:
+            plain = re.search(r"[\d.]+", raw)
+            n = float(plain.group()) if plain else 0.0
+            val = round(n / 1000 if n > 100 else n, 2)
+    return val if val <= _MAX_PLAUSIBLE_GHZ else 0.0
 
 
 def parse_tdp_watts(raw: str) -> int:
