@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System.Security.Claims;
 using TechSpecs.Controllers;
 using TechSpecs.Data;
 using TechSpecs.Models;
@@ -21,11 +22,17 @@ public class CartTests : IDisposable
         _db = DbContextFactory.Create($"cart_{Guid.NewGuid()}");
 
         var userManager = MockUserManager(TestUserId);
+
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, TestUserId) };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+        var httpContext = new DefaultHttpContext { User = principal };
+
         _controller = new CartController(_db, userManager)
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext()
+                HttpContext = httpContext
             }
         };
     }
@@ -171,9 +178,14 @@ public class CartTests : IDisposable
 
         // Switch controller to user B
         var userB = MockUserManager("user-test-002");
+        var claimsB = new[] { new Claim(ClaimTypes.NameIdentifier, "user-test-002") };
+        var identityB = new ClaimsIdentity(claimsB, "TestAuth");
+        var principalB = new ClaimsPrincipal(identityB);
+        var httpContextB = new DefaultHttpContext { User = principalB };
+
         var controllerB = new CartController(_db, userB)
         {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            ControllerContext = new ControllerContext { HttpContext = httpContextB }
         };
         var result = await controllerB.Count();
         var ok = Assert.IsType<OkObjectResult>(result);

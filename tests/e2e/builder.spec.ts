@@ -22,9 +22,9 @@ test.describe('PC Builder', () => {
         await page.click('#productGrid .component-card:first-child');
         await page.waitForTimeout(800);
 
-        // Build panel step should no longer say "Not selected"
+        // Build panel step should no longer say "Not selected" or "Chưa chọn"
         const cpuStep = page.locator('#step-name-cpu');
-        await expect(cpuStep).not.toHaveText('Not selected');
+        await expect(cpuStep).not.toHaveText(/Not selected|Chưa chọn/);
     });
 
     test('selecting CPU then motherboard shows compatibility warnings', async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('PC Builder', () => {
         await removeBtn.click({ force: true });
         await page.waitForTimeout(500);
 
-        await expect(page.locator('#step-name-cpu')).toHaveText('Not selected');
+        await expect(page.locator('#step-name-cpu')).toHaveText(/Not selected|Chưa chọn/);
     });
 
     test('add all to cart button adds all selected components', async ({ page }) => {
