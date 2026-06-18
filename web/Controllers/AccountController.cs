@@ -324,16 +324,16 @@ public class AccountController : Controller
         {
             await _emailSender.SendEmailAsync(
                 model.Email,
-                "Reset your TechSpecs password",
+                "Đặt lại mật khẩu TechSpecs",
                 $"""
                 <div style="font-family:sans-serif;max-width:480px;margin:auto">
-                  <h2 style="color:#7c3aed">TechSpecs — Password Reset</h2>
-                  <p>Click the button below to reset your password. The link expires in <strong>1 hour</strong>.</p>
+                  <h2 style="color:#7c3aed">TechSpecs — Đặt lại mật khẩu</h2>
+                  <p>Nhấn nút bên dưới để đặt lại mật khẩu của bạn. Liên kết sẽ hết hạn sau <strong>1 giờ</strong>.</p>
                   <a href="{resetLink}"
                      style="display:inline-block;padding:12px 28px;background:#7c3aed;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin:12px 0">
-                    Reset Password
+                    Đặt lại mật khẩu
                   </a>
-                  <p style="color:#888;font-size:.85rem">If you didn't request this, you can ignore this email.</p>
+                  <p style="color:#888;font-size:.85rem">Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>
                 </div>
                 """);
         }

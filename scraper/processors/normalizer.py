@@ -187,18 +187,131 @@ def parse_radiator_support(specs: dict, name: str = "") -> str:
     return ", ".join(found)
 
 
+# Canonical brand -> list of case-insensitive regex patterns.
+# Order matters: multi-word / more-specific brands come first so they win over
+# generic substrings (e.g. "Cooler Master" before "MSI"). Patterns use word
+# boundaries to avoid false hits ("\bWD\b" must not fire inside "FORWARD").
+# Aliases collapse onto one canonical label so the brand filter shows a single
+# entry (e.g. "WD" + "Western Digital" -> "Western Digital").
+_BRAND_PATTERNS = [
+    ("Western Digital", [r"western\s*digital", r"\bwd[_\s-]?black\b", r"\bwd\b"]),
+    ("Cooler Master",   [r"cooler\s*master"]),
+    ("Lian Li",         [r"lian[\s-]*li"]),
+    ("be quiet!",       [r"be\s*quiet"]),
+    ("Silicon Power",   [r"silicon\s*power"]),
+    ("Super Flower",    [r"super\s*flower"]),
+    ("ID-Cooling",      [r"id[\s-]*cooling"]),
+    ("G.Skill",         [r"g[\s.]*skill"]),
+    ("TeamGroup",       [r"team\s*group", r"\bt[\s-]*force\b", r"\bteam\b"]),
+    ("Kingmax",         [r"kingmax"]),
+    ("Kingston",        [r"kingston", r"\bhyperx\b"]),
+    ("ADATA",           [r"\badata\b", r"\bxpg\b"]),
+    ("Corsair",         [r"corsair"]),
+    ("Patriot",         [r"patriot", r"\bviper\b"]),
+    ("Apacer",          [r"apacer"]),
+    ("GEIL",            [r"\bgeil\b"]),
+    ("Crucial",         [r"crucial"]),
+    ("Lexar",           [r"lexar"]),
+    ("Klevv",           [r"klevv"]),
+    ("SanDisk",         [r"sandisk"]),
+    ("Transcend",       [r"transcend"]),
+    ("Samsung",         [r"samsung"]),
+    ("SK Hynix",        [r"sk\s*hynix", r"\bhynix\b"]),
+    ("Seagate",         [r"seagate"]),
+    ("Toshiba",         [r"toshiba"]),
+    ("ASUS",            [r"\basus\b", r"\brog\b", r"\btuf\b"]),
+    ("ASRock",          [r"asrock"]),
+    ("Gigabyte",        [r"gigabyte", r"\baorus\b"]),
+    ("MSI",             [r"\bmsi\b"]),
+    ("Biostar",         [r"biostar"]),
+    ("Colorful",        [r"colorful", r"\bigame\b"]),
+    ("Inno3D",          [r"inno\s*3d"]),
+    ("Sparkle",         [r"sparkle"]),
+    ("Sapphire",        [r"sapphire"]),
+    ("PowerColor",      [r"power\s*color"]),
+    ("PNY",             [r"\bpny\b"]),
+    ("Leadtek",         [r"leadtek"]),
+    ("Gainward",        [r"gainward"]),
+    ("Zotac",           [r"zotac"]),
+    ("Palit",           [r"palit"]),
+    ("Galax",           [r"galax", r"\bkfa2\b"]),
+    ("Yeston",          [r"yeston"]),
+    ("OCPC",            [r"\bocpc\b"]),
+    ("NVIDIA",          [r"nvidia"]),
+    ("Seasonic",        [r"seasonic"]),
+    ("FSP",             [r"\bfsp\b"]),
+    ("Antec",           [r"antec"]),
+    ("Thermalright",    [r"thermalright"]),
+    ("Thermaltake",     [r"thermaltake"]),
+    ("NZXT",            [r"nzxt"]),
+    ("Phanteks",        [r"phanteks"]),
+    ("Fractal",         [r"fractal"]),
+    ("DeepCool",        [r"deep\s*cool"]),
+    ("Noctua",          [r"noctua"]),
+    ("Arctic",          [r"\barctic\b"]),
+    ("Xigmatek",        [r"xigmatek"]),
+    ("Jonsbo",          [r"jonsbo"]),
+    ("HYTE",            [r"\bhyte\b"]),
+    ("Montech",         [r"montech"]),
+    ("VITRA",           [r"\bvitra\b"]),
+    ("KENOO",           [r"kenoo"]),
+    ("MIK",             [r"\bmik\b"]),
+    # Budget / Vietnam-market brands (common on these retailer sites).
+    ("Golden Field",    [r"golden\s*field"]),
+    ("AeroCool",        [r"aero\s*cool"]),
+    ("KingSpec",        [r"king\s*spec"]),
+    ("Kioxia",          [r"kioxia"]),
+    ("HIKSEMI",         [r"hiksemi", r"hikvision"]),
+    ("Darkflash",       [r"dark\s*flash"]),
+    ("Huntkey",         [r"huntkey"]),
+    ("Gamdias",         [r"gamdias"]),
+    ("InWin",           [r"\bin[\s-]*win\b"]),
+    ("AIGO",            [r"\baigo\b"]),
+    ("Jetek",           [r"jetek"]),
+    ("SAMA",            [r"\bsama\b"]),
+    ("VSP",             [r"\bvsp\b"]),
+    ("Arrow",           [r"\barrow\b"]),
+    ("MAGIC",           [r"\bmagic\b"]),
+    ("AGI",             [r"\bagi\b"]),
+    ("Acer",            [r"\bacer\b", r"\bpredator\b"]),
+    ("Intel",           [r"\bintel\b"]),
+    ("AMD",             [r"\bamd\b", r"\bryzen\b", r"\bradeon\b"]),
+]
+
+# Pre-compile once: (canonical, compiled_regex) for each pattern.
+_BRAND_COMPILED = [
+    (canonical, re.compile(pat, re.IGNORECASE))
+    for canonical, pats in _BRAND_PATTERNS
+    for pat in pats
+]
+
+
+# Phrases that mark a listing as a full system / laptop rather than a discrete
+# component — these pollute the cpu and video_card tables when a retailer mixes
+# them into a component category page. "Workstation" is intentionally excluded:
+# a "VGA ... Workstation Edition" is a legitimate graphics card.
+_SYSTEM_RX = re.compile(
+    r"\b(pc gvn|pc gaming|gaming pc|máy bộ|bộ máy|laptop|notebook|macbook)\b",
+    re.IGNORECASE,
+)
+
+
+def is_system_or_laptop(name: str) -> bool:
+    """True if the product name is a prebuilt PC or a laptop (not a component)."""
+    return bool(name) and _SYSTEM_RX.search(name) is not None
+
+
 def extract_manufacturer_from_name(name: str) -> str:
-    """Best-effort brand extraction from product name."""
-    brands = [
-        "Intel", "AMD", "ASUS", "MSI", "Gigabyte", "ASRock", "Biostar",
-        "Corsair", "Kingston", "G.Skill", "Samsung", "SK Hynix", "Crucial",
-        "NVIDIA", "Gainward", "Zotac", "Palit", "Galax", "KFA2",
-        "Seasonic", "Cooler Master", "be quiet!", "Thermaltake", "Antec",
-        "Noctua", "DeepCool", "Lian Li", "Fractal", "NZXT", "Phanteks",
-        "Western Digital", "WD", "Seagate", "Toshiba", "Lexar",
-    ]
-    name_lower = name.lower()
-    for brand in brands:
-        if brand.lower() in name_lower:
-            return brand
-    return name.split()[0] if name else "Unknown"
+    """Best-effort brand extraction from a product name.
+
+    Scans a curated, ordered allowlist of known PC-component brands (with
+    aliases) and returns the canonical brand label. Returns "Khác" (Vietnamese
+    for "Other") when nothing matches — never the first word of the name, which
+    previously produced junk filter entries like "Liên", "RAM", "Vỏ", "Ổ".
+    """
+    if not name:
+        return "Khác"
+    for canonical, rx in _BRAND_COMPILED:
+        if rx.search(name):
+            return canonical
+    return "Khác"
