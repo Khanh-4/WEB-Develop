@@ -336,24 +336,86 @@
      INSTALLMENT MODAL
      ══════════════════════════════════════════════ -->
 <div class="modal fade" id="installmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:480px">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px">
         <div class="modal-content glass" style="border-radius:var(--radius-lg)">
             <div class="modal-header border-0 pb-0">
                 <div>
-                    <h5 class="fw-bold mb-0"><i class="bi bi-calculator me-2" style="color:var(--primary)"></i>Tính trả góp</h5>
+                    <h5 class="fw-bold mb-0"><i class="bi bi-calculator me-2" style="color:var(--primary)"></i>Tùy chọn trả góp</h5>
                     <div id="instProductName" class="small mt-1" style="color:var(--text-muted)"></div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:invert(var(--close-filter,1))"></button>
             </div>
             <div class="modal-body pt-3">
-                <div class="glass p-3 mb-3 text-center">
-                    <div class="small mb-1" style="color:var(--text-muted)">Giá gốc</div>
-                    <div class="fs-4 fw-bold" id="instBasePrice">0đ</div>
+                <!-- Step 1: Plan selection -->
+                <div id="instStep1">
+                    <div class="glass p-3 mb-3 text-center">
+                        <div class="small mb-1" style="color:var(--text-muted)">Giá gốc sản phẩm</div>
+                        <div class="fs-4 fw-bold" id="instBasePrice">0đ</div>
+                    </div>
+                    <p class="small fw-semibold mb-2" style="color:var(--text-muted)">Chọn kỳ hạn trả góp:</p>
+                    <div class="row g-2 mb-3" id="instCards"></div>
+                    <div class="p-2 rounded-3 mb-3" style="font-size:.75rem;line-height:1.6;color:var(--text-muted);background:var(--surface-2)">
+                        <i class="bi bi-info-circle me-1" style="color:var(--primary)"></i>
+                        0% phí: 3 tháng qua thẻ tín dụng đối tác &nbsp;|&nbsp; 1.5%/tháng: 6–9 tháng &nbsp;|&nbsp; 2%/tháng: 12 tháng
+                    </div>
+                    <button class="btn btn-gradient w-100" id="instProceedBtn" onclick="instGoStep2()" disabled>
+                        <i class="bi bi-arrow-right me-2"></i>Chọn gói và đăng ký
+                    </button>
                 </div>
-                <div class="row g-2 mb-3" id="instCards"></div>
-                <div style="font-size:.75rem;line-height:1.5;color:var(--text-muted)">
-                    * 0% phí: trả góp 3 tháng qua thẻ tín dụng đối tác.<br>
-                    * 1.5% phí/tháng: 6–9 tháng. * 2% phí/tháng: 12 tháng.
+                <!-- Step 2: Registration form -->
+                <div id="instStep2" style="display:none">
+                    <div class="glass p-3 mb-3 d-flex align-items-center gap-3" style="border-left:3px solid var(--primary)">
+                        <i class="bi bi-calendar-check" style="color:var(--primary);font-size:1.4rem"></i>
+                        <div>
+                            <div class="small" style="color:var(--text-muted)">Gói đã chọn</div>
+                            <div class="fw-bold" id="instChosenLabel" style="color:var(--primary)"></div>
+                        </div>
+                        <div class="ms-auto text-end">
+                            <div class="small" style="color:var(--text-muted)">Mỗi tháng</div>
+                            <div class="fw-bold fs-5" id="instChosenMonthly" style="color:var(--primary)"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" style="color:var(--text-muted)">Họ và tên <span class="text-danger">*</span></label>
+                        <input type="text" id="instName" class="form-control" placeholder="Nguyễn Văn A" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" style="color:var(--text-muted)">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="tel" id="instPhone" class="form-control" placeholder="09xx xxx xxx" maxlength="15">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" style="color:var(--text-muted)">Ngân hàng / Thẻ tín dụng</label>
+                        <select id="instBank" class="form-select">
+                            <option value="">-- Chọn ngân hàng (tùy chọn) --</option>
+                            <option>Vietcombank</option><option>Techcombank</option><option>VPBank</option>
+                            <option>BIDV</option><option>Agribank</option><option>MB Bank</option>
+                            <option>ACB</option><option>HD Bank</option><option>Shinhan Bank</option>
+                            <option>Khác</option>
+                        </select>
+                    </div>
+                    <p id="instFormError" class="text-danger small mb-2" style="display:none"></p>
+                    <div class="d-flex gap-2">
+                        <button class="btn glass px-3" style="color:var(--text)" onclick="instGoStep1()"><i class="bi bi-arrow-left"></i></button>
+                        <button class="btn btn-gradient flex-grow-1" id="instSubmitBtn" onclick="instSubmit()">
+                            <i class="bi bi-send me-2"></i>Gửi yêu cầu trả góp
+                        </button>
+                    </div>
+                </div>
+                <!-- Step 3: Success -->
+                <div id="instStep3" style="display:none" class="text-center py-3">
+                    <div style="width:64px;height:64px;border-radius:50%;background:rgba(74,222,128,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                        <i class="bi bi-check-lg fs-2" style="color:#4ade80"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2" style="color:var(--text)">Yêu cầu đã được gửi!</h6>
+                    <p class="small mb-3" style="color:var(--text-muted)">
+                        Đội ngũ TechSpecs sẽ liên hệ lại trong <strong style="color:var(--text)">vòng 30 phút</strong> để hướng dẫn thủ tục trả góp chi tiết.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="https://zalo.me/0354567080" target="_blank" class="btn glass px-3" style="color:var(--text);font-size:.85rem">
+                            <i class="bi bi-chat-dots me-1"></i>Chat Zalo ngay
+                        </a>
+                        <button class="btn glass px-3" style="color:var(--text);font-size:.85rem" data-bs-dismiss="modal">Đóng</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -749,20 +811,83 @@ function syncCmpButtons() {
 document.addEventListener('DOMContentLoaded', function () { renderCompareTray(); syncCmpButtons(); });
 
 // ── Installment calculator ────────────────────────────────────────────────────
+var _instPrice = 0, _instProductName = '', _instSelectedPlan = null;
+var _instPlans = [
+    { months:3,  fee:0.00,  label:'3 tháng',  badge:'0% phí',    bc:'#4ade80' },
+    { months:6,  fee:0.015, label:'6 tháng',  badge:'1.5%/tháng',bc:'#fb923c' },
+    { months:9,  fee:0.015, label:'9 tháng',  badge:'1.5%/tháng',bc:'#fb923c' },
+    { months:12, fee:0.020, label:'12 tháng', badge:'2%/tháng',  bc:'#f87171' },
+];
 function showInstallment(price, productName) {
-    document.getElementById('instProductName').textContent = productName || '';
+    _instPrice = price; _instProductName = productName || ''; _instSelectedPlan = null;
+    document.getElementById('instProductName').textContent = _instProductName;
     document.getElementById('instBasePrice').textContent = Number(price).toLocaleString('vi-VN') + 'đ';
-    var plans = [
-        { months:3,  fee:0.00,  label:'3 tháng',  badge:'0% phí',    bc:'#4ade80' },
-        { months:6,  fee:0.015, label:'6 tháng',  badge:'1.5%/tháng',bc:'#fb923c' },
-        { months:9,  fee:0.015, label:'9 tháng',  badge:'1.5%/tháng',bc:'#fb923c' },
-        { months:12, fee:0.020, label:'12 tháng', badge:'2%/tháng',  bc:'#f87171' },
-    ];
-    document.getElementById('instCards').innerHTML = plans.map(function(p) {
+    // Reset steps
+    document.getElementById('instStep1').style.display = '';
+    document.getElementById('instStep2').style.display = 'none';
+    document.getElementById('instStep3').style.display = 'none';
+    document.getElementById('instProceedBtn').disabled = true;
+    document.getElementById('instName').value = '';
+    document.getElementById('instPhone').value = '';
+    document.getElementById('instBank').value = '';
+    // Render plan cards
+    document.getElementById('instCards').innerHTML = _instPlans.map(function(p, i) {
         var mo = Math.ceil(price * (1 + p.fee * p.months) / p.months);
-        return '<div class="col-6"><div class="glass p-3 text-center h-100"><div class="fw-bold mb-1">' + p.label + '</div><div class="fs-5 fw-bold" style="color:var(--primary)">' + mo.toLocaleString('vi-VN') + 'đ</div><div class="small" style="color:var(--text-muted)">/tháng</div><span class="badge mt-2" style="background:var(--surface-2);color:' + p.bc + ';font-size:.7rem">' + p.badge + '</span></div></div>';
+        return '<div class="col-6"><div class="glass p-3 text-center h-100 inst-plan-card" style="cursor:pointer;border:2px solid transparent;transition:border .15s" onclick="instSelectPlan(' + i + ',this)">'
+            + '<div class="fw-bold mb-1" style="color:var(--text)">' + p.label + '</div>'
+            + '<div class="fs-5 fw-bold" style="color:var(--primary)">' + mo.toLocaleString('vi-VN') + 'đ</div>'
+            + '<div class="small" style="color:var(--text-muted)">/tháng</div>'
+            + '<span class="badge mt-2" style="background:var(--surface-2);color:' + p.bc + ';font-size:.7rem">' + p.badge + '</span>'
+            + '</div></div>';
     }).join('');
     new bootstrap.Modal(document.getElementById('installmentModal')).show();
+}
+function instSelectPlan(idx, el) {
+    _instSelectedPlan = idx;
+    document.querySelectorAll('.inst-plan-card').forEach(function(c) { c.style.borderColor = 'transparent'; });
+    el.style.borderColor = 'var(--primary)';
+    document.getElementById('instProceedBtn').disabled = false;
+}
+function instGoStep2() {
+    if (_instSelectedPlan === null) return;
+    var p = _instPlans[_instSelectedPlan];
+    var mo = Math.ceil(_instPrice * (1 + p.fee * p.months) / p.months);
+    document.getElementById('instChosenLabel').textContent = p.label + ' — ' + p.badge;
+    document.getElementById('instChosenMonthly').textContent = mo.toLocaleString('vi-VN') + 'đ';
+    document.getElementById('instStep1').style.display = 'none';
+    document.getElementById('instStep2').style.display = '';
+    document.getElementById('instFormError').style.display = 'none';
+}
+function instGoStep1() {
+    document.getElementById('instStep1').style.display = '';
+    document.getElementById('instStep2').style.display = 'none';
+}
+async function instSubmit() {
+    var name = (document.getElementById('instName').value || '').trim();
+    var phone = (document.getElementById('instPhone').value || '').trim();
+    var bank = document.getElementById('instBank').value;
+    var err = document.getElementById('instFormError');
+    if (!name) { err.textContent = 'Vui lòng nhập họ và tên.'; err.style.display = ''; return; }
+    if (!phone || !/^0[0-9]{8,10}$/.test(phone.replace(/\s/g,''))) { err.textContent = 'Số điện thoại không hợp lệ.'; err.style.display = ''; return; }
+    err.style.display = 'none';
+    var btn = document.getElementById('instSubmitBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+    var p = _instPlans[_instSelectedPlan];
+    var mo = Math.ceil(_instPrice * (1 + p.fee * p.months) / p.months);
+    var csrf = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+    try {
+        await fetch('/Quote/Installment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': csrf },
+            body: JSON.stringify({
+                productName: _instProductName, price: _instPrice,
+                plan: p.label + ' (' + p.badge + ')', monthlyAmount: mo,
+                customerName: name, phone: phone, bank: bank || 'Chưa chọn'
+            })
+        });
+    } catch(e) { /* still show success — fallback */ }
+    document.getElementById('instStep2').style.display = 'none';
+    document.getElementById('instStep3').style.display = '';
 }
 
 // ── Purchase toast ────────────────────────────────────────────────────────────

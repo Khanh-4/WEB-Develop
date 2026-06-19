@@ -541,7 +541,7 @@ public class ProductsController : Controller
             },
             "case" => new
             {
-                caseTypes   = (await _db.CaseEnclosures.AsNoTracking().Select(c => c.CaseType).Where(t => t != "").Distinct().ToListAsync()).Union(new[] { "Mini-Tower", "Mid-Tower", "Full-Tower" }).Distinct().OrderBy(t => t).ToList(),
+                caseTypes   = (await _db.CaseEnclosures.AsNoTracking().Select(c => c.CaseType).Where(t => t != "").Distinct().ToListAsync()).Distinct().OrderBy(t => t).ToList(),
                 formFactors = (await _db.CaseEnclosures.AsNoTracking().Select(c => c.FormFactorSupport).Where(f => f != "").Distinct().ToListAsync()).SelectMany(f => f.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)).Union(new[] { "eATX", "ATX", "Micro ATX", "Mini ITX" }).Distinct().OrderBy(f => f).ToList(),
             },
             "cooler" => (object)new
