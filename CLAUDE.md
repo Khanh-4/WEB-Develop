@@ -130,7 +130,7 @@ The only area not yet built: any truly new feature requested in future sessions.
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **WEB-Develop** (4972 symbols, 10502 relationships, 160 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **WEB-Develop** (4970 symbols, 10502 relationships, 160 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
