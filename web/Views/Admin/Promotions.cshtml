@@ -1,0 +1,298 @@
+@model TechSpecs.ViewModels.AdminPromotionsViewModel
+@{
+    ViewData["Title"] = "Khuyến mãi";
+    var now = DateTime.UtcNow;
+}
+
+<div class="p-4">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <h4 class="fw-bold mb-0" style="color:var(--text)">
+            <i class="bi bi-percent me-2" style="color:var(--primary)"></i>Quản lý Khuyến mãi
+        </h4>
+        <a href="/Admin/CreatePromotion" class="btn btn-gradient">
+            <i class="bi bi-plus-lg me-1"></i>Tạo Khuyến mãi
+        </a>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4" id="promoTabs" role="tablist" style="border-bottom:1px solid var(--border)">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="flashsale-tab" data-bs-toggle="tab" data-bs-target="#flashsale" type="button" role="tab" aria-controls="flashsale" aria-selected="true" style="color:var(--text);font-weight:600">
+                <i class="bi bi-lightning-charge me-1" style="color:#f59e0b"></i>Flash Sales (@Model.FlashSales.Count)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="coupon-tab" data-bs-toggle="tab" data-bs-target="#coupon" type="button" role="tab" aria-controls="coupon" aria-selected="false" style="color:var(--text);font-weight:600">
+                <i class="bi bi-ticket-perforated me-1" style="color:#a855f7"></i>Coupons (@Model.Coupons.Count)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="bundle-tab" data-bs-toggle="tab" data-bs-target="#bundle" type="button" role="tab" aria-controls="bundle" aria-selected="false" style="color:var(--text);font-weight:600">
+                <i class="bi bi-boxes me-1" style="color:#10b981"></i>Combo / Bundles (@Model.Bundles.Count)
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="promoTabsContent">
+        
+        <!-- ── TAB 1: FLASH SALES ── -->
+        <div class="tab-pane fade show active" id="flashsale" role="tabpanel" aria-labelledby="flashsale-tab">
+            @if (!Model.FlashSales.Any())
+            {
+                <div class="tx-card p-5 text-center" style="color:var(--text-muted)">
+                    <i class="bi bi-lightning fs-1 d-block mb-2 opacity-30"></i>Chưa có flash sale nào.
+                </div>
+            }
+            else
+            {
+                <div class="tx-card overflow-auto">
+                    <table class="tx-table">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Giá gốc</th>
+                                <th>Giảm</th>
+                                <th>Giá KM</th>
+                                <th>Số lượng</th>
+                                <th>Thời gian</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var s in Model.FlashSales)
+                        {
+                            var active = s.IsActive && s.StartsAt <= now && s.EndsAt > now && s.SoldQty < s.TotalQty;
+                            <tr>
+                                <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);font-size:.85rem">
+                                    @s.ProductName
+                                </td>
+                                <td>
+                                    <span class="badge glass-sm" style="color:var(--primary);font-size:.7rem">@s.Category.ToUpper()</span>
+                                </td>
+                                <td style="color:var(--text-muted);font-size:.83rem">@s.OriginalPrice.ToString("N0")đ</td>
+                                <td><span class="badge" style="background:rgba(239,68,68,.15);color:#f87171">-@s.DiscountPercent%</span></td>
+                                <td class="fw-bold" style="color:#f59e0b;font-size:.85rem">@s.SalePrice.ToString("N0")đ</td>
+                                <td style="color:var(--text-muted);font-size:.83rem">@s.SoldQty/@s.TotalQty</td>
+                                <td style="color:var(--text-muted);font-size:.78rem">
+                                    @s.StartsAt.ToString("dd/MM HH:mm") → @s.EndsAt.ToString("dd/MM HH:mm")
+                                </td>
+                                <td class="text-center">
+                                    @if (active)
+                                    {
+                                        <span class="status-pill completed">Đang diễn ra</span>
+                                    }
+                                    else if (!s.IsActive)
+                                    {
+                                        <span class="status-pill cancelled">Tắt</span>
+                                    }
+                                    else if (s.EndsAt <= now)
+                                    {
+                                        <span class="status-pill" style="background:rgba(107,114,128,.15);color:#9ca3af">Kết thúc</span>
+                                    }
+                                    else if (s.SoldQty >= s.TotalQty)
+                                    {
+                                        <span class="status-pill pending">Hết SL</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill confirmed">Sắp diễn ra</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <form method="post" action="/Admin/ToggleFlashSale/@s.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm glass px-2 py-1" title="@(s.IsActive ? "Tắt" : "Bật")"
+                                                    style="color:@(s.IsActive ? "var(--accent)" : "var(--text-muted)")">
+                                                <i class="bi @(s.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="/Admin/DeleteFlashSale/@s.Id"
+                                              onsubmit="return confirm('Xoá flash sale này?')">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm px-2 py-1" style="color:var(--danger);background:rgba(239,68,68,.12);border:none">
+                                                <i class="bi bi-trash3" style="font-size:.8rem"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- ── TAB 2: COUPONS ── -->
+        <div class="tab-pane fade" id="coupon" role="tabpanel" aria-labelledby="coupon-tab">
+            @if (!Model.Coupons.Any())
+            {
+                <div class="tx-card p-5 text-center" style="color:var(--text-muted)">
+                    <i class="bi bi-ticket fs-1 d-block mb-2 opacity-30"></i>Chưa có coupon nào.
+                </div>
+            }
+            else
+            {
+                <div class="tx-card overflow-auto">
+                    <table class="tx-table">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Loại</th>
+                                <th>Giá trị</th>
+                                <th>Đơn tối thiểu</th>
+                                <th>Đã dùng</th>
+                                <th>Hết hạn</th>
+                                <th>Filter</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var c in Model.Coupons)
+                        {
+                            var expired = c.ExpiresAt.HasValue && c.ExpiresAt.Value < now;
+                            var exhausted = c.MaxUses.HasValue && c.UsedCount >= c.MaxUses.Value;
+                            <tr>
+                                <td>
+                                    <span class="fw-bold" style="color:var(--primary);font-family:monospace;font-size:.85rem">@c.Code</span>
+                                    @if (c.IsFreeShip)
+                                    {
+                                        <span class="badge ms-1 glass-sm" style="color:var(--accent);font-size:.68rem">FREESHIP</span>
+                                    }
+                                </td>
+                                <td style="color:var(--text-muted);font-size:.83rem">
+                                    @(c.DiscountType == TechSpecs.Models.DiscountType.Percent ? "Phần trăm" : "Cố định")
+                                </td>
+                                <td class="fw-bold" style="color:#f59e0b;font-size:.85rem">
+                                    @if (c.DiscountType == TechSpecs.Models.DiscountType.Percent)
+                                    { <span>@c.DiscountValue%</span> }
+                                    else
+                                    { <span>@c.DiscountValue.ToString("N0")đ</span> }
+                                </td>
+                                <td style="color:var(--text-muted);font-size:.82rem">
+                                    @(c.MinOrderAmount.HasValue ? c.MinOrderAmount.Value.ToString("N0") + "đ" : "—")
+                                </td>
+                                <td style="color:var(--text-muted);font-size:.82rem">
+                                    @c.UsedCount/@(c.MaxUses.HasValue ? c.MaxUses.Value.ToString() : "∞")
+                                </td>
+                                <td style="color:var(--text-muted);font-size:.78rem">
+                                    @(c.ExpiresAt.HasValue ? c.ExpiresAt.Value.ToString("dd/MM/yyyy") : "—")
+                                </td>
+                                <td style="color:var(--text-muted);font-size:.78rem">
+                                    @if (!string.IsNullOrEmpty(c.CategoryFilter)) { <span>@c.CategoryFilter</span> }
+                                    @if (!string.IsNullOrEmpty(c.BrandFilter)) { <span> @c.BrandFilter</span> }
+                                    @if (string.IsNullOrEmpty(c.CategoryFilter) && string.IsNullOrEmpty(c.BrandFilter)) { <span>Tất cả</span> }
+                                </td>
+                                <td class="text-center">
+                                    @if (!c.IsActive || expired || exhausted)
+                                    {
+                                        <span class="status-pill cancelled">@(expired ? "Hết hạn" : exhausted ? "Hết lượt" : "Tắt")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill completed">Hoạt động</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <form method="post" action="/Admin/ToggleCoupon/@c.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm glass px-2 py-1" title="@(c.IsActive ? "Tắt" : "Bật")"
+                                                    style="color:@(c.IsActive ? "var(--accent)" : "var(--text-muted)")">
+                                                <i class="bi @(c.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                            </button>
+                                        </form>
+                                        <form method="post" action="/Admin/DeleteCoupon/@c.Id"
+                                              onsubmit="return confirm('Xoá coupon @c.Code?')">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm px-2 py-1" style="color:var(--danger);background:rgba(239,68,68,.12);border:none">
+                                                <i class="bi bi-trash3" style="font-size:.8rem"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        <!-- ── TAB 3: COMBOS / BUNDLES ── -->
+        <div class="tab-pane fade" id="bundle" role="tabpanel" aria-labelledby="bundle-tab">
+            @if (!Model.Bundles.Any())
+            {
+                <div class="tx-card p-5 text-center" style="color:var(--text-muted)">
+                    <i class="bi bi-boxes fs-1 d-block mb-2 opacity-30"></i>Chưa có combo nào.
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                @foreach (var b in Model.Bundles)
+                {
+                    <div class="col-12 col-lg-6">
+                        <div class="tx-card h-100">
+                            <div class="p-4">
+                                <div class="d-flex align-items-start gap-2 mb-3">
+                                    <div>
+                                        <div class="fw-bold" style="color:var(--text)">@b.Name</div>
+                                        @if (!string.IsNullOrEmpty(b.Description))
+                                        {
+                                            <div style="color:var(--text-muted);font-size:.8rem">@b.Description</div>
+                                        }
+                                    </div>
+                                    <div class="ms-auto d-flex gap-2 flex-shrink-0">
+                                        <span class="badge" style="background:rgba(239,68,68,.15);color:#f87171">-@b.DiscountPercent%</span>
+                                        @if (!b.IsActive) { <span class="status-pill cancelled">Tắt</span> }
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    @foreach (var item in b.Items)
+                                    {
+                                        <div class="d-flex justify-content-between py-1" style="border-bottom:1px solid var(--border);font-size:.82rem">
+                                            <span style="color:var(--text)">@item.ProductName</span>
+                                            <span style="color:var(--text-muted)">@item.Price.ToString("N0")đ</span>
+                                        </div>
+                                    }
+                                    <div class="d-flex justify-content-between pt-2" style="font-size:.83rem">
+                                        <span style="color:var(--text-muted)">Tổng gốc</span>
+                                        <span style="color:var(--text-muted);text-decoration:line-through">@b.Items.Sum(i => i.Price).ToString("N0")đ</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between" style="font-size:.9rem">
+                                        <span class="fw-semibold" style="color:var(--text)">Giá combo</span>
+                                        <span class="fw-bold" style="color:#10b981">
+                                            @((b.Items.Sum(i => i.Price) * (1 - b.DiscountPercent / 100m)).ToString("N0"))đ
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <form method="post" action="/Admin/ToggleBundle/@b.Id" class="flex-grow-1">
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn glass w-100 btn-sm" style="color:@(b.IsActive ? "var(--accent)" : "var(--text-muted)")">
+                                            <i class="bi @(b.IsActive ? "bi-toggle-on" : "bi-toggle-off") me-1"></i>
+                                            @(b.IsActive ? "Đang hoạt động" : "Đã tắt")
+                                        </button>
+                                    </form>
+                                    <form method="post" action="/Admin/DeleteBundle/@b.Id" onsubmit="return confirm('Xoá combo này?')">
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn btn-sm px-2" style="color:var(--danger);background:rgba(239,68,68,.12);border:none">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                </div>
+            }
+        </div>
+    </div>
+</div>

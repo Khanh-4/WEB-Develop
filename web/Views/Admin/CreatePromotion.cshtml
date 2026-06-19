@@ -1,0 +1,256 @@
+@model TechSpecs.ViewModels.AdminCreatePromotionViewModel
+@{
+    ViewData["Title"] = "Tạo Khuyến mãi";
+    var isFlashSaleActive = Model?.ActiveType == "flashsale";
+    var isCouponActive = Model?.ActiveType == "coupon";
+    var isBundleActive = Model?.ActiveType == "bundle";
+}
+
+<div class="p-4" style="max-width:800px">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/Admin/Promotions" class="btn glass" style="color:var(--text)"><i class="bi bi-arrow-left"></i></a>
+        <h4 class="fw-bold mb-0" style="color:var(--text)">
+            <i class="bi bi-percent me-2" style="color:var(--primary)"></i>Tạo Khuyến mãi mới
+        </h4>
+    </div>
+
+    <!-- Selection Dropdown -->
+    <div class="tx-card p-4 mb-4">
+        <div class="col-md-6">
+            <label class="form-label small fw-semibold" style="color:var(--text-muted)">Chọn hình thức khuyến mãi</label>
+            <select id="promotionTypeSelect" class="form-select">
+                <option value="flashsale">⚡ Flash Sale (Giờ vàng giá sốc)</option>
+                <option value="Coupon">🎫 Coupon (Mã giảm giá)</option>
+                <option value="bundle">📦 Combo / Bundle (Mua nhiều giảm sâu)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ── FORM 1: FLASH SALE ── -->
+    <div id="flashSaleFormSection" class="tx-card p-4" style="display:none">
+        <h5 class="fw-bold mb-3" style="color:var(--text)"><i class="bi bi-lightning-charge-fill me-2" style="color:#f59e0b"></i>Tạo Flash Sale</h5>
+        <form method="post" action="/Admin/CreateFlashSale">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label small" style="color:var(--text-muted)">Danh mục sản phẩm</label>
+                    <select name="Category" class="form-select" required>
+                        @foreach (var cat in new[] {"cpu","motherboard","memory","gpu","storage","psu","case","cooler"})
+                        {
+                            <option value="@cat" selected="@(Model?.FlashSale?.Category == cat)">@cat.ToUpper()</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small" style="color:var(--text-muted)">ID sản phẩm</label>
+                    <input name="ProductId" type="number" class="form-control" required value="@(Model?.FlashSale?.ProductId)" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label small" style="color:var(--text-muted)">Tên sản phẩm hiển thị</label>
+                    <input name="ProductName" type="text" class="form-control" required value="@(Model?.FlashSale?.ProductName)" maxlength="300" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Giá gốc (đ)</label>
+                    <input name="OriginalPrice" type="number" class="form-control" required value="@(Model?.FlashSale?.OriginalPrice ?? 0)" min="0" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Giảm giá (%)</label>
+                    <input name="DiscountPercent" type="number" class="form-control" required value="@(Model?.FlashSale?.DiscountPercent ?? 10)" min="1" max="99" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Số lượng mở bán</label>
+                    <input name="TotalQty" type="number" class="form-control" required value="@(Model?.FlashSale?.TotalQty > 0 ? Model.FlashSale.TotalQty : 20)" min="1" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Đã bán ban đầu</label>
+                    <input name="SoldQty" type="number" class="form-control" value="@(Model?.FlashSale?.SoldQty ?? 0)" min="0" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Bắt đầu (UTC)</label>
+                    <input name="StartsAt" type="datetime-local" class="form-control" required value="@(Model?.FlashSale?.StartsAt.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Kết thúc (UTC)</label>
+                    <input name="EndsAt" type="datetime-local" class="form-control" required value="@(Model?.FlashSale?.EndsAt.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.UtcNow.AddHours(24).ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-gradient w-100">
+                        <i class="bi bi-lightning-charge me-2"></i>Tạo Flash Sale
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── FORM 2: COUPON ── -->
+    <div id="couponFormSection" class="tx-card p-4" style="display:none">
+        <h5 class="fw-bold mb-3" style="color:var(--text)"><i class="bi bi-ticket-perforated-fill me-2" style="color:#a855f7"></i>Tạo Coupon</h5>
+        <form method="post" action="/Admin/CreateCoupon">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-8">
+                    <label class="form-label small" style="color:var(--text-muted)">Mã coupon (Mã giảm giá)</label>
+                    <input name="Code" type="text" class="form-control" required
+                           style="font-family:monospace;text-transform:uppercase"
+                           value="@(Model?.Coupon?.Code)"
+                           placeholder="VD: KHUYENMAI20" maxlength="50" />
+                </div>
+                <div class="col-4">
+                    <label class="form-label small" style="color:var(--text-muted)">Loại giảm</label>
+                    <select name="DiscountType" class="form-select">
+                        <option value="0" selected="@(Model?.Coupon?.DiscountType == TechSpecs.Models.DiscountType.Percent)">% Phần trăm</option>
+                        <option value="1" selected="@(Model?.Coupon?.DiscountType == TechSpecs.Models.DiscountType.Fixed)">đ Số tiền</option>
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Giá trị giảm</label>
+                    <input name="DiscountValue" type="number" class="form-control" required min="0" step="0.01" value="@(Model?.Coupon?.DiscountValue ?? 0)" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Giá trị đơn tối thiểu (đ)</label>
+                    <input name="MinOrderAmount" type="number" class="form-control" min="0" value="@(Model?.Coupon?.MinOrderAmount)" placeholder="Bỏ trống = không giới hạn" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Số lần sử dụng tối đa</label>
+                    <input name="MaxUses" type="number" class="form-control" min="1" value="@(Model?.Coupon?.MaxUses)" placeholder="Bỏ trống = không giới hạn" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Hết hạn (UTC)</label>
+                    <input name="ExpiresAt" type="datetime-local" class="form-control" value="@(Model?.Coupon?.ExpiresAt?.ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Chỉ áp dụng danh mục</label>
+                    <input name="CategoryFilter" type="text" class="form-control" value="@(Model?.Coupon?.CategoryFilter)" placeholder="VD: cpu,gpu (bỏ trống = tất cả)" maxlength="200" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small" style="color:var(--text-muted)">Chỉ áp dụng thương hiệu</label>
+                    <input name="BrandFilter" type="text" class="form-control" value="@(Model?.Coupon?.BrandFilter)" placeholder="VD: ASUS (bỏ trống = tất cả)" maxlength="100" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label small" style="color:var(--text-muted)">Mô tả</label>
+                    <input name="Description" type="text" class="form-control" value="@(Model?.Coupon?.Description)" maxlength="200" />
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="IsFreeShip" value="true" id="freeshipCheck" checked="@(Model?.Coupon?.IsFreeShip == true)">
+                        <label class="form-check-label" style="color:var(--text-muted)" for="freeshipCheck">Miễn phí vận chuyển (Freeship)</label>
+                    </div>
+                </div>
+                <div class="col-12 mt-4">
+                    <button type="submit" class="btn btn-gradient w-100">
+                        <i class="bi bi-ticket-perforated me-2"></i>Tạo Coupon
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── FORM 3: COMBO / BUNDLE ── -->
+    <div id="bundleFormSection" class="tx-card p-4" style="display:none">
+        <h5 class="fw-bold mb-3" style="color:var(--text)"><i class="bi bi-boxes me-2" style="color:#10b981"></i>Tạo Combo / Bundle</h5>
+        <form method="post" action="/Admin/CreateBundle" id="bundleForm">
+            @Html.AntiForgeryToken()
+            <div class="row g-3 mb-3">
+                <div class="col-8">
+                    <label class="form-label small" style="color:var(--text-muted)">Tên Combo / Bundle</label>
+                    <input name="name" type="text" class="form-control" required placeholder="VD: Bộ Kit CPU + Mainboard Intel" />
+                </div>
+                <div class="col-4">
+                    <label class="form-label small" style="color:var(--text-muted)">Mức giảm toàn bộ (%)</label>
+                    <input name="discountPercent" type="number" class="form-control" required min="1" max="50" value="5" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label small" style="color:var(--text-muted)">Mô tả combo (tùy chọn)</label>
+                    <input name="description" type="text" class="form-control" maxlength="500" />
+                </div>
+            </div>
+
+            <h6 class="fw-semibold mb-2" style="color:var(--text)">Sản phẩm trong combo (Tối thiểu 2 sản phẩm)</h6>
+            <div id="itemsContainer"></div>
+
+            <button type="button" class="btn glass btn-sm mb-3 mt-2" style="color:var(--text)" onclick="addBundleItem()">
+                <i class="bi bi-plus-lg me-1"></i>Thêm sản phẩm
+            </button>
+
+            <button type="submit" class="btn btn-gradient w-100 mt-2">
+                <i class="bi bi-boxes me-2"></i>Tạo Combo
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var select = document.getElementById("promotionTypeSelect");
+        var activeType = "@(Model?.ActiveType ?? "flashsale")";
+        
+        // Read from query param if available
+        var params = new URLSearchParams(window.location.search);
+        var typeParam = params.get("type");
+        if (typeParam) {
+            activeType = typeParam;
+        }
+
+        // Normalize value for dropdown select
+        var normalizedActiveType = activeType.toLowerCase() === "coupon" ? "Coupon" : activeType.toLowerCase();
+
+        select.value = normalizedActiveType;
+        showForm(activeType);
+
+        select.addEventListener("change", function () {
+            showForm(this.value);
+            // Update URL to match selection
+            var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?type=' + this.value.toLowerCase();
+            window.history.pushState({ path: newUrl }, '', newUrl);
+        });
+
+        function showForm(type) {
+            var t = type.toLowerCase();
+            document.getElementById("flashSaleFormSection").style.display = t === "flashsale" ? "block" : "none";
+            document.getElementById("couponFormSection").style.display = t === "coupon" ? "block" : "none";
+            document.getElementById("bundleFormSection").style.display = t === "bundle" ? "block" : "none";
+        }
+    });
+
+    const cats = ['cpu','motherboard','memory','gpu','storage','psu','case','cooler'];
+    let itemCount = 0;
+
+    function addBundleItem() {
+        const idx = itemCount++;
+        const div = document.createElement('div');
+        div.className = 'tx-card p-3 mb-2';
+        div.innerHTML = `
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small" style="color:var(--text-muted)">Danh mục</label>
+                    <select name="categories" class="form-select">
+                        ${cats.map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small" style="color:var(--text-muted)">ID</label>
+                    <input name="componentIds" type="number" class="form-control" required min="1" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small" style="color:var(--text-muted)">Tên sản phẩm</label>
+                    <input name="productNames" type="text" class="form-control" required maxlength="300" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small" style="color:var(--text-muted)">Giá gốc (đ)</label>
+                    <input name="prices" type="number" class="form-control" required min="0" />
+                </div>
+                <div class="col-md-1 d-flex align-items-end pb-1 justify-content-end">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.tx-card').remove()">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>`;
+        document.getElementById('itemsContainer').appendChild(div);
+    }
+
+    // Start with 2 empty bundle items
+    addBundleItem(); 
+    addBundleItem();
+</script>
+}

@@ -105,3 +105,17 @@ public class AdminOrderRowViewModel
     public DateTime CreatedAt { get; set; }
     public int ItemCount { get; set; }
 }
+
+public class AdminPromotionsViewModel
+{
+    public List<FlashSale> FlashSales { get; set; } = new();
+    public List<Coupon> Coupons { get; set; } = new();
+    public List<Bundle> Bundles { get; set; } = new();
+}
+
+public class AdminCreatePromotionViewModel
+{
+    public string ActiveType { get; set; } = "flashsale";
+    public FlashSale FlashSale { get; set; } = new();
+    public Coupon Coupon { get; set; } = new();
+}

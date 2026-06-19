@@ -227,31 +227,73 @@ public class AdminController : Controller
         return View(records);
     }
 
-    // ── Flash Sales ───────────────────────────────────────────────
+    // ── Promotions (Khuyến mãi) ───────────────────────────────────
 
-    public async Task<IActionResult> FlashSales()
+    [HttpGet]
+    public async Task<IActionResult> Promotions()
     {
-        var sales = await _db.FlashSales.OrderByDescending(f => f.CreatedAt).ToListAsync();
-        return View(sales);
+        var vm = new AdminPromotionsViewModel
+        {
+            FlashSales = await _db.FlashSales.OrderByDescending(f => f.CreatedAt).ToListAsync(),
+            Coupons = await _db.Coupons.OrderByDescending(c => c.CreatedAt).ToListAsync(),
+            Bundles = await _db.Bundles.Include(b => b.Items).OrderByDescending(b => b.CreatedAt).ToListAsync()
+        };
+        return View(vm);
     }
 
     [HttpGet]
-    public IActionResult CreateFlashSale() => View(new FlashSale
+    public IActionResult CreatePromotion(string? type)
     {
-        StartsAt = DateTime.UtcNow,
-        EndsAt   = DateTime.UtcNow.AddHours(24),
-    });
+        var vm = new AdminCreatePromotionViewModel
+        {
+            ActiveType = type?.ToLower() switch
+            {
+                "coupon" => "coupon",
+                "bundle" => "bundle",
+                _ => "flashsale"
+            },
+            FlashSale = new FlashSale
+            {
+                StartsAt = DateTime.UtcNow,
+                EndsAt = DateTime.UtcNow.AddHours(24),
+            },
+            Coupon = new Coupon()
+        };
+        return View(vm);
+    }
+
+    // Redirect old action methods
+    public IActionResult FlashSales() => RedirectToAction(nameof(Promotions));
+    public IActionResult Coupons() => RedirectToAction(nameof(Promotions));
+    public IActionResult Bundles() => RedirectToAction(nameof(Promotions));
+
+    [HttpGet]
+    public IActionResult CreateFlashSale() => Redirect("/Admin/CreatePromotion?type=flashsale");
+    [HttpGet]
+    public IActionResult CreateCoupon() => Redirect("/Admin/CreatePromotion?type=coupon");
+    [HttpGet]
+    public IActionResult CreateBundle() => Redirect("/Admin/CreatePromotion?type=bundle");
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateFlashSale(FlashSale model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            var vm = new AdminCreatePromotionViewModel
+            {
+                ActiveType = "flashsale",
+                FlashSale = model,
+                Coupon = new Coupon()
+            };
+            return View("CreatePromotion", vm);
+        }
         model.StartsAt = DateTime.SpecifyKind(model.StartsAt, DateTimeKind.Utc);
         model.EndsAt   = DateTime.SpecifyKind(model.EndsAt,   DateTimeKind.Utc);
         model.SalePrice = Math.Round(model.OriginalPrice * (1 - model.DiscountPercent / 100m), 0);
         _db.FlashSales.Add(model);
         await _db.SaveChangesAsync();
-        return RedirectToAction(nameof(FlashSales));
+        TempData["Success"] = "Đã tạo flash sale thành công.";
+        return RedirectToAction(nameof(Promotions));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -259,7 +301,7 @@ public class AdminController : Controller
     {
         var sale = await _db.FlashSales.FindAsync(id);
         if (sale != null) { sale.IsActive = !sale.IsActive; await _db.SaveChangesAsync(); }
-        return RedirectToAction(nameof(FlashSales));
+        return RedirectToAction(nameof(Promotions));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -267,7 +309,7 @@ public class AdminController : Controller
     {
         var sale = await _db.FlashSales.FindAsync(id);
         if (sale != null) { _db.FlashSales.Remove(sale); await _db.SaveChangesAsync(); }
-        return RedirectToAction(nameof(FlashSales));
+        return RedirectToAction(nameof(Promotions));
     }
 
     // GET /Admin/FlashSalesApi — called by product grid to overlay prices
@@ -287,27 +329,26 @@ public class AdminController : Controller
         return Json(active);
     }
 
-    // ── Coupons ───────────────────────────────────────────────────
-
-    public async Task<IActionResult> Coupons()
-    {
-        var coupons = await _db.Coupons.OrderByDescending(c => c.CreatedAt).ToListAsync();
-        return View(coupons);
-    }
-
-    [HttpGet]
-    public IActionResult CreateCoupon() => View(new Coupon());
-
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateCoupon(Coupon model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            var vm = new AdminCreatePromotionViewModel
+            {
+                ActiveType = "coupon",
+                FlashSale = new FlashSale { StartsAt = DateTime.UtcNow, EndsAt = DateTime.UtcNow.AddHours(24) },
+                Coupon = model
+            };
+            return View("CreatePromotion", vm);
+        }
         model.Code = model.Code.Trim().ToUpperInvariant();
         if (model.StartsAt.HasValue)  model.StartsAt  = DateTime.SpecifyKind(model.StartsAt.Value,  DateTimeKind.Utc);
         if (model.ExpiresAt.HasValue) model.ExpiresAt = DateTime.SpecifyKind(model.ExpiresAt.Value, DateTimeKind.Utc);
         _db.Coupons.Add(model);
         await _db.SaveChangesAsync();
-        return RedirectToAction(nameof(Coupons));
+        TempData["Success"] = "Đã tạo coupon thành công.";
+        return RedirectToAction(nameof(Promotions));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -315,7 +356,7 @@ public class AdminController : Controller
     {
         var coupon = await _db.Coupons.FindAsync(id);
         if (coupon != null) { coupon.IsActive = !coupon.IsActive; await _db.SaveChangesAsync(); }
-        return RedirectToAction(nameof(Coupons));
+        return RedirectToAction(nameof(Promotions));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -323,20 +364,8 @@ public class AdminController : Controller
     {
         var coupon = await _db.Coupons.FindAsync(id);
         if (coupon != null) { _db.Coupons.Remove(coupon); await _db.SaveChangesAsync(); }
-        return RedirectToAction(nameof(Coupons));
+        return RedirectToAction(nameof(Promotions));
     }
-
-    // ── Bundles ───────────────────────────────────────────────────
-
-    public async Task<IActionResult> Bundles()
-    {
-        var bundles = await _db.Bundles.Include(b => b.Items)
-            .OrderByDescending(b => b.CreatedAt).ToListAsync();
-        return View(bundles);
-    }
-
-    [HttpGet]
-    public IActionResult CreateBundle() => View();
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateBundle(
@@ -344,7 +373,7 @@ public class AdminController : Controller
         string[] categories, int[] componentIds, string[] productNames, decimal[] prices)
     {
         if (string.IsNullOrWhiteSpace(name) || componentIds.Length == 0)
-            return RedirectToAction(nameof(Bundles));
+            return RedirectToAction(nameof(Promotions));
 
         var bundle = new Bundle
         {
@@ -362,7 +391,8 @@ public class AdminController : Controller
         }
         _db.Bundles.Add(bundle);
         await _db.SaveChangesAsync();
-        return RedirectToAction(nameof(Bundles));
+        TempData["Success"] = "Đã tạo combo/bundle thành công.";
+        return RedirectToAction(nameof(Promotions));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -370,7 +400,7 @@ public class AdminController : Controller
     {
         var b = await _db.Bundles.FindAsync(id);
         if (b != null) { b.IsActive = !b.IsActive; await _db.SaveChangesAsync(); }
-        return RedirectToAction(nameof(Bundles));
+        return RedirectToAction(nameof(Promotions));
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -378,7 +408,7 @@ public class AdminController : Controller
     {
         var b = await _db.Bundles.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == id);
         if (b != null) { _db.Bundles.Remove(b); await _db.SaveChangesAsync(); }
-        return RedirectToAction(nameof(Bundles));
+        return RedirectToAction(nameof(Promotions));
     }
 
     // GET /Admin/BundlesApi — public JSON for cart to check matches

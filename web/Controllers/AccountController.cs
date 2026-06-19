@@ -320,6 +320,11 @@ public class AccountController : Controller
         var resetLink = Url.Action(nameof(ResetPassword), "Account",
             new { email = model.Email, token }, Request.Scheme)!;
 
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        {
+            TempData["ResetLink"] = resetLink;
+        }
+
         try
         {
             await _emailSender.SendEmailAsync(

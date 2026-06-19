@@ -361,7 +361,7 @@
 </div>
 
 <!-- Live chat (Zalo + Messenger) -->
-<div style="position:fixed;right:20px;bottom:88px;z-index:1100;display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+<div id="liveChatWidget" style="position:fixed;right:20px;bottom:88px;z-index:1100;display:flex;flex-direction:column;gap:10px;align-items:flex-end">
     <a href="https://zalo.me/0354567080" target="_blank" rel="noopener" title="Chat Zalo"
        style="width:48px;height:48px;border-radius:50%;background:#0068FF;display:flex;align-items:center;justify-content:center;
               box-shadow:0 4px 18px rgba(0,104,255,.55);text-decoration:none;transition:transform .2s"
@@ -493,17 +493,33 @@ document.addEventListener('DOMContentLoaded', function () {
         drawer.classList.add('open');
         backdrop.classList.add('show');
         document.body.style.overflow = 'hidden';
-        // Hide the floating chat button so it doesn't overlap the drawer's checkout CTA
+        
+        // Hide the floating chatbot toggle button
         var chatBtn = document.getElementById('chatToggle');
-        if (chatBtn) chatBtn.style.display = 'none';
+        if (chatBtn) chatBtn.style.setProperty('display', 'none', 'important');
+        
+        // Hide Zalo + Messenger floating buttons
+        var liveChat = document.getElementById('liveChatWidget');
+        if (liveChat) liveChat.style.display = 'none';
+        
+        // Close the AI chat panel if it is open
+        var chatPanel = document.getElementById('chatPanel');
+        if (chatPanel && chatPanel.style.display === 'flex') {
+            if (typeof toggleChat === 'function') toggleChat();
+        }
+        
         loadDrawer();
     }
     function closeDrawer() {
         drawer.classList.remove('open');
         backdrop.classList.remove('show');
         document.body.style.overflow = '';
+        
         var chatBtn = document.getElementById('chatToggle');
-        if (chatBtn) chatBtn.style.display = '';
+        if (chatBtn) chatBtn.style.removeProperty('display');
+        
+        var liveChat = document.getElementById('liveChatWidget');
+        if (liveChat) liveChat.style.display = 'flex';
     }
     openBtn.addEventListener('click', openDrawer);
     closeBtn.addEventListener('click', closeDrawer);
@@ -541,7 +557,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (sub) sub.textContent = fmt(data.subtotal || 0);
         if (tot) tot.textContent = fmt(data.total || 0);
     }
-    window.invalidateDrawer = function() {};
+    window.loadCartDrawer = loadDrawer;
+    window.invalidateDrawer = loadDrawer;
 })();
 
 // ── Auto-hide header on scroll down ──────────────────────────────────────────
@@ -774,13 +791,33 @@ function showInstallment(price, productName) {
     setTimeout(function() { show(); setInterval(show, 32000 + Math.random() * 15000); }, 15000);
 })();
 
-// ── Cart count on load ────────────────────────────────────────────────────────
+// ── Cart count on load & visibility change ────────────────────────────────────
 @if (User.Identity?.IsAuthenticated == true)
 {
     <text>
     (function() {
-        fetch('/Cart/Count').then(function(r) { return r.ok ? r.json() : null; })
-            .then(function(d) { if (d && d.count > 0) updateCartBadge(d.count); }).catch(function(){});
+        function refreshCart() {
+            fetch('/Cart/Count')
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(d) { if (d) updateCartBadge(d.count); })
+                .catch(function(){});
+            
+            var drawer = document.getElementById('cartDrawer');
+            if (drawer && drawer.classList.contains('open') && typeof window.loadCartDrawer === 'function') {
+                window.loadCartDrawer();
+            }
+        }
+
+        // Initial load
+        refreshCart();
+
+        // Listen for visibility and focus changes to auto-sync tabs
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                refreshCart();
+            }
+        });
+        window.addEventListener('focus', refreshCart);
     })();
     </text>
 }

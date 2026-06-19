@@ -505,6 +505,12 @@ img { max-width: 100%; display: block; }
 .cart-drawer > footer .total span,
 .cart-drawer > footer .total strong { color: var(--text); }
 
+/* Hide chatbot and live chat widgets when cart drawer is open */
+.cart-drawer.open ~ #chatToggle,
+.cart-drawer.open ~ #liveChatWidget {
+    display: none !important;
+}
+
 /* Legacy mini-cart (keep for transitions) */
 .mini-cart-wrapper { position: relative; }
 .cart-icon-link {
@@ -1565,6 +1571,22 @@ input[type="radio"], input[type="checkbox"], .form-check-input { accent-color: v
     background: rgba(236,72,153,.1);
     color: #9d174d !important;
     border-color: rgba(236,72,153,.3);
+}
+
+.flash-sale-price {
+    color: #fca5a5;
+}
+[data-theme="light"] .flash-sale-price {
+    color: #dc2626 !important;
+}
+
+[data-theme="light"] .glass.text-white,
+[data-theme="light"] .glass-sm.text-white,
+[data-theme="light"] .btn.glass.text-white,
+[data-theme="light"] .btn.glass-sm.text-white,
+[data-theme="light"] a.btn.glass.text-white,
+[data-theme="light"] a.btn.glass-sm.text-white {
+    color: var(--text) !important;
 }
 
 /* Light-coloured text classes */
