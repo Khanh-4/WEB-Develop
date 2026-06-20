@@ -37,3 +37,11 @@ TEST_TAY/
 Lỗi/
 # Junk dirs created by chrome-devtools/lighthouse MCP writing Windows paths on WSL
 C:\\Users\\ADMIN\\AppData\\Local\\lighthouse.*
+
+# Documents, reports and diagrams
+Báo Cáo Lập Trình WEB.pdf
+Diagrams/
+VideoDemo.md
+VietBaoCao/*
+!VietBaoCao/database_schema.sql
+
